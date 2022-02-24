@@ -1,4 +1,5 @@
 import pandas as pd
+import plotly.express as px
 
 class Reader:
     
@@ -16,4 +17,9 @@ if __name__ == '__main__':
 
     aapl = Reader('AAPL').get_dataset()
 
-    print(aapl)
+    fig = px.line(
+        x = aapl["Date"],
+        y = aapl["Volume"]
+    )
+
+    fig.show()
