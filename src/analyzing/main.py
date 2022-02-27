@@ -22,13 +22,6 @@ if __name__ == '__main__':
 
     aapl = Reader('AAPL').get_dataset()
 
-    #fig = px.line(
-    #    x = aapl["Date"],
-    #    y = aapl["Close"]
-    #)
-
-    #fig.show()
-
     fig = go.Figure(go.Candlestick(
         x = aapl.Date,
         open = aapl.Open,
