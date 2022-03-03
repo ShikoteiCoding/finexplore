@@ -10,4 +10,3 @@ if __name__ == '__main__':
     # Loading Env Variables
     ALPACA_USER = os.getenv('ALPACA_USER')
     ALPACA_PWD  = os.getenv('ALPACA_PWD')
-

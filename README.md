@@ -4,7 +4,9 @@
 Understanding finance stock market through data. Better understand investment and dive into trading. Explore Machine Learning opportunities and different long-lasting strategy while trying some innovations.
 
 **Projects Overview**:
-- Trading: Alerting and daily market recap system
+- Trading: 
+    - Alerting and daily market recap system
+    - Automation buy / sell stocks with different style (day / swing)
 - Investing: Identify Company with good forecast
 - Exploration: Build dashboard to visualize stock market data
 
@@ -19,6 +21,8 @@ Understanding finance stock market through data. Better understand investment an
 - Pandas
 - Plotly
 - Dash (To come)
+- Airflow
+- Yahoo Finance
 
 **Installation**
 - Virtual Environment Setup
@@ -37,4 +41,6 @@ Understanding finance stock market through data. Better understand investment an
     pip3 install pandas
     pip3 install plotly
     pip3 install apache-airflow
+    pip3 install python-dotenv
+    pip3 install yfinance
     ```

@@ -15,6 +15,7 @@ This part of the project is comprised of various jupyter notebooks and thus is b
     ```
     jupyter notebook
     ```
+5. It is possible to make the ipython kernel directly in vscode. I have no idea how though.
 
 ## How to
 - *I want to create a jupyter notebook to work on a specific exploration.*
