@@ -2,6 +2,9 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 import yfinance
+from functools import partial
+
+from rule import *
 
 if __name__ == '__main__':
     # Running the env file
