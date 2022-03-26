@@ -2,7 +2,9 @@
 #   Fake API connection to make strategy pattern simulation
 #   Modify to make it work
 ##
+
 import functools
+import alpaca_trade_api as alpaca
 from data.fake_price_data import CRYPTO_DATA
 
 class BrokerConnectionError(Exception):
@@ -12,6 +14,7 @@ class Broker:
     def __init__(self) -> None:
         self.connected = False
 
+    
     def connect(self) -> None:
         """Connect to the exchange."""
         print("Connecting to Crypto exchange...")
@@ -36,3 +39,14 @@ class Broker:
         """Simulate selling an amount of a given symbol at the current price."""
         self.check_connection()
         print(f"Selling amount {amount} in market {symbol}.")
+
+
+class AlpacaBroker(Broker):
+    """ Alpaca API Connector. Behavioral class. """
+
+    def __init__(self, key_id, secret_key):
+        self.key_id = key_id
+        self.secret_key = secret_key
+
+    def connect(self) -> None:
+        print("Sucessfully connected")

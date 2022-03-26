@@ -53,4 +53,5 @@ Understanding finance stock market through data. Better understand investment an
     pip3 install apache-airflow
     pip3 install python-dotenv
     pip3 install yfinance
+    pip3 install alpaca_trade_api
     ```

@@ -1,19 +1,14 @@
 from dotenv import load_dotenv
 from pathlib import Path
 import os
-import yfinance
 from functools import partial
 
 from rule import *
 from strategy import *
 
-def main() -> None:
-    # Running the env file
-    load_dotenv(dotenv_path = 'setup.env')
+from broker import AlpacaBroker
 
-    # Loading Env Variables (pure demo)
-    ALPACA_USER = os.getenv('ALPACA_USER')
-    ALPACA_PWD  = os.getenv('ALPACA_PWD')
+def example() -> None:
 
     # Connection to broker
     broker = Broker()
@@ -26,5 +21,16 @@ def main() -> None:
     strategy = RuleBasedStrategy(broker, buy_strategy, sell_strategy)
     strategy.run("BTC/USD")
 
+def alpaca_test() -> None:
+    # Running the env file
+    load_dotenv(dotenv_path = 'setup.env')
+
+    # Loading Env Variables (pure demo)
+    ALPACA_PAPER_KEY_ID = os.getenv('ALPACA_PAPER_KEY_ID')
+    ALPACA_PAPER_SECRET_KEY  = os.getenv('ALPACA_PAPER_SECRET_KEY')
+
+    alpaca_broker = AlpacaBroker(ALPACA_PAPER_KEY_ID, ALPACA_PAPER_SECRET_KEY)
+    alpaca_broker.connect()
+
 if __name__ == '__main__':
-    main()
+    alpaca_test()
