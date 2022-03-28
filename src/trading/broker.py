@@ -6,13 +6,20 @@
 import functools
 import alpaca_trade_api as tradeapi
 from data.fake_price_data import CRYPTO_DATA
-import logging
 
 from typing import Protocol
 
+from requests.sessions import Session
+
+##
+#   Errors
+##
 class BrokerConnectionError(Exception):
     pass
 
+##
+#   Protocols (Functional Interfaces)
+##
 class Broker(Protocol):
     """ Broker protocol that declares connection and trading related methods. """
     def connect(self) -> None:
@@ -33,6 +40,9 @@ class MarketData(Protocol):
         ...
 
 
+##
+#   Actual Brokers
+##
 class DemoBroker:
     def __init__(self) -> None:
         self.connected = False
@@ -66,14 +76,29 @@ class DemoBroker:
 class AlpacaBroker:
     """ Alpaca API Connector. Behavioral class. """
 
+    def __init__(self, key_id: str, secret_key: str, base_url: str):
+        self.key_id = key_id
+        self.secret_key = secret_key
+        self.base_url = base_url
+
     def connect(self) -> None:
-        self.connection = tradeapi.REST()
-        logging.info("Successfull connection")
+        """ Connect to Alpaca API. Unfortunately, no response at this step. """
+        self.connection = tradeapi.REST(
+            key_id = self.key_id,
+            secret_key = self.secret_key,
+            base_url = self.base_url,
+            api_version = "v2",
+            oauth = None,
+            raw_data = False
+        )
+        print("REST API parameters are set. Check connection to verify.")
     
     def check_connection(self) -> None:
+        """ Checking if connection is established by looking into account. """
         res = self.connection.get_account()
         if not res:
-            raise BrokerConnectionError("Not able to connect")
+            raise BrokerConnectionError("Not able to connect.")
+        print("Connection success.")
 
     def buy(self) -> None:
         pass

@@ -22,11 +22,18 @@ def example() -> None:
     strategy.run("BTC/USD")
 
 def alpaca_test() -> None:
-    # Running the env file
-    load_dotenv(dotenv_path = 'alpaca-paper.env')
+    # Running the env file. Can become docker environment variable (env file ref) later on.
+    load_dotenv(dotenv_path = "alpaca-paper.env")
 
-    # No need to pass parameters as alpaca api will call environment variable for us
-    alpaca_broker = AlpacaBroker()
+    key_id = str(os.getenv("APCA_API_KEY_ID"))
+    secret_key = str(os.getenv("APCA_API_SECRET_KEY"))
+    base_url = str(os.getenv("APCA_API_BASE_URL"))
+
+    alpaca_broker = AlpacaBroker(
+        key_id = key_id,
+        secret_key = secret_key,
+        base_url = base_url
+    )
     alpaca_broker.connect()
     alpaca_broker.check_connection()
 
