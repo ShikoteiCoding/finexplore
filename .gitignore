@@ -1,4 +1,5 @@
 src/exploration/setup.env
 src/investing/setup.env
-src/trading/setup.env
+src/trading/alpaca.env
+src/trading/alpaca-paper.env
 **/__pycache__/**

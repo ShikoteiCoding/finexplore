@@ -23,14 +23,12 @@ def example() -> None:
 
 def alpaca_test() -> None:
     # Running the env file
-    load_dotenv(dotenv_path = 'setup.env')
+    load_dotenv(dotenv_path = 'alpaca-paper.env')
 
-    # Loading Env Variables (pure demo)
-    ALPACA_PAPER_KEY_ID = os.getenv('ALPACA_PAPER_KEY_ID')
-    ALPACA_PAPER_SECRET_KEY  = os.getenv('ALPACA_PAPER_SECRET_KEY')
-
-    alpaca_broker = AlpacaBroker(ALPACA_PAPER_KEY_ID, ALPACA_PAPER_SECRET_KEY)
+    # No need to pass parameters as alpaca api will call environment variable for us
+    alpaca_broker = AlpacaBroker()
     alpaca_broker.connect()
+    alpaca_broker.check_connection()
 
 if __name__ == '__main__':
     alpaca_test()

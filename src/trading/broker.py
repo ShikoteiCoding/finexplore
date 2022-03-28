@@ -4,8 +4,9 @@
 ##
 
 import functools
-import alpaca_trade_api as alpaca
+import alpaca_trade_api as tradeapi
 from data.fake_price_data import CRYPTO_DATA
+import logging
 
 from typing import Protocol
 
@@ -65,9 +66,20 @@ class DemoBroker:
 class AlpacaBroker:
     """ Alpaca API Connector. Behavioral class. """
 
-    def __init__(self, key_id, secret_key):
-        self.key_id = key_id
-        self.secret_key = secret_key
-
     def connect(self) -> None:
-        print("Sucessfully connected")
+        self.connection = tradeapi.REST()
+        logging.info("Successfull connection")
+    
+    def check_connection(self) -> None:
+        res = self.connection.get_account()
+        if not res:
+            raise BrokerConnectionError("Not able to connect")
+
+    def buy(self) -> None:
+        pass
+
+    def sell(self) -> None:
+        pass
+
+    def get_market_data(self) -> None: 
+        pass
