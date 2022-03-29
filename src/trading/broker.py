@@ -18,7 +18,8 @@ class BrokerConnectionError(Exception):
     pass
 
 ##
-#   Protocols (Functional Interfaces)
+#   Protocols (Functional Interfaces) 
+#   Ultimately not to be declared here but where it is used to avoid conflicts
 ##
 class Broker(Protocol):
     """ Broker protocol that declares connection and trading related methods. """
@@ -27,7 +28,9 @@ class Broker(Protocol):
     
     def check_connection(self) -> None:
         ...
-    
+
+class Automate(Protocol):
+    """ Automate protocol that declares method for a bot to buy and sell. """
     def buy(self, symbol: str, amount: int) -> None:
         ...
 
