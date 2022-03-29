@@ -19,7 +19,7 @@ from broker import MarketData, Broker, Automate
 class DemoRuleBasedStrategy:
     """Trading bot that connects to a crypto broker and performs trades."""
 
-    broker: Union[Broker, Automate, MarketData]
+    broker: Union[Broker, Automate, MarketData] # not sure about that ?
     buy_strategy: TradingStrategyRule
     sell_strategy: TradingStrategyRule
 
