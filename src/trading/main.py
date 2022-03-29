@@ -6,19 +6,19 @@ from functools import partial
 from rule import *
 from strategy import *
 
-from broker import AlpacaBroker
+from broker import AlpacaBroker, DemoBroker
 
 def example() -> None:
 
     # Connection to broker
-    broker = Broker()
+    broker = DemoBroker()
     broker.connect()
 
     # Strategy values
     buy_strategy = partial(should_buy_avg, window_size=30)
-    sell_strategy = partial(should_sell_avg, window_size=200)
+    sell_strategy = partial(should_sell_minmax, min_price=38_000)
 
-    strategy = RuleBasedStrategy(broker, buy_strategy, sell_strategy)
+    strategy = DemoRuleBasedStrategy(broker, buy_strategy, sell_strategy)
     strategy.run("BTC/USD")
 
 def alpaca_test() -> None:
@@ -38,4 +38,5 @@ def alpaca_test() -> None:
     alpaca_broker.check_connection()
 
 if __name__ == '__main__':
+    example()
     alpaca_test()

@@ -46,7 +46,7 @@ class MarketData(Protocol):
 ##
 #   Actual Brokers
 ##
-class DemoBroker:
+class DemoBroker(Broker, Automate, MarketData):
     def __init__(self) -> None:
         self.connected = False
     
@@ -76,7 +76,7 @@ class DemoBroker:
         print(f"Selling amount {amount} in market {symbol}.")
 
 
-class AlpacaBroker:
+class AlpacaBroker(Broker, Automate, MarketData):
     """ Alpaca API Connector. Behavioral class. """
 
     def __init__(self, key_id: str, secret_key: str, base_url: str):

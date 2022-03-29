@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
-from broker import Broker
+from typing import Union
+
 from rule import *
+from broker import MarketData, Broker, Automate
 
 ##
 #   Listing strategies for bots.
@@ -14,10 +16,10 @@ from rule import *
 ##
 
 @dataclass
-class RuleBasedStrategy:
+class DemoRuleBasedStrategy:
     """Trading bot that connects to a crypto broker and performs trades."""
 
-    broker: Broker
+    broker: Union[Broker, Automate, MarketData]
     buy_strategy: TradingStrategyRule
     sell_strategy: TradingStrategyRule
 
