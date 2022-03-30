@@ -7,40 +7,11 @@ import functools
 import alpaca_trade_api as tradeapi
 from data.fake_price_data import CRYPTO_DATA
 
-from typing import Protocol
-
-from requests.sessions import Session
-
 ##
 #   Errors
 ##
 class BrokerConnectionError(Exception):
     pass
-
-##
-#   Protocols (Functional Interfaces) 
-#   Ultimately not to be declared here but where it is used to avoid conflicts
-##
-class Broker(Protocol):
-    """ Broker protocol that declares connection and trading related methods. """
-    def connect(self) -> None:
-        ...
-    
-    def check_connection(self) -> None:
-        ...
-
-class Automate(Protocol):
-    """ Automate protocol that declares method for a bot to buy and sell. """
-    def buy(self, symbol: str, amount: int) -> None:
-        ...
-
-    def sell(self, sumbol: str, amount: int) -> None:
-        ...
-
-class MarketData(Protocol):
-    """ Market data protocol that declares method to fetch data. """
-    def get_market_data(self, symbol: str) -> list[int]:
-        ...
 
 
 ##

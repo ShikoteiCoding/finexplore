@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 
-from typing import Union
+from typing import Union, Protocol
 
 from rule import *
-from broker import MarketData, Broker, Automate
 
 ##
 #   Listing strategies for bots.
@@ -14,6 +13,31 @@ from broker import MarketData, Broker, Automate
 #   5 - Scalping strategy
 #   6 - Position (long term) strategy
 ##
+
+##
+#   Protocols (Functional Interfaces) 
+#   Ultimately not to be declared here but where it is used to avoid conflicts
+##
+class Broker(Protocol):
+    """ Broker protocol that declares connection and trading related methods. """
+    def connect(self) -> None:
+        ...
+    
+    def check_connection(self) -> None:
+        ...
+
+class Automate(Protocol):
+    """ Automate protocol that declares method for a bot to buy and sell. """
+    def buy(self, symbol: str, amount: int) -> None:
+        ...
+
+    def sell(self, sumbol: str, amount: int) -> None:
+        ...
+
+class MarketData(Protocol):
+    """ Market data protocol that declares method to fetch data. """
+    def get_market_data(self, symbol: str) -> list[int]:
+        ...
 
 @dataclass
 class DemoRuleBasedStrategy:
