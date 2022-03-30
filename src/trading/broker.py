@@ -5,7 +5,20 @@
 
 import functools
 import alpaca_trade_api as tradeapi
+
+from datetime import datetime
 from data.fake_price_data import CRYPTO_DATA
+
+
+##
+# Type Aliases
+##
+TransactionTime = datetime
+TransactionAmount = int
+Symbol = str
+Transaction = list[TransactionTime, TransactionAmount, Symbol]
+TransactionHistory = list[Transaction]
+Prices = list[int]
 
 ##
 #   Errors
@@ -13,11 +26,11 @@ from data.fake_price_data import CRYPTO_DATA
 class BrokerConnectionError(Exception):
     pass
 
-
 ##
 #   Actual Brokers
 ##
 class DemoBroker:
+    """ Demo Broker. """
     def __init__(self) -> None:
         self.connected = False
     
@@ -46,6 +59,24 @@ class DemoBroker:
         self.check_connection()
         print(f"Selling amount {amount} in market {symbol}.")
 
+class BackTestBroker:
+    """ Backtesting Broker to log transactions. """
+    def __init__(self) -> None:
+        # Obviously to switch to Numpy, it is bad now
+        # Make it a full dataclass specifically in charge of the data management
+        self.transaction_history: TransactionHistory = None
+
+    def buy(self, symbol: str, amount: int) -> None:
+        """Simulate buying an amount of a given symbol at the current price."""
+        print(f"Buying amount {amount} in market {symbol}.")
+
+    def sell(self, symbol: str, amount: int) -> None:
+        """Simulate selling an amount of a given symbol at the current price."""
+        print(f"Selling amount {amount} in market {symbol}.")
+
+    def get_transactions(self) -> TransactionHistory:
+        """ Get Transaction History. """
+        return self.transaction_history
 
 class AlpacaBroker:
     """ Alpaca API Connector. Behavioral class. """
@@ -80,5 +111,11 @@ class AlpacaBroker:
     def sell(self) -> None:
         pass
 
-    def get_market_data(self) -> None: 
+    def get_market_data(self, symbol: str) -> Prices: 
+        pass
+
+class YFinance:
+    """ Get Market Data from Yahoo Finance. """
+
+    def get_market_data(self, symbol: str) -> Prices:
         pass

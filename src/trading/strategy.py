@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from typing import Union, Protocol
+from typing import Union, Protocol, Callable
 
-from rule import *
+from rule import TradingStrategyRule
 
 ##
 #   Listing strategies for bots.
@@ -49,6 +49,24 @@ class DemoRuleBasedStrategy:
 
     def run(self, symbol: str) -> None:
         prices = self.broker.get_market_data(symbol)
+        if self.buy_strategy(prices):
+            self.broker.buy(symbol, 10)
+        elif self.sell_strategy(prices):
+            self.broker.sell(symbol, 10)
+        else:
+            print(f"No action needed for {symbol}.")
+
+@dataclass
+class TestRuleBasedStrategy:
+    """Trading bot that connects to a crypto broker and performs trades."""
+
+    broker: Union[Broker, Automate, MarketData] # not sure about that ?
+    buy_strategy: TradingStrategyRule
+    sell_strategy: TradingStrategyRule
+    market_data: MarketData
+
+    def run(self, symbol: str) -> None:
+        prices = self.market_data.get_market_data(symbol)
         if self.buy_strategy(prices):
             self.broker.buy(symbol, 10)
         elif self.sell_strategy(prices):
