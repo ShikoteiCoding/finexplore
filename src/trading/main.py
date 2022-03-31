@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-from pathlib import Path
 import os
 from functools import partial
 
@@ -11,14 +10,19 @@ from broker import AlpacaBroker, DemoBroker, YFinance
 def example() -> None:
 
     # Connection to broker
-    broker = DemoBroker()
-    broker.connect()
+    demo_broker = DemoBroker()
+    demo_broker.connect()
 
     # Strategy values
     buy_strategy = partial(should_buy_avg, window_size=30)
     sell_strategy = partial(should_sell_minmax, min_price=38_000)
 
-    strategy = DemoRuleBasedStrategy(broker, buy_strategy, sell_strategy)
+    strategy = DemoRuleBasedStrategy(
+        broker = demo_broker,
+        automate = demo_broker,
+        marketdata = demo_broker,
+        buy_strategy = buy_strategy,
+        sell_strategy = sell_strategy)
     strategy.run("BTC/USD")
 
 def alpaca_test() -> None:
@@ -49,9 +53,10 @@ def test_rule() -> None:
     buy_strategy = partial(should_buy_avg, window_size=30)
     sell_strategy = partial(should_sell_minmax, min_price=38_000)
 
-    strategy = DemoRuleBasedStrategy(broker, buy_strategy, sell_strategy)
+    strategy = DemoRuleBasedStrategy(broker, broker, broker, buy_strategy, sell_strategy)
     strategy.run("BTC/USD")
 
+    print(yfinance)
 
 
 if __name__ == '__main__':

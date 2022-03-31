@@ -2,23 +2,11 @@
 #   Fake API connection to make strategy pattern simulation
 #   Modify to make it work
 ##
+from dataclasses import dataclass
+from alpaca_trade_api.common import URL
+from alpaca_trade_api.rest import REST
 
-import functools
-import alpaca_trade_api as tradeapi
-
-from datetime import datetime
 from data.fake_price_data import CRYPTO_DATA
-
-
-##
-# Type Aliases
-##
-TransactionTime = datetime
-TransactionAmount = int
-Symbol = str
-Transaction = list[TransactionTime, TransactionAmount, Symbol]
-TransactionHistory = list[Transaction]
-Prices = list[int]
 
 ##
 #   Errors
@@ -59,12 +47,11 @@ class DemoBroker:
         self.check_connection()
         print(f"Selling amount {amount} in market {symbol}.")
 
+@dataclass
 class BackTestBroker:
     """ Backtesting Broker to log transactions. """
-    def __init__(self) -> None:
-        # Obviously to switch to Numpy, it is bad now
-        # Make it a full dataclass specifically in charge of the data management
-        self.transaction_history: TransactionHistory = None
+    
+    transaction_history: list[int]
 
     def buy(self, symbol: str, amount: int) -> None:
         """Simulate buying an amount of a given symbol at the current price."""
@@ -74,24 +61,24 @@ class BackTestBroker:
         """Simulate selling an amount of a given symbol at the current price."""
         print(f"Selling amount {amount} in market {symbol}.")
 
-    def get_transactions(self) -> TransactionHistory:
+    def get_transactions(self) -> list[int]:
         """ Get Transaction History. """
         return self.transaction_history
 
+@dataclass
 class AlpacaBroker:
     """ Alpaca API Connector. Behavioral class. """
-
-    def __init__(self, key_id: str, secret_key: str, base_url: str):
-        self.key_id = key_id
-        self.secret_key = secret_key
-        self.base_url = base_url
+    
+    key_id: str
+    secret_key: str
+    base_url: str
 
     def connect(self) -> None:
         """ Connect to Alpaca API. Unfortunately, no response at this step. """
-        self.connection = tradeapi.REST(
+        self.connection = REST(
             key_id = self.key_id,
             secret_key = self.secret_key,
-            base_url = self.base_url,
+            base_url = URL(self.base_url),
             api_version = "v2",
             oauth = None,
             raw_data = False
@@ -111,11 +98,11 @@ class AlpacaBroker:
     def sell(self) -> None:
         pass
 
-    def get_market_data(self, symbol: str) -> Prices: 
+    def get_market_data(self, symbol: str) -> None: 
         pass
 
 class YFinance:
     """ Get Market Data from Yahoo Finance. """
 
-    def get_market_data(self, symbol: str) -> Prices:
+    def get_market_data(self, symbol: str) -> None:
         pass

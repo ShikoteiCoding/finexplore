@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from typing import Union, Protocol, Callable
+from typing import Protocol
 
 from rule import TradingStrategyRule
 
@@ -31,7 +31,7 @@ class Automate(Protocol):
     def buy(self, symbol: str, amount: int) -> None:
         ...
 
-    def sell(self, sumbol: str, amount: int) -> None:
+    def sell(self, symbol: str, amount: int) -> None:
         ...
 
 class MarketData(Protocol):
@@ -43,16 +43,18 @@ class MarketData(Protocol):
 class DemoRuleBasedStrategy:
     """Trading bot that connects to a crypto broker and performs trades."""
 
-    broker: Union[Broker, Automate, MarketData] # not sure about that ?
+    broker: Broker
+    automate: Automate
+    marketdata: MarketData
     buy_strategy: TradingStrategyRule
     sell_strategy: TradingStrategyRule
 
     def run(self, symbol: str) -> None:
-        prices = self.broker.get_market_data(symbol)
+        prices = self.marketdata.get_market_data(symbol)
         if self.buy_strategy(prices):
-            self.broker.buy(symbol, 10)
+            self.automate.buy(symbol, 10)
         elif self.sell_strategy(prices):
-            self.broker.sell(symbol, 10)
+            self.automate.sell(symbol, 10)
         else:
             print(f"No action needed for {symbol}.")
 
@@ -60,16 +62,17 @@ class DemoRuleBasedStrategy:
 class TestRuleBasedStrategy:
     """Trading bot that connects to a crypto broker and performs trades."""
 
-    broker: Union[Broker, Automate, MarketData] # not sure about that ?
+    broker: Broker
+    automate: Automate
+    marketdata: MarketData
     buy_strategy: TradingStrategyRule
     sell_strategy: TradingStrategyRule
-    market_data: MarketData
 
     def run(self, symbol: str) -> None:
-        prices = self.market_data.get_market_data(symbol)
+        prices = self.marketdata.get_market_data(symbol)
         if self.buy_strategy(prices):
-            self.broker.buy(symbol, 10)
+            self.automate.buy(symbol, 10)
         elif self.sell_strategy(prices):
-            self.broker.sell(symbol, 10)
+            self.automate.sell(symbol, 10)
         else:
             print(f"No action needed for {symbol}.")
