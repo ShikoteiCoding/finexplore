@@ -13,13 +13,19 @@ CSV_EXT = ".csv"
 class Position:
     
     holding: bool = field(default = False)
-    amount: int = field(default=0)
+    amount: float = field(default=1000)
 
-    def exit(self):
+    def exit(self, amount: float):
+        self.set_amount(amount)
+        print("Entering position with amount: ", self.amount)
         self.holding = False
 
     def enter(self):
+        print("Exiting position with amount: ", self.amount)
         self.holding = True
+
+    def set_amount(self, amount: float):
+        self.amount = amount
 
 # Testing for now
 class Decision(Enum):
@@ -37,13 +43,13 @@ class BackTest:
     _: KW_ONLY
     _from: InitVar[str] = ""
     _to: InitVar[str] = ""
-    _field: InitVar[str] = "Close"
+    _field: str = "Close"
 
     _df: pd.DataFrame = field(repr=False, init=False)
     _position: Position = field(repr=True, default = Position())
 
-    def __post_init__(self, _from: str, _to: str, _field: str):
-        self._df: pd.DataFrame = self.read_stock_data(self.stock_name, _from, _to, _field)
+    def __post_init__(self, _from: str, _to: str):
+        self._df: pd.DataFrame = self.read_stock_data(self.stock_name, _from, _to, self._field)
         # For now let's stock the past data as a numpy array
         self.past_data: np.ndarray = np.empty(shape=1)
 
@@ -80,5 +86,10 @@ class BackTest:
         ##
         for index, row in self._df.iterrows():
             # Past data is appended with current data and provided to the strategy to make decision
-            self.past_data = np.append(self.past_data, row.Close)  
-            self.strategy(self.past_data, self._position)
+            self.past_data = np.append(self.past_data, row[self._field]) # type: ignore
+            decision = self.strategy(self.past_data, self._position)
+
+            if decision == Decision.ENTER:
+                self._position.enter()
+            if decision == Decision.EXIT:
+                self._position.exit(float(row[self._field]))

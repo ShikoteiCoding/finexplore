@@ -71,7 +71,8 @@ def backtest():
         """ Simple crossover function to keep code cleaner. """
         return v1 > v2
 
-    # Shitty simple version
+    # Shitty simple version : do we really need to know the position here ? A signal is a signal
+    # Position logic can be deported in the runnable class TODO: Decide on that
     def sma(data: np.ndarray, position: Position) -> Decision:
         """ Simple Mobile Average Strategy """
         # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)
