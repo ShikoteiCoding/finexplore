@@ -8,7 +8,7 @@ import pandas as pd
 import talib as ta 
 from dotenv import load_dotenv
 
-from backtest import BackTest, Position
+from backtest import BackTest, Position, Decision
 from broker import AlpacaBroker, DemoBroker, YFinance
 from rule import *
 from strategy import *
@@ -72,7 +72,7 @@ def backtest():
         return v1 > v2
 
     # Shitty simple version
-    def sma(data: np.ndarray, position: Position):
+    def sma(data: np.ndarray, position: Position) -> Decision:
         """ Simple Mobile Average Strategy """
         # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)
         
@@ -80,11 +80,10 @@ def backtest():
         ma2 = ta.SMA(data, 20)[-1]  # type: ignore
 
         if not position.holding and crossover(ma1, ma2):
-            position.enter()
-            print("I buy !")
+            return Decision.ENTER
         elif position.holding and crossover(ma2, ma1):
-            position.exit()
-            print("I sell !")
+            return Decision.EXIT
+        return Decision.HOLD
 
     test = BackTest('AAPL', sma, _from = '2020-01-01', _to = '2021-01-01')
 

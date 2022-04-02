@@ -1,4 +1,5 @@
 from dataclasses import KW_ONLY, InitVar, dataclass, field
+from enum import Enum
 import pandas as pd
 import numpy as np
 
@@ -19,6 +20,12 @@ class Position:
 
     def enter(self):
         self.holding = True
+
+# Testing for now
+class Decision(Enum):
+    ENTER = 1
+    HOLD = 0
+    EXIT = -1
 
 @dataclass
 class BackTest:
