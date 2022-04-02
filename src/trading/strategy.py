@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from typing import Protocol
+from typing import Protocol, Callable
 
 from rule import TradingStrategyRule
 

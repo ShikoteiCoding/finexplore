@@ -7,6 +7,10 @@ from strategy import *
 
 from broker import AlpacaBroker, DemoBroker, YFinance
 
+from backtest import BackTest
+
+import pandas as pd
+
 def example() -> None:
 
     # Connection to broker
@@ -58,8 +62,16 @@ def test_rule() -> None:
 
     print(yfinance)
 
+def backtest():
+
+    # Shitty simple version
+    def sma(data: pd.DataFrame, past_data: pd.DataFrame):
+        pass
+
+
+    test = BackTest('AAPL', sma, '2020-01-01', '2021-01-01')
+
+    test.run()
 
 if __name__ == '__main__':
-    #example()
-    #alpaca_test()
-    test_rule()
+    backtest()

@@ -3,3 +3,4 @@ src/investing/setup.env
 src/trading/alpaca.env
 src/trading/alpaca-paper.env
 **/__pycache__/**
+/typings
