@@ -77,8 +77,8 @@ def backtest():
         """ Simple Mobile Average Strategy """
         # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)
         
-        ma1 = ta.SMA(data, 10)[-1]  # type: ignore
-        ma2 = ta.SMA(data, 20)[-1]  # type: ignore
+        ma1 = ta.SMA(data, 20)[-1]  # type: ignore
+        ma2 = ta.SMA(data, 50)[-1]  # type: ignore
 
         if not position.holding and crossover(ma1, ma2):
             return Decision.ENTER
@@ -86,7 +86,7 @@ def backtest():
             return Decision.EXIT
         return Decision.HOLD
 
-    test = BackTest('AAPL', sma, _from = '2020-01-01', _to = '2021-01-01')
+    test = BackTest('MSFT', sma, _from = '2019-01-01', _to = '2022-01-01')
 
     test.run()
 
