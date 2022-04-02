@@ -1,15 +1,18 @@
-from dotenv import load_dotenv
 import os
+from dataclasses import field
 from functools import partial
+from tkinter import N
+import numpy as np
 
+import pandas as pd
+import talib as ta 
+from dotenv import load_dotenv
+
+from backtest import BackTest, Position
+from broker import AlpacaBroker, DemoBroker, YFinance
 from rule import *
 from strategy import *
 
-from broker import AlpacaBroker, DemoBroker, YFinance
-
-from backtest import BackTest
-
-import pandas as pd
 
 def example() -> None:
 
@@ -63,13 +66,27 @@ def test_rule() -> None:
     print(yfinance)
 
 def backtest():
+    # To move away
+    def crossover(v1: int, v2: int) -> bool:
+        """ Simple crossover function to keep code cleaner. """
+        return v1 > v2
 
     # Shitty simple version
-    def sma(data: pd.DataFrame, past_data: pd.DataFrame):
-        pass
+    def sma(data: np.ndarray, position: Position):
+        """ Simple Mobile Average Strategy """
+        # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)
+        
+        ma1 = ta.SMA(data, 10)[-1]  # type: ignore
+        ma2 = ta.SMA(data, 20)[-1]  # type: ignore
 
+        if not position.holding and crossover(ma1, ma2):
+            position.enter()
+            print("I buy !")
+        elif position.holding and crossover(ma2, ma1):
+            position.exit()
+            print("I sell !")
 
-    test = BackTest('AAPL', sma, '2020-01-01', '2021-01-01')
+    test = BackTest('AAPL', sma, _from = '2020-01-01', _to = '2021-01-01')
 
     test.run()
 

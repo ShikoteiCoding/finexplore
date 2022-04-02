@@ -1,3 +1,4 @@
+from dataclasses import KW_ONLY, InitVar, dataclass, field
 import pandas as pd
 import numpy as np
 
@@ -6,14 +7,38 @@ from typing import Callable
 DATA_PATH = "../../data/companies_stock/"
 CSV_EXT = ".csv"
 
+# Testing for now
+@dataclass
+class Position:
+    
+    holding: bool = field(default = False)
+    amount: int = field(default=0)
+
+    def exit(self):
+        self.holding = False
+
+    def enter(self):
+        self.holding = True
+
+@dataclass
 class BackTest:
     """ Backtest Data Generator. """
 
-    def __init__(self, stock_name: str, strategy: Callable, _from: str = "", _to: str = "", _field: str = "Close"):
-        """ Init the object. """
-        self.strategy: Callable = strategy
-        self.df: pd.DataFrame = self.read_stock_data(stock_name, _from, _to, _field)
-        self.past_data: pd.DataFrame = pd.DataFrame()
+    stock_name: str
+    strategy: Callable = field(repr = False)
+    
+    _: KW_ONLY
+    _from: InitVar[str] = ""
+    _to: InitVar[str] = ""
+    _field: InitVar[str] = "Close"
+
+    _df: pd.DataFrame = field(repr=False, init=False)
+    _position: Position = field(repr=True, default = Position())
+
+    def __post_init__(self, _from: str, _to: str, _field: str):
+        self._df: pd.DataFrame = self.read_stock_data(self.stock_name, _from, _to, _field)
+        # For now let's stock the past data as a numpy array
+        self.past_data: np.ndarray = np.empty(shape=1)
 
     def read_stock_data(self, stock_name: str, _from: str = "", _to: str = "", _field: str = "") -> pd.DataFrame:
         """ Read a stock from string name. """
@@ -43,7 +68,10 @@ class BackTest:
         #   Warning : for performance reasons, passing a too big dataframe might lead to over memory contraint
         #   and slow the computation of Indicators. We have to find a way for the "Data Manager" to know the max_size of history
         #   it needs to be provided to the strategy.
+        #
+        #   Advantages : Data can be accessed from a class and strategy can stay a function (TODO: define the callable signature)
         ##
-        for row in self.df.iterrows():
-            self.past_data = pd.concat([self.past_data, pd.Series(row)], axis = 0, ignore_index=False)
-            self.strategy(row, self.past_data)
+        for index, row in self._df.iterrows():
+            # Past data is appended with current data and provided to the strategy to make decision
+            self.past_data = np.append(self.past_data, row.Close)  
+            self.strategy(self.past_data, self._position)
