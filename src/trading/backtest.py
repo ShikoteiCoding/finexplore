@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 
 from typing import Callable
+from stock_data import DatasetReader
 
 DATA_PATH = "../../data/companies_stock/"
 CSV_EXT = ".csv"
@@ -12,35 +13,20 @@ CSV_EXT = ".csv"
 class BackTest:
     """ Backtest Data Generator. """
 
-    stock_name: str
+    stock_data: DatasetReader
     strategy: Callable = field(repr = False)
     
     _: KW_ONLY
-    _from: InitVar[str] = ""
-    _to: InitVar[str] = ""
     _field: str = "Close"
 
     _df: pd.DataFrame = field(repr=False, init=False)
     _position: Position = field(repr=True, default = Position())
 
-    def __post_init__(self, _from: str, _to: str):
-        self._df: pd.DataFrame = self.read_stock_data(self.stock_name, _from, _to, self._field)
+    def __post_init__(self):
+        self._df: pd.DataFrame = pd.DataFrame(self.stock_data()[self._field])
         # For now let's stock the past data as a numpy array
         self.data: np.ndarray = np.empty(shape=1)
-
-    def read_stock_data(self, stock_name: str, _from: str = "", _to: str = "", _field: str = "") -> pd.DataFrame:
-        """ Read a stock from string name. Purely Utils for Backtest runner. """
-        df = pd.read_csv(DATA_PATH + stock_name + CSV_EXT)
-        df.index = df.Date
-
-        if not _from and not _to:
-            return  pd.DataFrame(df[_field])
-
-        if not _to:
-            return pd.DataFrame(df[(df.Date > _from)][_field])
-
-        return pd.DataFrame(df[(df.Date > _from) & (df.Date <= _to)][_field])
-        
+    
 
     def run(self):
         """ Run the script iteratively.  """

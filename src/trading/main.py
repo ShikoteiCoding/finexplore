@@ -13,6 +13,8 @@ from broker import AlpacaBroker, YFinance
 from rule import *
 from strategy import *
 
+from stock_data import MSFT, AAPL, IBM
+
 
 def alpaca_test() -> None:
     # Running the env file. Can become docker environment variable (env file ref) later on.
@@ -30,18 +32,16 @@ def alpaca_test() -> None:
     alpaca_broker.connect()
     alpaca_broker.check_connection()
 
-def backtest1():
-    # To move away
-    
-
-    # Shitty simple version : do we really need to know the position here ? A signal is a signal
-    # Position logic can be deported in the runnable class TODO: Decide on that
-
+def test():
+    """ Testing new data import """
+    stock_data = partial(IBM, _from = "2021-01-01")
     sma_partial = partial(sma, sma1_window_size=10, sma2_window_size=20)
 
-    test = BackTest('MSFT', sma_partial, _from = '2019-01-01', _to = '2022-01-01')
+    test = BackTest(stock_data, sma_partial)
 
     test.run()
 
+    print(stock_data())
+
 if __name__ == '__main__':
-    backtest1()
+    test()

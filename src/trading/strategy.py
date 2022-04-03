@@ -63,6 +63,7 @@ class Position:
         return (left_amount, max_position, max_quantity)
 
 
+# Position logic can be deported in the runnable class TODO: Decide on that
 def sma(data: np.ndarray, position: Position, sma1_window_size=20, sma2_window_size=50) -> Decision:
         """ Simple Mobile Average Strategy """
         # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)
