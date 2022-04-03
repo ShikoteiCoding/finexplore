@@ -1,6 +1,5 @@
 from dataclasses import KW_ONLY, InitVar, dataclass, field
-from enum import Enum
-from attr import frozen
+from strategy import Position, Decision, sma
 import pandas as pd
 import numpy as np
 
@@ -8,56 +7,6 @@ from typing import Callable
 
 DATA_PATH = "../../data/companies_stock/"
 CSV_EXT = ".csv"
-
-# Testing for now
-@dataclass
-class Position:
-    
-    holding: bool = field(default=False)
-    amount: float = field(default=1000)
-    position: float = field(default=0)
-    quantity_position: int = field(default=0) # If fraction are available, might need to change that
-
-    def exit(self, price: float):
-        prev_quantity = self.quantity_position
-        self.amount, self.position, self.quantity_position = self.compute_exit(price)
-        print(
-            f"""
-            Exiting position of {prev_quantity} positions at {price} each.
-            Portfolio value is now {self.position} dollars.
-            Buy power is now {self.amount} dollars.
-            """)
-        self.holding = False
-
-    def enter(self, price: float):
-        self.amount, self.position, self.quantity_position = self.compute_enter(price)
-        print(
-            f"""
-            Entering position with {self.quantity_position} positions at {price} each.
-            Portfolio value is now {self.position} dollars.
-            Buy power is now {self.amount} dollars.
-            """)
-        self.holding = True
-
-    def compute_enter(self, price: float) -> tuple[float, float, int]:
-        """ Return the number of action to buy with available amount. """
-        max_quantity = int(self.amount // price)
-        left_amount = self.amount % price
-        max_position = price * max_quantity
-        return (left_amount, max_position, max_quantity)
-
-    def compute_exit(self, price: float) -> tuple[float, float, int]:
-        """ Return the number of action to buy with available amount. """
-        max_quantity = 0
-        left_amount = self.amount + self.quantity_position * price
-        max_position = 0
-        return (left_amount, max_position, max_quantity)
-
-# Testing for now
-class Decision(Enum):
-    ENTER = 1
-    HOLD = 0
-    EXIT = -1
 
 @dataclass(frozen=False)
 class BackTest:
@@ -80,7 +29,7 @@ class BackTest:
         self.data: np.ndarray = np.empty(shape=1)
 
     def read_stock_data(self, stock_name: str, _from: str = "", _to: str = "", _field: str = "") -> pd.DataFrame:
-        """ Read a stock from string name. """
+        """ Read a stock from string name. Purely Utils for Backtest runner. """
         df = pd.read_csv(DATA_PATH + stock_name + CSV_EXT)
         df.index = df.Date
 

@@ -1,78 +1,77 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import Enum
 
-from typing import Protocol, Callable
-
-from rule import TradingStrategyRule
-
-##
-#   Listing strategies for bots.
-#   1 - End of Day strategy
-#   2 - Swing strategy
-#   3 - Day strategy
-#   4 - Trend (rule based) strategy
-#   5 - Scalping strategy
-#   6 - Position (long term) strategy
-##
+import numpy as np
+import talib as ta
 
 ##
-#   Protocols (Functional Interfaces) 
-#   Ultimately not to be declared here but where it is used to avoid conflicts
+#   Strategy Utils
 ##
-class Broker(Protocol):
-    """ Broker protocol that declares connection and trading related methods. """
-    def connect(self) -> None:
-        ...
+def crossover(v1: int, v2: int) -> bool:
+        """ Simple crossover function to keep code cleaner. """
+        return v1 > v2
+
+# Testing for now
+class Decision(Enum):
+    ENTER = 1
+    HOLD = 0
+    EXIT = -1
+
+
+# Testing for now
+@dataclass
+class Position:
     
-    def check_connection(self) -> None:
-        ...
+    holding: bool = field(default=False)
+    amount: float = field(default=1000)
+    position: float = field(default=0)
+    quantity_position: int = field(default=0) # If fraction are available, might need to change that
 
-class Automate(Protocol):
-    """ Automate protocol that declares method for a bot to buy and sell. """
-    def buy(self, symbol: str, amount: int) -> None:
-        ...
+    def exit(self, price: float):
+        prev_quantity = self.quantity_position
+        self.amount, self.position, self.quantity_position = self.compute_exit(price)
+        print(
+            f"""
+            Exiting position of {prev_quantity} positions at {price} each.
+            Portfolio value is now {self.position} dollars.
+            Buy power is now {self.amount} dollars.
+            """)
+        self.holding = False
 
-    def sell(self, symbol: str, amount: int) -> None:
-        ...
+    def enter(self, price: float):
+        self.amount, self.position, self.quantity_position = self.compute_enter(price)
+        print(
+            f"""
+            Entering position with {self.quantity_position} positions at {price} each.
+            Portfolio value is now {self.position} dollars.
+            Buy power is now {self.amount} dollars.
+            """)
+        self.holding = True
 
-class MarketData(Protocol):
-    """ Market data protocol that declares method to fetch data. """
-    def get_market_data(self, symbol: str) -> list[int]:
-        ...
+    def compute_enter(self, price: float) -> tuple[float, float, int]:
+        """ Return the number of action to buy with available amount. """
+        max_quantity = int(self.amount // price)
+        left_amount = self.amount % price
+        max_position = price * max_quantity
+        return (left_amount, max_position, max_quantity)
 
-@dataclass
-class DemoRuleBasedStrategy:
-    """Trading bot that connects to a crypto broker and performs trades."""
+    def compute_exit(self, price: float) -> tuple[float, float, int]:
+        """ Return the number of action to buy with available amount. """
+        max_quantity = 0
+        left_amount = self.amount + self.quantity_position * price
+        max_position = 0
+        return (left_amount, max_position, max_quantity)
 
-    broker: Broker
-    automate: Automate
-    marketdata: MarketData
-    buy_strategy: TradingStrategyRule
-    sell_strategy: TradingStrategyRule
 
-    def run(self, symbol: str) -> None:
-        prices = self.marketdata.get_market_data(symbol)
-        if self.buy_strategy(prices):
-            self.automate.buy(symbol, 10)
-        elif self.sell_strategy(prices):
-            self.automate.sell(symbol, 10)
-        else:
-            print(f"No action needed for {symbol}.")
+def sma(data: np.ndarray, position: Position, sma1_window_size=20, sma2_window_size=50) -> Decision:
+        """ Simple Mobile Average Strategy """
+        # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)
+        
+        ma1 = ta.SMA(data, sma1_window_size)[-1]  # type: ignore
+        ma2 = ta.SMA(data, sma2_window_size)[-1]  # type: ignore
 
-@dataclass
-class TestRuleBasedStrategy:
-    """Trading bot that connects to a crypto broker and performs trades."""
-
-    broker: Broker
-    automate: Automate
-    marketdata: MarketData
-    buy_strategy: TradingStrategyRule
-    sell_strategy: TradingStrategyRule
-
-    def run(self, symbol: str) -> None:
-        prices = self.marketdata.get_market_data(symbol)
-        if self.buy_strategy(prices):
-            self.automate.buy(symbol, 10)
-        elif self.sell_strategy(prices):
-            self.automate.sell(symbol, 10)
-        else:
-            print(f"No action needed for {symbol}.")
+        if not position.holding and crossover(ma1, ma2):
+            return Decision.ENTER
+        elif position.holding and crossover(ma2, ma1):
+            return Decision.EXIT
+        return Decision.HOLD
