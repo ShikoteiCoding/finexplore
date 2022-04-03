@@ -1,5 +1,5 @@
 from dataclasses import KW_ONLY, InitVar, dataclass, field
-from strategy import Position, Decision, sma
+from strategy import Position, Decision, sma, Strategy
 import pandas as pd
 import numpy as np
 
@@ -14,7 +14,7 @@ class BackTest:
     """ Backtest Data Generator. """
 
     stock_data: DatasetReader
-    strategy: Callable = field(repr = False)
+    strategy: Strategy = field(repr = False)
     
     _: KW_ONLY
     _field: str = "Close"

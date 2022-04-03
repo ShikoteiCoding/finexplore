@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Callable
 
 import numpy as np
 import talib as ta
+
 
 ##
 #   Strategy Utils
@@ -11,11 +13,11 @@ def crossover(v1: int, v2: int) -> bool:
         """ Simple crossover function to keep code cleaner. """
         return v1 > v2
 
-# Testing for now
 class Decision(Enum):
     ENTER = 1
     HOLD = 0
     EXIT = -1
+
 
 
 # Testing for now
@@ -62,6 +64,10 @@ class Position:
         max_position = 0
         return (left_amount, max_position, max_quantity)
 
+## 
+#   Strategy Callable
+##
+Strategy = Callable[[np.ndarray, Position], Decision]
 
 # Position logic can be deported in the runnable class TODO: Decide on that
 def sma(data: np.ndarray, position: Position, sma1_window_size=20, sma2_window_size=50) -> Decision:

@@ -34,14 +34,12 @@ def alpaca_test() -> None:
 
 def test():
     """ Testing new data import """
-    stock_data = partial(IBM, _from = "2021-01-01")
+    stock_data = partial(AAPL, _from = "2021-01-01")
     sma_partial = partial(sma, sma1_window_size=10, sma2_window_size=20)
 
     test = BackTest(stock_data, sma_partial)
 
     test.run()
-
-    print(stock_data())
 
 if __name__ == '__main__':
     test()
