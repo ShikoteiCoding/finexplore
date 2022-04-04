@@ -87,3 +87,20 @@ def sma(data: np.ndarray, position: _Position, sma1_window_size=20, sma2_window_
         elif position.holding and crossover(ma2, ma1):
             return Decision.EXIT
         return Decision.HOLD
+
+def bband(data: np.ndarray, position: _Position, sma1_window_size=14, bband_window_size=21) -> Decision:
+        """ Simple BBand Strategy """
+        # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)
+        
+        ma1 = ta.SMA(data, sma1_window_size)[-1]  # type: ignore
+        upperband, middleband, lowerband = ta.BBANDS(data, bband_window_size)  # type: ignore
+
+        last_price = data[-1]
+
+        last_bband = lowerband[-1]
+
+        if not position.holding and crossover(last_price, last_bband):
+            return Decision.ENTER
+        elif position.holding and crossover(ma1, last_price):
+            return Decision.EXIT
+        return Decision.HOLD

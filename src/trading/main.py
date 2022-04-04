@@ -32,7 +32,7 @@ def alpaca_test() -> None:
     alpaca_broker.connect()
     alpaca_broker.check_connection()
 
-def test():
+def backtest_ma():
     """ Testing new data import """
     stock_data = partial(AAPL, _from = "2021-01-01")
     sma_partial = partial(sma, sma1_window_size=10, sma2_window_size=20)
@@ -41,5 +41,14 @@ def test():
 
     test.run()
 
+def backtest_bbands():
+    """ Testing new data import """
+    stock_data = partial(AAPL, _from = "2021-01-01")
+    bband_partial = partial(bband, sma1_window_size=14, bband_window_size=21)
+
+    test = BackTest(stock_data, bband_partial)
+
+    test.run()
+
 if __name__ == '__main__':
-    test()
+    backtest_bbands()
