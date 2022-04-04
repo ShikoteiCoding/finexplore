@@ -1,5 +1,5 @@
 from dataclasses import KW_ONLY, InitVar, dataclass, field
-from strategy import Position, Decision, sma, Strategy
+from strategy import _Position, Decision, sma, Strategy
 import pandas as pd
 import numpy as np
 
@@ -20,7 +20,11 @@ class BackTest:
     _field: str = "Close"
 
     _df: pd.DataFrame = field(repr=False, init=False)
-    _position: Position = field(repr=True, default = Position())
+    _position: _Position = field(repr=True, default = _Position()) # Might not be accurate. To think upon.
+
+    ##
+    #   Where to define indicators to plot ?
+    ##
 
     def __post_init__(self):
         self._df: pd.DataFrame = pd.DataFrame(self.stock_data()[self._field])

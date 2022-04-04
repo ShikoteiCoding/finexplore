@@ -18,11 +18,15 @@ class Decision(Enum):
     HOLD = 0
     EXIT = -1
 
-
-
-# Testing for now
+##
+#   Utilities
+##
+# TODO : Broker Trade Class, Orders Class (those are just structures to hold needed stuff)
+# Broker should encapsulate : Trade, Orders, Position ?
+# Might be overkill because we would need to find a really generic solution between brokers.
+# Duck typing might be the key here to avoid fake inheritance.
 @dataclass
-class Position:
+class _Position:
     
     holding: bool = field(default=False)
     amount: float = field(default=1000)
@@ -67,10 +71,11 @@ class Position:
 ## 
 #   Strategy Callable
 ##
-Strategy = Callable[[np.ndarray, Position], Decision]
+Strategy = Callable[[np.ndarray, _Position], Decision]
 
 # Position logic can be deported in the runnable class TODO: Decide on that
-def sma(data: np.ndarray, position: Position, sma1_window_size=20, sma2_window_size=50) -> Decision:
+# Position should be a list of position instead ?
+def sma(data: np.ndarray, position: _Position, sma1_window_size=20, sma2_window_size=50) -> Decision:
         """ Simple Mobile Average Strategy """
         # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)
         

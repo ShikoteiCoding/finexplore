@@ -8,7 +8,7 @@ import pandas as pd
 import talib as ta 
 from dotenv import load_dotenv
 
-from backtest import BackTest, Position, Decision
+from backtest import BackTest, _Position, Decision
 from broker import AlpacaBroker, YFinance
 from rule import *
 from strategy import *
