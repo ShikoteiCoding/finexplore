@@ -1,10 +1,13 @@
-from dataclasses import KW_ONLY, InitVar, dataclass, field
-from strategy import _Position, Decision, sma, Strategy
+from dataclasses import KW_ONLY, dataclass, field
+
+from strategy import Decision, StrategyCallable
+from _utils import _Position, _Data
+from stock_data import DatasetReader
+
 import pandas as pd
 import numpy as np
 
-from typing import Callable
-from stock_data import DatasetReader
+
 
 DATA_PATH = "../../data/companies_stock/"
 CSV_EXT = ".csv"
@@ -14,7 +17,7 @@ class BackTest:
     """ Backtest Data Generator. """
 
     stock_data: DatasetReader
-    strategy: Strategy = field(repr = False)
+    strategy: StrategyCallable = field(repr = False)
     
     _: KW_ONLY
     _field: str = "Close"

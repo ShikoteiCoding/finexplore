@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from backtest import BackTest, _Position, Decision
 from broker import AlpacaBroker, YFinance
 from rule import *
-from strategy import *
+from strategy import simple_mobile_average, simple_bollinger_bands
 
 from stock_data import MSFT, AAPL, IBM
 
@@ -35,7 +35,7 @@ def alpaca_test() -> None:
 def backtest_ma():
     """ Testing new data import """
     stock_data = partial(AAPL, _from = "2021-01-01")
-    sma_partial = partial(sma, sma1_window_size=10, sma2_window_size=20)
+    sma_partial = partial(simple_mobile_average, sma1_window_size=10, sma2_window_size=20)
 
     test = BackTest(stock_data, sma_partial)
 
@@ -44,9 +44,9 @@ def backtest_ma():
 def backtest_bbands():
     """ Testing new data import """
     stock_data = partial(AAPL, _from = "2021-01-01")
-    bband_partial = partial(bband, sma1_window_size=14, bband_window_size=21)
+    sbband_partial = partial(simple_bollinger_bands, sma1_window_size=14, bband_window_size=21)
 
-    test = BackTest(stock_data, bband_partial)
+    test = BackTest(stock_data, sbband_partial)
 
     test.run()
 
