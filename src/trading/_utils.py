@@ -88,7 +88,7 @@ class Position:
     value: int = field(repr=True)
     
     @staticmethod
-    def load_position(file_path: str) -> list[Position]: # type: ignore
+    def load_positions(file_path: str) -> list[Position]: # type: ignore
         """ Theortically, we can have ongoing orders before debuting a strategy (for example comming from another strategy). """
         pass
 
