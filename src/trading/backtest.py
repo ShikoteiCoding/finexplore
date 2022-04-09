@@ -54,11 +54,11 @@ class BackTest:
             current_price: float = row[self._field]  # type: ignore
             # Past data is appended with current data and provided to the strategy to make decision
             self.data = np.append(self.data, current_price) # type: ignore
-            decision = self.strategy(self.data, self.Position)
+            decision = self.strategy(self.data, self.broker)
 
             if decision == Decision.ENTER:
                 print(f"\nDate is: {index}")
-                self.Position.enter(current_price)
+                self.broker.enter(current_price)
             if decision == Decision.EXIT:
                 print(f"\nDate is: {index}")
-                self.Position.exit(current_price)
+                self.broker.exit(current_price)

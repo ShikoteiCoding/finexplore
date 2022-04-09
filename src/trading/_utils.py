@@ -120,9 +120,9 @@ class Broker:
     cash_amount: int = field(repr=True, default=1000)
 
     _: KW_ONLY
-    positions: list[Position] = field(repr=True, default=[])
-    orders: list[Order] = field(repr=True, default=[])
-    trades: list[Trade] = field(repr=True, default=[])
+    positions: list[Position] = field(repr=True, default_factory=list)
+    orders: list[Order] = field(repr=True, default_factory=list)
+    trades: list[Trade] = field(repr=True, default_factory=list)
     
     holding: bool = field(default=False)
     amount: float = field(default=1000)
