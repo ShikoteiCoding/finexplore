@@ -193,7 +193,7 @@ class Broker:
 
     def exit(self, symbol: str, price: float, date: str):
 
-        self.trades.append(self.close_position(price, date))
+        self.close_position(price, date)
         print(f"\tExiting symbol {symbol}: ", self.cash_amount, self.position)
 
     def exit_all(self, symbol: str, price: float, date: str):
