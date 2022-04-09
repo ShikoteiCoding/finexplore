@@ -91,6 +91,10 @@ class Position:
     enter_price: float = field(repr=True)
     enter_date: str = field(repr=True)
 
+    def get_quantity(self) -> int:
+        """ Returns the quantity of the position """
+        return self.quantity
+
     def get_symbol(self) -> str:
         """ Returns the symbol of the position. """
         return self.symbol
@@ -159,6 +163,13 @@ class Broker:
         """ Boolean to use in strategies. """
         return len(self.positions) > 0
 
+    def compute_value(self, symbol: str, price: float) -> float :
+        value = 0
+        for position in self.positions:
+            if position.get_symbol() == symbol:
+                value += price * position.get_quantity()
+        return value
+
     def get_positions(self):
         return self.positions
     
@@ -168,52 +179,27 @@ class Broker:
     def create_position(self, symbol: str, price: float, date: str) -> Position:
         """ Create a position. Should be the work of the Order (if successfull). """
         max_quantity = int(self.cash_amount // price)
-        self.cash_amount = price * max_quantity         # Update the cash available
+        self.cash_amount -= price * max_quantity         # Update the cash available
         return Position(symbol, max_quantity, price, date)
 
-    def close_position(self, position_to_close: Position, date:str) -> Trade:
+    def close_position(self, position_to_close: Position, price: float, date:str) -> Trade:
         """ Close a position. Should be the work of the Order (if successfull). """
         self.positions.remove(position_to_close)
-
+        self.cash_amount += position_to_close.get_quantity() * price
         return Trade()
 
-
     def enter(self, symbol: str, price: float, date: str):
-        self.amount, self.position, self.quantityPosition = self.compute_enter(price)
-        print(
-            f"""
-            Entering position with {self.quantityPosition} positions at {price} each.
-            Portfolio value is now {self.position} dollars.
-            Buy power is now {self.amount} dollars.
-            """)
         self.positions.append(self.create_position(symbol, price, date))
+        print(f"\tEntering symbol {symbol}: ", self.positions)
 
     def exit(self, symbol: str, price: float, date: str):
-        prev_quantity = self.quantityPosition
-        self.amount, self.position, self.quantityPosition = self.compute_exit(price)
-        print(
-            f"""
-            Exiting position of {prev_quantity} positions at {price} each.
-            Portfolio value is now {self.position} dollars.
-            Buy power is now {self.amount} dollars.
-            """)
         for position in self.positions:
             if position.get_symbol() == symbol:
-                self.trades.append(self.close_position(position, date))
+                self.trades.append(self.close_position(position, price, date))
+        print(f"\tExiting symbol {symbol}: ", self.cash_amount, self.positions)
 
-    def compute_enter(self, price: float) -> tuple[float, float, int]:
-        """ Return the number of action to buy with available amount. """
-        max_quantity = int(self.amount // price)
-        left_amount = self.amount % price
-        maxPosition = price * max_quantity
-        return (left_amount, maxPosition, max_quantity)
-
-    def compute_exit(self, price: float) -> tuple[float, float, int]:
-        """ Return the number of action to buy with available amount. """
-        max_quantity = 0
-        left_amount = self.amount + self.quantityPosition * price
-        maxPosition = 0
-        return (left_amount, maxPosition, max_quantity)
+    def exit_all(self, symbol: str, price: float, date: str):
+        self.exit(symbol, price, date)
 
 
 ##

@@ -33,7 +33,7 @@ class BackTest:
         self._df: pd.DataFrame = pd.DataFrame(self.stock_data()[self._field])
         # For now let's stock the past data as a numpy array
         self.data: np.ndarray = np.empty(shape=1)
-        self._symbol: str = get_function_name(self.strategy)
+        self._symbol: str = get_function_name(self.stock_data)
     
 
     def run(self):
@@ -67,3 +67,6 @@ class BackTest:
             if decision == Decision.EXIT:
                 print(f"\nDate is: {index}")
                 self.broker.exit(self._symbol, current_price, str(index))
+        
+        # Exit no matter what do evaluate performances
+        self.broker.exit_all(self._symbol, self._df.Close[-1], str(self._df.index[-1]))
