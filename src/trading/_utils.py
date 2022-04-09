@@ -1,6 +1,6 @@
 from dataclasses import KW_ONLY, dataclass, field
 from functools import partial, update_wrapper
-from typing import Dict, cast
+from typing import Dict, Optional, cast
 import numpy as np
 
 import pandas as pd
@@ -38,6 +38,10 @@ class Position:     # type: ignore
 
 # Errors
 class DatasetNotFound(Exception):
+    pass
+class AlreadyInPosition(Exception):
+    pass
+class NotInPosition(Exception):
     pass
 
 ##
@@ -150,53 +154,47 @@ class Broker:
     cash_amount: float = field(repr=True, default=1000)
 
     _: KW_ONLY
-    positions: list[Position] = field(repr=True, default_factory=list)  # Default empty if no existing position pre deployment
+    position: Optional[Position] = field(repr=True, default=None)       # Default empty if no existing position pre deployment
     orders: list[Order] = field(repr=True, default_factory=list)        # Default empty if no existing orders pre deployment
     trades: list[Trade] = field(repr=True, default_factory=list)        # Always empty : don't track pre deployment trades (no sense)
-    
-    amount: float = field(default=1000)
-    position: float = field(default=0)
-    quantityPosition: int = field(default=0) # If fraction are available, might need to change that
 
     @property
-    def in_position(self):
+    def in_position(self) -> bool:
         """ Boolean to use in strategies. """
-        return len(self.positions) > 0
+        return True if (self.position) else False
 
-    def compute_value(self, symbol: str, price: float) -> float :
-        value = 0
-        for position in self.positions:
-            if position.get_symbol() == symbol:
-                value += price * position.get_quantity()
-        return value
+    def compute_value(self, price: float) -> float :
+        return price * self.position.get_quantity() if self.position else 0
 
-    def get_positions(self):
-        return self.positions
+    def get_position(self) -> Optional[Position]:
+        return self.position if self.position else None
     
-    def get_orders(self):
+    def get_orders(self) -> list[Order]:
         return self.orders
 
-    def create_position(self, symbol: str, price: float, date: str) -> Position:
+    def create_position(self, symbol: str, price: float, date: str):
         """ Create a position. Should be the work of the Order (if successfull). """
+        if self.position: raise AlreadyInPosition("Can't enter because already in position.")
         max_quantity = int(self.cash_amount // price)
         self.cash_amount -= price * max_quantity         # Update the cash available
-        return Position(symbol, max_quantity, price, date)
+        self.position =  Position(symbol, max_quantity, price, date)
 
-    def close_position(self, position_to_close: Position, price: float, date:str) -> Trade:
+    def close_position(self, price: float, date:str):
         """ Close a position. Should be the work of the Order (if successfull). """
-        self.positions.remove(position_to_close)
-        self.cash_amount += position_to_close.get_quantity() * price
-        return Trade()
+        if not self.position: raise NotInPosition("Can't exit because not in position.")
+
+        self.cash_amount += self.position.get_quantity() * price
+        self.position = None
 
     def enter(self, symbol: str, price: float, date: str):
-        self.positions.append(self.create_position(symbol, price, date))
-        print(f"\tEntering symbol {symbol}: ", self.positions)
+
+        self.create_position(symbol, price, date)
+        print(f"\tEntering symbol {symbol}: ", self.position)
 
     def exit(self, symbol: str, price: float, date: str):
-        for position in self.positions:
-            if position.get_symbol() == symbol:
-                self.trades.append(self.close_position(position, price, date))
-        print(f"\tExiting symbol {symbol}: ", self.cash_amount, self.positions)
+
+        self.trades.append(self.close_position(price, date))
+        print(f"\tExiting symbol {symbol}: ", self.cash_amount, self.position)
 
     def exit_all(self, symbol: str, price: float, date: str):
         self.exit(symbol, price, date)
