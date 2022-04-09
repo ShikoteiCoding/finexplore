@@ -19,13 +19,23 @@ DATA_PATH = "../../data/companies_stock/"
 CSV_EXT = ".csv"
 
 ##
-#   Signatures
+#   Type declarations
 ##
+
+# Callables
 DatasetReaderCallable = Callable[[],pd.DataFrame]
 
-##
-#   Errors 
-##
+# Classes
+class Broker:       # type: ignore
+    pass 
+class Order:        # type: ignore
+    pass 
+class Trade:        # type: ignore
+    pass 
+class Position:     # type: ignore
+    pass 
+
+# Errors
 class DatasetNotFound(Exception):
     pass
 
@@ -64,9 +74,8 @@ def MSFT(_from: str = "", _to: str = "") -> pd.DataFrame:
     return read_stock("MSFT", _from, _to)
 
 ##
-#   Classes for data organisation
+#   Classes for data management
 ##
-
     
 # TODO : Broker Trade Class, Orders Class (those are just structures to hold needed stuff)
 # Broker should encapsulate : Trade, Orders, Position ?
@@ -77,11 +86,20 @@ class Position:
     """ Position class. Keep track of symbol positions. """
     symbol: str = field(repr=True)
     value: int = field(repr=True)
+    
+    @staticmethod
+    def load_position(file_path: str) -> list[Position]: # type: ignore
+        """ Theortically, we can have ongoing orders before debuting a strategy (for example comming from another strategy). """
+        pass
 
 @dataclass
 class Order:
     """ Order class. To keep track of any information relatively of an order. """
-    pass
+    
+    @staticmethod
+    def load_orders(file_path: str) -> list[Order]: # type: ignore
+        """ Theortically, we can have ongoing orders before debuting a strategy (for example comming from another strategy). """
+        pass
 
 @dataclass
 class Trade:
@@ -120,9 +138,9 @@ class Broker:
     cash_amount: int = field(repr=True, default=1000)
 
     _: KW_ONLY
-    positions: list[Position] = field(repr=True, default_factory=list)
-    orders: list[Order] = field(repr=True, default_factory=list)
-    trades: list[Trade] = field(repr=True, default_factory=list)
+    positions: list[Position] = field(repr=True, default_factory=list)  # Default empty if no existing position pre deployment
+    orders: list[Order] = field(repr=True, default_factory=list)        # Default empty if no existing orders pre deployment
+    trades: list[Trade] = field(repr=True, default_factory=list)        # Always empty : don't track pre deployment trades (no sense)
     
     holding: bool = field(default=False)
     amount: float = field(default=1000)
