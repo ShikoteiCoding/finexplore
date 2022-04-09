@@ -1,8 +1,7 @@
 from dataclasses import KW_ONLY, dataclass, field
 
 from strategy import Decision, StrategyCallable
-from _utils import _Position, _Data
-from stock_data import DatasetReader
+from _utils import _Position, _Data, DatasetReaderCallable
 
 import pandas as pd
 import numpy as np
@@ -16,7 +15,7 @@ CSV_EXT = ".csv"
 class BackTest:
     """ Backtest Data Generator. """
 
-    stock_data: DatasetReader
+    stock_data: DatasetReaderCallable
     strategy: StrategyCallable = field(repr = False)
     
     _: KW_ONLY
