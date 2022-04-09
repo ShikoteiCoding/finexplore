@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import KW_ONLY, dataclass, field
 from typing import Dict, cast
 import numpy as np
 
@@ -30,7 +30,7 @@ class DatasetNotFound(Exception):
     pass
 
 ##
-#   Reader 
+#   Reader Function
 ##
 def read_stock(stock_name: str,  _from: str = "", _to: str = "", _field: str = "") -> pd.DataFrame:
     """ Read csv stock. Reading logic goes here """
@@ -50,7 +50,9 @@ def read_stock(stock_name: str,  _from: str = "", _to: str = "", _field: str = "
     return pd.DataFrame(df[(df.Date > _from) & (df.Date <= _to)])
 
 ##
-#   Implements a stock function for each. We can make it dynamic later on
+#   Implements a stock function for each. We can make it dynamic later on.
+#   If we bundle everything into a library, this code should not be part of it.
+#   For now it kept here just to keep it organized.
 ##
 def AAPL(_from: str = "", _to: str = "") -> pd.DataFrame:
     return read_stock("AAPL", _from, _to)
@@ -64,52 +66,27 @@ def MSFT(_from: str = "", _to: str = "") -> pd.DataFrame:
 ##
 #   Classes for data organisation
 ##
+
+    
 # TODO : Broker Trade Class, Orders Class (those are just structures to hold needed stuff)
 # Broker should encapsulate : Trade, Orders, Position ?
 # Might be overkill because we would need to find a really generic solution between brokers.
 # Duck typing might be the key here to avoid fake inheritance.
 @dataclass
-class _Position:
-    
-    holding: bool = field(default=False)
-    amount: float = field(default=1000)
-    position: float = field(default=0)
-    quantity_position: int = field(default=0) # If fraction are available, might need to change that
+class Position:
+    """ Position class. Keep track of symbol positions. """
+    symbol: str = field(repr=True)
+    value: int = field(repr=True)
 
-    def exit(self, price: float):
-        prev_quantity = self.quantity_position
-        self.amount, self.position, self.quantity_position = self.compute_exit(price)
-        print(
-            f"""
-            Exiting position of {prev_quantity} positions at {price} each.
-            Portfolio value is now {self.position} dollars.
-            Buy power is now {self.amount} dollars.
-            """)
-        self.holding = False
+@dataclass
+class Order:
+    """ Order class. To keep track of any information relatively of an order. """
+    pass
 
-    def enter(self, price: float):
-        self.amount, self.position, self.quantity_position = self.compute_enter(price)
-        print(
-            f"""
-            Entering position with {self.quantity_position} positions at {price} each.
-            Portfolio value is now {self.position} dollars.
-            Buy power is now {self.amount} dollars.
-            """)
-        self.holding = True
-
-    def compute_enter(self, price: float) -> tuple[float, float, int]:
-        """ Return the number of action to buy with available amount. """
-        max_quantity = int(self.amount // price)
-        left_amount = self.amount % price
-        max_position = price * max_quantity
-        return (left_amount, max_position, max_quantity)
-
-    def compute_exit(self, price: float) -> tuple[float, float, int]:
-        """ Return the number of action to buy with available amount. """
-        max_quantity = 0
-        left_amount = self.amount + self.quantity_position * price
-        max_position = 0
-        return (left_amount, max_position, max_quantity)
+@dataclass
+class Trade:
+    """ Trade class. To keep track of closed orders. """
+    pass
 
 @dataclass
 class _Array(np.ndarray):
@@ -135,3 +112,65 @@ class _Data:
         if arr is None:
             arr = self.__cache[key] = cast(_Array, self.__arrays[key][:self.__i])
         return arr
+
+@dataclass
+class Broker:
+    """ A Broker class. Will enable duck typing for different APIs. """
+
+    cash_amount: int = field(repr=True, default=1000)
+
+    _: KW_ONLY
+    positions: list[Position] = field(repr=True, default=[])
+    orders: list[Order] = field(repr=True, default=[])
+    trades: list[Trade] = field(repr=True, default=[])
+    
+    holding: bool = field(default=False)
+    amount: float = field(default=1000)
+    position: float = field(default=0)
+    quantityPosition: int = field(default=0) # If fraction are available, might need to change that
+
+    @property
+    def in_position(self):
+        """ Boolean to use in strategies. """
+        return len(self.positions) > 0
+
+    def get_positions(self):
+        return self.positions
+    
+    def get_orders(self):
+        return self.orders
+
+    def exit(self, price: float):
+        prev_quantity = self.quantityPosition
+        self.amount, self.position, self.quantityPosition = self.compute_exit(price)
+        print(
+            f"""
+            Exiting position of {prev_quantity} positions at {price} each.
+            Portfolio value is now {self.position} dollars.
+            Buy power is now {self.amount} dollars.
+            """)
+        self.holding = False
+
+    def enter(self, price: float):
+        self.amount, self.position, self.quantityPosition = self.compute_enter(price)
+        print(
+            f"""
+            Entering position with {self.quantityPosition} positions at {price} each.
+            Portfolio value is now {self.position} dollars.
+            Buy power is now {self.amount} dollars.
+            """)
+        self.holding = True
+
+    def compute_enter(self, price: float) -> tuple[float, float, int]:
+        """ Return the number of action to buy with available amount. """
+        max_quantity = int(self.amount // price)
+        left_amount = self.amount % price
+        maxPosition = price * max_quantity
+        return (left_amount, maxPosition, max_quantity)
+
+    def compute_exit(self, price: float) -> tuple[float, float, int]:
+        """ Return the number of action to buy with available amount. """
+        max_quantity = 0
+        left_amount = self.amount + self.quantityPosition * price
+        maxPosition = 0
+        return (left_amount, maxPosition, max_quantity)

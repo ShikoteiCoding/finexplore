@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable, TypeAlias
 
-from _utils import _Data, _Position
+from _utils import _Data, Position
 
 import numpy as np
 import talib as ta
@@ -24,11 +24,11 @@ class Decision(Enum):
 ## 
 #   Strategy Callable
 ##
-StrategyCallable: TypeAlias = Callable[[np.ndarray, _Position], Decision]
+StrategyCallable: TypeAlias = Callable[[np.ndarray, Position], Decision]
 
 # Position logic can be deported in the runnable class TODO: Decide on that
 # Position should be a list of position instead ?
-def simple_mobile_average(data: np.ndarray, position: _Position, sma1_window_size=20, sma2_window_size=50) -> Decision:
+def simple_mobile_average(data: np.ndarray, position: Position, sma1_window_size=20, sma2_window_size=50) -> Decision:
         """ Simple Mobile Average Strategy """
         # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)
         
@@ -41,7 +41,7 @@ def simple_mobile_average(data: np.ndarray, position: _Position, sma1_window_siz
             return Decision.EXIT
         return Decision.HOLD
 
-def simple_bollinger_bands(data: np.ndarray, position: _Position, sma1_window_size=14, bband_window_size=21) -> Decision:
+def simple_bollinger_bands(data: np.ndarray, position: Position, sma1_window_size=14, bband_window_size=21) -> Decision:
         """ Simple BBand Strategy """
         # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)
         

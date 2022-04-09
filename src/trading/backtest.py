@@ -1,12 +1,10 @@
 from dataclasses import KW_ONLY, dataclass, field
 
 from strategy import Decision, StrategyCallable
-from _utils import _Position, _Data, DatasetReaderCallable
+from _utils import Position, _Data, DatasetReaderCallable, Broker
 
 import pandas as pd
 import numpy as np
-
-
 
 DATA_PATH = "../../data/companies_stock/"
 CSV_EXT = ".csv"
@@ -15,14 +13,15 @@ CSV_EXT = ".csv"
 class BackTest:
     """ Backtest Data Generator. """
 
+    broker: Broker
     stock_data: DatasetReaderCallable
-    strategy: StrategyCallable = field(repr = False)
+    strategy: StrategyCallable = field(repr=False)
     
     _: KW_ONLY
     _field: str = "Close"
 
     _df: pd.DataFrame = field(repr=False, init=False)
-    _position: _Position = field(repr=True, default = _Position()) # Might not be accurate. To think upon.
+    #Position: Position = field(repr=True, default=Position()) # Might not be accurate. To think upon.
 
     ##
     #   Where to define indicators to plot ?
@@ -55,11 +54,11 @@ class BackTest:
             current_price: float = row[self._field]  # type: ignore
             # Past data is appended with current data and provided to the strategy to make decision
             self.data = np.append(self.data, current_price) # type: ignore
-            decision = self.strategy(self.data, self._position)
+            decision = self.strategy(self.data, self.Position)
 
             if decision == Decision.ENTER:
                 print(f"\nDate is: {index}")
-                self._position.enter(current_price)
+                self.Position.enter(current_price)
             if decision == Decision.EXIT:
                 print(f"\nDate is: {index}")
-                self._position.exit(current_price)
+                self.Position.exit(current_price)
