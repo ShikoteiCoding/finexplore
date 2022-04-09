@@ -1,4 +1,5 @@
 from dataclasses import KW_ONLY, dataclass, field
+from functools import partial, update_wrapper
 from typing import Dict, cast
 import numpy as np
 
@@ -85,7 +86,14 @@ def MSFT(_from: str = "", _to: str = "") -> pd.DataFrame:
 class Position:
     """ Position class. Keep track of symbol positions. """
     symbol: str = field(repr=True)
-    value: int = field(repr=True)
+    #value: int = field(repr=True)
+    quantity: int = field(repr=True)
+    enter_price: float = field(repr=True)
+    enter_date: str = field(repr=True)
+
+    def get_symbol(self) -> str:
+        """ Returns the symbol of the position. """
+        return self.symbol
     
     @staticmethod
     def load_positions(file_path: str) -> list[Position]: # type: ignore
@@ -135,14 +143,13 @@ class _Data:
 class Broker:
     """ A Broker class. Will enable duck typing for different APIs. """
 
-    cash_amount: int = field(repr=True, default=1000)
+    cash_amount: float = field(repr=True, default=1000)
 
     _: KW_ONLY
     positions: list[Position] = field(repr=True, default_factory=list)  # Default empty if no existing position pre deployment
     orders: list[Order] = field(repr=True, default_factory=list)        # Default empty if no existing orders pre deployment
     trades: list[Trade] = field(repr=True, default_factory=list)        # Always empty : don't track pre deployment trades (no sense)
     
-    holding: bool = field(default=False)
     amount: float = field(default=1000)
     position: float = field(default=0)
     quantityPosition: int = field(default=0) # If fraction are available, might need to change that
@@ -158,7 +165,30 @@ class Broker:
     def get_orders(self):
         return self.orders
 
-    def exit(self, price: float):
+    def create_position(self, symbol: str, price: float, date: str) -> Position:
+        """ Create a position. Should be the work of the Order (if successfull). """
+        max_quantity = int(self.cash_amount // price)
+        self.cash_amount = price * max_quantity         # Update the cash available
+        return Position(symbol, max_quantity, price, date)
+
+    def close_position(self, position_to_close: Position, date:str) -> Trade:
+        """ Close a position. Should be the work of the Order (if successfull). """
+        self.positions.remove(position_to_close)
+
+        return Trade()
+
+
+    def enter(self, symbol: str, price: float, date: str):
+        self.amount, self.position, self.quantityPosition = self.compute_enter(price)
+        print(
+            f"""
+            Entering position with {self.quantityPosition} positions at {price} each.
+            Portfolio value is now {self.position} dollars.
+            Buy power is now {self.amount} dollars.
+            """)
+        self.positions.append(self.create_position(symbol, price, date))
+
+    def exit(self, symbol: str, price: float, date: str):
         prev_quantity = self.quantityPosition
         self.amount, self.position, self.quantityPosition = self.compute_exit(price)
         print(
@@ -167,17 +197,9 @@ class Broker:
             Portfolio value is now {self.position} dollars.
             Buy power is now {self.amount} dollars.
             """)
-        self.holding = False
-
-    def enter(self, price: float):
-        self.amount, self.position, self.quantityPosition = self.compute_enter(price)
-        print(
-            f"""
-            Entering position with {self.quantityPosition} positions at {price} each.
-            Portfolio value is now {self.position} dollars.
-            Buy power is now {self.amount} dollars.
-            """)
-        self.holding = True
+        for position in self.positions:
+            if position.get_symbol() == symbol:
+                self.trades.append(self.close_position(position, date))
 
     def compute_enter(self, price: float) -> tuple[float, float, int]:
         """ Return the number of action to buy with available amount. """
@@ -192,3 +214,16 @@ class Broker:
         left_amount = self.amount + self.quantityPosition * price
         maxPosition = 0
         return (left_amount, maxPosition, max_quantity)
+
+
+##
+#   Utils function
+##
+
+def wrapped_partial(func, *args, **kwargs):
+    partial_func = partial(func, *args, **kwargs)
+    update_wrapper(partial_func, func)
+    return partial_func
+    
+def get_function_name(func: Callable) -> str:
+    return func.__name__

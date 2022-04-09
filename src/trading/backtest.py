@@ -1,7 +1,8 @@
 from dataclasses import KW_ONLY, dataclass, field
+import datetime
 
 from strategy import Decision, StrategyCallable
-from _utils import Position, _Data, DatasetReaderCallable, Broker
+from _utils import Position, _Data, DatasetReaderCallable, Broker, get_function_name
 
 import pandas as pd
 import numpy as np
@@ -21,6 +22,7 @@ class BackTest:
     _field: str = "Close"
 
     _df: pd.DataFrame = field(repr=False, init=False)
+    _symbol: str = field(repr=True, init=False)
     #Position: Position = field(repr=True, default=Position()) # Might not be accurate. To think upon.
 
     ##
@@ -31,6 +33,7 @@ class BackTest:
         self._df: pd.DataFrame = pd.DataFrame(self.stock_data()[self._field])
         # For now let's stock the past data as a numpy array
         self.data: np.ndarray = np.empty(shape=1)
+        self._symbol: str = get_function_name(self.strategy)
     
 
     def run(self):
@@ -56,9 +59,11 @@ class BackTest:
             self.data = np.append(self.data, current_price) # type: ignore
             decision = self.strategy(self.data, self.broker)
 
+            # Will need to convert the index to a datetime object later on.
+
             if decision == Decision.ENTER:
                 print(f"\nDate is: {index}")
-                self.broker.enter(current_price)
+                self.broker.enter(self._symbol, current_price, str(index))
             if decision == Decision.EXIT:
                 print(f"\nDate is: {index}")
-                self.broker.exit(current_price)
+                self.broker.exit(self._symbol, current_price, str(index))
