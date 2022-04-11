@@ -1,12 +1,13 @@
 import os
 from functools import partial
+from re import M
 from dotenv import load_dotenv
 
 from backtest import BackTest
 from broker import AlpacaBroker
 from strategy import simple_mobile_average, simple_bollinger_bands
 
-from _utils import MSFT, AAPL, IBM, Broker, wrapped_partial
+from _utils import MSFT, AAPL, IBM, Broker, wrapped_partial, _Data
 
 
 def alpaca_test() -> None:
@@ -38,12 +39,23 @@ def backtest_ma():
 def backtest_bbands():
     """ Testing new data import """
     broker = Broker(cash_amount=1_000)
-    stock_data = wrapped_partial(AAPL, _from = "2021-01-01")
-    sbband_partial = wrapped_partial(simple_bollinger_bands, sma1_window_size=14, bband_window_size=21)
+    stock_data = partial(AAPL, _from = "2021-01-01")
+    sbband_partial = partial(simple_bollinger_bands, sma1_window_size=14, bband_window_size=21)
 
     test = BackTest(broker, stock_data, sbband_partial)
 
     test.run()
 
+def test_data():
+    """ Testing the new data class. """
+
+    df = AAPL()
+
+    data = _Data(df)
+
+    print(data.__getitem__("Close"))
+
+
+    
 if __name__ == '__main__':
-    backtest_bbands()
+    test_data()

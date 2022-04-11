@@ -126,22 +126,25 @@ class Trade:
 class _Array(np.ndarray):
     """ Array as numpy encapsulation for performances. """
 
+    def __getitem__(self, key: str):
+        pass
+
 @dataclass
 class _Data:
     """ Data class to hold and interact with data efficiently. """
 
-    _df: pd.DataFrame = field(repr=False)
-    __i: int = field(init=False)
-    __cache: Dict[str, _Array] = field(repr=False)
-    __arrays: Dict[str, _Array] = field(repr=False)
+    _df: pd.DataFrame = field(repr=False, init=True)
+    __i: int = field(repr=False, init=False)
+    __cache: Dict[str, _Array] = field(repr=False, init=False, default_factory=dict)
+    __arrays: Dict[str, _Array] = field(repr=False, init=False, default_factory=dict)
 
     def __post_init__(self):
         self.__i = len(self._df)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> _Array:
         return self.__get_array(item)
 
-    def __get_array(self, key) -> _Array:
+    def __get_array(self, key: str) -> _Array:
         arr = self.__cache.get(key)
         if arr is None:
             arr = self.__cache[key] = cast(_Array, self.__arrays[key][:self.__i])
