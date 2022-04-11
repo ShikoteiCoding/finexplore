@@ -51,9 +51,13 @@ def test_data():
 
     df = AAPL()
 
-    data = _Data(df)
+    df1 = MSFT()
 
-    print(data.__getitem__("Close"))
+    data = _Data(df)
+    data1 = _Data(df1)
+
+    print(data.Close)
+    print(data1.Close)
 
 
     
