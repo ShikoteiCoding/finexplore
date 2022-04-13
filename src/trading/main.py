@@ -62,4 +62,4 @@ def test_data():
 
     
 if __name__ == '__main__':
-    backtest_ma()
+    test_data()

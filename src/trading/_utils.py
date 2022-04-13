@@ -173,42 +173,38 @@ class _Array(np.ndarray):
 class _Data:
     """ Data class to hold and interact with data efficiently. """
 
-    __df: pd.DataFrame = field(repr=False, init=True)
-    __i: int = field(repr=False, init=False)
-    __cache: Dict[str, _Array] = field(repr=False, init=False, default_factory=dict)
-    __arrays: Dict[str, _Array] = field(repr=True, init=False, default_factory=dict)
-    __len: int = field(repr=True, init=False)
+    _df: pd.DataFrame  = field(repr=False, init=True)
+    _i: int = field(repr=False, init=False)
+    _cache: Dict[str, _Array] = field(repr=False, init=False, default_factory=dict)
+    _arrays: Dict[str, _Array] = field(repr=True, init=False, default_factory=dict)
+    _len: int = field(repr=True, init=False)
 
     def __post_init__(self):
-        self.__i = len(self.__df)
-        self.__len = len(self.__df)
+        self._i = len(self._df)
+        self._len = len(self._df)
         self._update()
 
     def __getitem__(self, item: str):
-        return self.__get_array(item)
+        return self._get_array(item)
 
     def __getattr__(self, item: str):
         try:
-            return self.__get_array(item)
+            return self._get_array(item)
         except KeyError:
             raise AttributeError(f"Column '{item}' not in data") from None
 
-    def __get_array(self, key: str) -> _Array:
-        arr = self.__cache.get(key)
+    def _get_array(self, key: str) -> _Array:
+        arr = self._cache.get(key)
         if arr is None:
-            arr = self.__cache[key] = cast(_Array, self.__arrays[key][:self.__i])
+            arr = self._cache[key] = cast(_Array, self._arrays[key][:self._i])
         return arr
 
     def _update(self):
-        index = self.__df.index.copy()
-        self.__arrays = {str(col).strip(" ") : _Array(arr, index=index) for col, arr in self.__df.items()}
-        self.__arrays['__index'] = _Array(index, index=index)
-        for col in self.__df.columns:
-            property(fget = self.__get_array(col)) #type: ignore
-
-    #@property
-    #def Close(self) -> _Array:
-    #    return self.__get_array("Close")
+        index = self._df.index.copy()
+        self._arrays = {str(col).strip(" ") : _Array(arr, index=index) for col, arr in self._df.items()}
+        self._arrays['_index'] = _Array(index, index=index)
+        for col in self._df.columns:
+            property(fget = self._get_array(col)) #type: ignore
 
 
 @dataclass
