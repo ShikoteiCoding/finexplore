@@ -82,26 +82,25 @@ def MSFT(_from: str = "", _to: str = "") -> pd.DataFrame:
 #   Classes for data management
 ##
     
-# TODO : Broker Trade Class, Orders Class (those are just structures to hold needed stuff)
-# Broker should encapsulate : Trade, Orders, Position ?
+# TODO : Broker Trade Class, Orders Class (those are just structures to hold needed data)
+# Broker should encapsulate : Trades, Orders, Position ?
 # Might be overkill because we would need to find a really generic solution between brokers.
 # Duck typing might be the key here to avoid fake inheritance.
 @dataclass
 class Position:
     """ Position class. Keep track of symbol positions. """
-    symbol: str = field(repr=True)
-    #value: int = field(repr=True)
-    quantity: int = field(repr=True)
-    enter_price: float = field(repr=True)
-    enter_date: str = field(repr=True)
+    _symbol: str = field(repr=True)
+    _quantity: int = field(repr=True)
+    _enter_price: float = field(repr=True)
+    _enter_date: str = field(repr=True)
 
     def get_quantity(self) -> int:
         """ Returns the quantity of the position """
-        return self.quantity
+        return self._quantity
 
     def get_symbol(self) -> str:
         """ Returns the symbol of the position. """
-        return self.symbol
+        return self._symbol
     
     @staticmethod
     def load_positions(file_path: str) -> list[Position]: # type: ignore
@@ -177,10 +176,12 @@ class _Data:
     __df: pd.DataFrame = field(repr=False, init=True)
     __i: int = field(repr=False, init=False)
     __cache: Dict[str, _Array] = field(repr=False, init=False, default_factory=dict)
-    __arrays: Dict[str, _Array] = field(repr=False, init=False, default_factory=dict)
+    __arrays: Dict[str, _Array] = field(repr=True, init=False, default_factory=dict)
+    __len: int = field(repr=True, init=False)
 
     def __post_init__(self):
         self.__i = len(self.__df)
+        self.__len = len(self.__df)
         self._update()
 
     def __getitem__(self, item: str):
@@ -212,7 +213,10 @@ class _Data:
 
 @dataclass
 class Broker:
-    """ A Broker class. Will enable duck typing for different APIs. """
+    """
+    Broker class. To encapsulate APIs or Websockets protocols. 
+    Should be using duck typing through typing.Protocol.
+    """
 
     cash_amount: float = field(repr=True, default=1000)
 
