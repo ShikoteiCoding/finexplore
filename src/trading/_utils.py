@@ -146,14 +146,13 @@ class _Data:
     """ Data class to hold and interact with data efficiently. """
 
     _df: pd.DataFrame  = field(repr=False, init=True)
-    _i: int = field(repr=False, init=False)
-    _cache: Dict[str, _Array] = field(repr=False, init=False, default_factory=dict)
     _arrays: Dict[str, _Array] = field(repr=True, init=False, default_factory=dict)
     _len: int = field(repr=True, init=False)
-    __i: int = field(repr=False, default=0)
+    __i: int = field(repr=False, init=False)
+    __cache: Dict[str, _Array] = field(repr=False, init=False, default_factory=dict)
 
     def __post_init__(self):
-        self._i = len(self._df)
+        self.__i = len(self._df)
         self._len = len(self._df)
 
         index = self._df.index.copy()
@@ -171,10 +170,14 @@ class _Data:
             raise AttributeError(f"Column '{item}' not in data") from None
 
     def _get_array(self, key: str) -> _Array:
-        arr = self._cache.get(key)
+        arr = self.__cache.get(key)
         if arr is None:
-            arr = self._cache[key] = cast(_Array, self._arrays[key][:self._i])
+            arr = self.__cache[key] = cast(_Array, self._arrays[key][:self.__i])
         return arr
+
+    def _set_index(self, i):
+        self.__i = i
+        self.__cache.clear()
 
 @dataclass
 class Broker:

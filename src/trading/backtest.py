@@ -32,7 +32,7 @@ class BackTest:
     def __post_init__(self):
         self._data: _Data = self.stock_data()
         # For now let's stock the past data as a numpy array
-        self._past_data: np.ndarray = np.empty(shape=1)
+        self._prices: _Array = np.empty(shape=1) #type: ignore
         self._symbol: str = get_function_name(self.stock_data)
     
 
@@ -53,20 +53,38 @@ class BackTest:
         #
         #   Advantages : Data can be accessed from a class and strategy can stay a function (TODO: define the callable signature)
         ##
-        for row in self._data[self._field]:
-            current_price: float = row  # type: ignore
+
+        # Start should skip (in the backtest) the first data where
+        # The indicators are not ready (returning NaN anyway)
+        # start = 1 + max(windiw_size over indicators)
+        start = 1
+
+        for i in range(start, self._data._len + 1):
+            self._data._set_index(i)
             # Past data is appended with current data and provided to the strategy to make decision
-            self._past_data = np.append(self._past_data, current_price) # type: ignore
-            decision = self.strategy(self._past_data, self.broker)
+            self._prices = self._data["Close"]
+            decision = self.strategy(self._prices, self.broker)
 
             # Will need to convert the index to a datetime object later on.
+            index = self._data._index[-1]
 
             if decision == Decision.ENTER:
                 print(f"\nDate is: {index}")
-                self.broker.enter(self._symbol, current_price, str(index))
+                self.broker.enter(self._symbol, self._prices[-1], str(index))
             if decision == Decision.EXIT:
                 print(f"\nDate is: {index}")
-                self.broker.exit(self._symbol, current_price, str(index))
+                self.broker.exit(self._symbol, self._prices[-1], str(index))
         
         # Exit no matter what do evaluate performances
-        self.broker.exit_all(self._symbol, self._df.Close[-1], str(self._df.index[-1]))
+        self.broker.exit_all(self._symbol, self._data.Close[-1], str(self._data._index[-1]))
+
+
+        # From backtesting py
+        #equity = pd.Series(broker._equity).bfill().fillna(broker._cash).values
+        #   self._results = compute_stats(
+        #       trades=broker.closed_trades,
+        #       equity=equity,
+        #       ohlc_data=self._data,
+        #       risk_free_rate=0.0,
+        #       strategy_instance=strategy,
+        #   )
