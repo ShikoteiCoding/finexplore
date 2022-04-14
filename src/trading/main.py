@@ -49,12 +49,9 @@ def backtest_bbands():
 def test_data():
     """ Testing the new data class. """
 
-    df = AAPL()
+    data = AAPL()
 
-    df1 = MSFT()
-
-    data = _Data(df)
-    data1 = _Data(df1)
+    data1 = MSFT()
 
     print(data)
     print(data1.Close)

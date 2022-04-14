@@ -23,9 +23,6 @@ CSV_EXT = ".csv"
 #   Type declarations
 ##
 
-# Callables
-DatasetReaderCallable = Callable[[],pd.DataFrame]
-
 # Classes
 class Broker:       # type: ignore
     pass 
@@ -35,6 +32,8 @@ class Trade:        # type: ignore
     pass 
 class Position:     # type: ignore
     pass 
+class _Data:        # type: ignore
+    pass
 
 # Errors
 class DatasetNotFound(Exception):
@@ -43,40 +42,12 @@ class AlreadyInPosition(Exception):
     pass
 class NotInPosition(Exception):
     pass
+class NotAlterableDataset(Exception):
+    pass
 
-##
-#   Reader Function
-##
-def read_stock(stock_name: str,  _from: str = "", _to: str = "", _field: str = "") -> pd.DataFrame:
-    """ Read csv stock. Reading logic goes here """
+# Callables
+DatasetReaderCallable = Callable[[], _Data]
 
-    try:
-        df = pd.read_csv(DATA_PATH + stock_name + CSV_EXT)
-    except FileNotFoundError as error: raise DatasetNotFound(f"Dataset not found, please download your stock data: {stock_name}")
-
-    df.index = df.Date
-
-    if not _from and not _to:
-        return  pd.DataFrame(df)
-
-    if not _to:
-        return pd.DataFrame(df[(df.Date > _from)])
-
-    return pd.DataFrame(df[(df.Date > _from) & (df.Date <= _to)])
-
-##
-#   Implements a stock function for each. We can make it dynamic later on.
-#   If we bundle everything into a library, this code should not be part of it.
-#   For now it kept here just to keep it organized.
-##
-def AAPL(_from: str = "", _to: str = "") -> pd.DataFrame:
-    return read_stock("AAPL", _from, _to)
-
-def IBM(_from: str = "", _to: str = "") -> pd.DataFrame:
-    return read_stock("IBM", _from, _to)
-
-def MSFT(_from: str = "", _to: str = "") -> pd.DataFrame:
-    return read_stock("MSFT", _from, _to)
 
 ##
 #   Classes for data management
@@ -182,7 +153,11 @@ class _Data:
     def __post_init__(self):
         self._i = len(self._df)
         self._len = len(self._df)
-        self._update()
+
+        index = self._df.index.copy()
+
+        self._arrays = {str(col).strip(" ") : _Array(arr, index=index) for col, arr in self._df.items()}
+        self._arrays['_index'] = _Array(index, index=index)
 
     def __getitem__(self, item: str):
         return self._get_array(item)
@@ -198,14 +173,6 @@ class _Data:
         if arr is None:
             arr = self._cache[key] = cast(_Array, self._arrays[key][:self._i])
         return arr
-
-    def _update(self):
-        index = self._df.index.copy()
-        self._arrays = {str(col).strip(" ") : _Array(arr, index=index) for col, arr in self._df.items()}
-        self._arrays['_index'] = _Array(index, index=index)
-        for col in self._df.columns:
-            property(fget = self._get_array(col)) #type: ignore
-
 
 @dataclass
 class Broker:
@@ -262,6 +229,40 @@ class Broker:
     def exit_all(self, symbol: str, price: float, date: str):
         self.exit(symbol, price, date)
 
+##
+#   Reader Function
+##
+def read_stock(stock_name: str,  _from: str = "", _to: str = "", _field: str = "") -> _Data:
+    """ Read csv stock. Reading logic goes here """
+
+    try:
+        df = pd.read_csv(DATA_PATH + stock_name + CSV_EXT)
+    except FileNotFoundError as error: 
+        raise DatasetNotFound(f"Dataset not found, please download your stock data: {stock_name}", error)
+
+    df.index = df.Date
+
+    if not _from and not _to:
+        return  _Data(df)
+
+    if not _to:
+        return _Data(pd.DataFrame(df[(df.Date > _from)]))
+
+    return _Data(pd.DataFrame(df[(df.Date > _from) & (df.Date <= _to)]))
+
+##
+#   Implements a stock function for each. We can make it dynamic later on.
+#   If we bundle everything into a library, this code should not be part of it.
+#   For now it kept here just to keep it organized.
+##
+def AAPL(_from: str = "", _to: str = "") -> _Data:
+    return read_stock("AAPL", _from, _to)
+
+def IBM(_from: str = "", _to: str = "") -> _Data:
+    return read_stock("IBM", _from, _to)
+
+def MSFT(_from: str = "", _to: str = "") -> _Data:
+    return read_stock("MSFT", _from, _to)
 
 ##
 #   Utils function
