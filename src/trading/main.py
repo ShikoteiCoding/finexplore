@@ -50,13 +50,10 @@ def test_data():
     """ Testing the new data class. """
 
     data = AAPL()
-
-    data1 = MSFT()
-
     print(data)
-    print(data1.Close)
+    print(data.Close)
 
 
     
 if __name__ == '__main__':
-    test_data()
+    backtest_bbands()

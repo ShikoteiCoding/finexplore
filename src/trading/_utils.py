@@ -1,6 +1,6 @@
 from dataclasses import KW_ONLY, dataclass, field
 from functools import partial, update_wrapper
-from typing import Dict, Optional, cast
+from typing import Dict, Optional, TypeAlias, cast
 import numpy as np
 
 import pandas as pd
@@ -24,16 +24,18 @@ CSV_EXT = ".csv"
 ##
 
 # Classes
-class Broker:       # type: ignore
-    pass 
-class Order:        # type: ignore
-    pass 
-class Trade:        # type: ignore
-    pass 
-class Position:     # type: ignore
-    pass 
-class _Data:        # type: ignore
-    pass
+##
+#   class Broker:
+#       pass 
+#   class Order:
+#       pass 
+#   class Trade:
+#       pass 
+#   class Position:
+#       pass 
+#   class _Data:
+#       pass
+##
 
 # Errors
 class DatasetNotFound(Exception):
@@ -44,10 +46,6 @@ class NotInPosition(Exception):
     pass
 class NotAlterableDataset(Exception):
     pass
-
-# Callables
-DatasetReaderCallable = Callable[[], _Data]
-
 
 ##
 #   Classes for data management
@@ -74,7 +72,7 @@ class Position:
         return self._symbol
     
     @staticmethod
-    def load_positions(file_path: str) -> list[Position]: # type: ignore
+    def load_positions(file_path: str) -> list: # type: ignore
         """ Theortically, we can have ongoing orders before debuting a strategy (for example comming from another strategy). """
         pass
 
@@ -83,7 +81,7 @@ class Order:
     """ Order class. To keep track of any information relatively of an order. """
     
     @staticmethod
-    def load_orders(file_path: str) -> list[Order]: # type: ignore
+    def load_orders(file_path: str) -> list: # type: ignore
         """ Theortically, we can have ongoing orders before debuting a strategy (for example comming from another strategy). """
         pass
 
@@ -127,6 +125,9 @@ class _Array(np.ndarray):
         except IndexError:
             return super().__float__()
 
+    def __repr__(self):
+        return f"_Array(name={self.name}, length={len(self)})"
+
     @property
     def s(self) -> pd.Series:
         values = np.atleast_2d(self)
@@ -149,6 +150,7 @@ class _Data:
     _cache: Dict[str, _Array] = field(repr=False, init=False, default_factory=dict)
     _arrays: Dict[str, _Array] = field(repr=True, init=False, default_factory=dict)
     _len: int = field(repr=True, init=False)
+    __i: int = field(repr=False, default=0)
 
     def __post_init__(self):
         self._i = len(self._df)
@@ -228,6 +230,9 @@ class Broker:
 
     def exit_all(self, symbol: str, price: float, date: str):
         self.exit(symbol, price, date)
+
+# Reader Callable Type
+DatasetReaderCallable: TypeAlias = Callable[[], _Data]
 
 ##
 #   Reader Function

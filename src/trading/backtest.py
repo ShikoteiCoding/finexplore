@@ -2,7 +2,7 @@ from dataclasses import KW_ONLY, dataclass, field
 import datetime
 
 from strategy import Decision, StrategyCallable
-from _utils import Position, _Data, DatasetReaderCallable, Broker, get_function_name
+from _utils import Position, DatasetReaderCallable, Broker, get_function_name, _Data, _Array
 
 import pandas as pd
 import numpy as np
@@ -21,7 +21,7 @@ class BackTest:
     _: KW_ONLY
     _field: str = "Close"
 
-    _df: pd.DataFrame = field(repr=False, init=False)
+    _data: _Data = field(repr=False, init=False)
     _symbol: str = field(repr=True, init=False)
     #Position: Position = field(repr=True, default=Position()) # Might not be accurate. To think upon.
 
@@ -30,9 +30,9 @@ class BackTest:
     ##
 
     def __post_init__(self):
-        self._df: pd.DataFrame = pd.DataFrame(self.stock_data()[self._field])
+        self._data: _Data = self.stock_data()
         # For now let's stock the past data as a numpy array
-        self.data: np.ndarray = np.empty(shape=1)
+        self._past_data: np.ndarray = np.empty(shape=1)
         self._symbol: str = get_function_name(self.stock_data)
     
 
@@ -53,11 +53,11 @@ class BackTest:
         #
         #   Advantages : Data can be accessed from a class and strategy can stay a function (TODO: define the callable signature)
         ##
-        for index, row in self._df.iterrows():
-            current_price: float = row[self._field]  # type: ignore
+        for row in self._data[self._field]:
+            current_price: float = row  # type: ignore
             # Past data is appended with current data and provided to the strategy to make decision
-            self.data = np.append(self.data, current_price) # type: ignore
-            decision = self.strategy(self.data, self.broker)
+            self._past_data = np.append(self._past_data, current_price) # type: ignore
+            decision = self.strategy(self._past_data, self.broker)
 
             # Will need to convert the index to a datetime object later on.
 
