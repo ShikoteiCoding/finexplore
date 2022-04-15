@@ -8,9 +8,9 @@
 - Make protocols for Orders as it will depend on the API Broker
 
 ## Improvments
-- Integrate commition rate to computes
-- Data Class and Array Class (as a numpy extend) for performances
+- Compute equity and stock somewhere
 - Convert Trade back to Array Class to compute visualization
+- Securing class attributes with property getters and setters
 
 ## Features
 - Dockerize for deployment
