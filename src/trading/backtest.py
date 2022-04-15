@@ -23,15 +23,14 @@ class BackTest:
 
     _data: _Data = field(repr=False, init=False)
     _symbol: str = field(repr=True, init=False)
-    #Position: Position = field(repr=True, default=Position()) # Might not be accurate. To think upon.
+    commission_rate: float = field(repr=True, init=True, default=0)
 
     ##
-    #   Where to define indicators to plot ?
+    #   TODO: Where to define indicators to plot ?
     ##
 
     def __post_init__(self):
         self._data: _Data = self.stock_data()
-        # For now let's stock the past data as a numpy array
         self._prices: _Array = np.empty(shape=1) #type: ignore
         self._symbol: str = get_function_name(self.stock_data)
     
