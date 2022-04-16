@@ -6,6 +6,7 @@
 
 ## Refactor
 - Make protocols for Orders as it will depend on the API Broker
+- Change dates from str to datetime object (might need a class)
 
 ## Improvments
 - Compute equity and stock somewhere
@@ -59,7 +60,11 @@
 ## Classes
 
 - Class Attributes should be named as follows:
-    - No underscore: If keyword attribute needed at initialisation (init = True)
-    - Single Underscore: If keyword not always needed at initialisation (init = False)
+    - No underscore: Never
+    - Single Underscore: 
+        - If keyword needed at init (init = True)
+        - If keyword not always needed at initialisation (init = False)
     - Double Underscore : If purely internal (init = False)
 - Create properties without underscore to secure data access and protect demeter's law
+    - Properties for each accessible class attribute
+    - Never get_ or set_ methods

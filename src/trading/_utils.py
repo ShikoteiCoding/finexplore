@@ -57,19 +57,29 @@ class NotAlterableDataset(Exception):
 # Duck typing might be the key here to avoid fake inheritance.
 @dataclass
 class Position:
-    """ Position class. Keep track of symbol positions. """
-    _symbol: str = field(init=True, repr=True)
-    _quantity: int = field(init=True, repr=True)
-    _enter_price: float = field(init=True, repr=True)
-    _enter_date: str = field(init=True, repr=True)
+    """ Position class. Holds data necessary for positionned money. """
+    _symbol:         str     = field(init=True, repr=True)
+    _quantity:       int     = field(init=True, repr=True)
+    _enter_price:    float   = field(init=True, repr=True)
+    _enter_date:     str     = field(init=True, repr=True)
 
-    def get_quantity(self) -> int:
+    @property
+    def quantity(self) -> int:
         """ Returns the quantity of the position """
         return self._quantity
 
-    def get_symbol(self) -> str:
+    @property
+    def symbol(self) -> str:
         """ Returns the symbol of the position. """
         return self._symbol
+
+    @property
+    def enter_price(self) -> float:
+        return self._enter_price
+
+    @property
+    def enter_date(self) -> str:
+        return self._enter_date
     
     @staticmethod
     def load_positions(file_path: str) -> list: # type: ignore
@@ -208,7 +218,7 @@ class Broker:
         return True if (self.position) else False
 
     def compute_value(self, price: float) -> float :
-        return price * self.position.get_quantity() if self.position else 0
+        return price * self.position.quantity if self.position else 0
 
     def get_position(self) -> Optional[Position]:
         return self.position if self.position else None
@@ -227,7 +237,7 @@ class Broker:
         """ Close a position. Should be the work of the Order (if successfull). """
         if not self.position: raise NotInPosition("Can't exit because not in position.")
 
-        self.cash_amount += self.position.get_quantity() * price
+        self.cash_amount += self.position.quantity * price
         self.position = None
 
     def enter(self, symbol: str, price: float, date: str):
