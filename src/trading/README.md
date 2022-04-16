@@ -61,10 +61,16 @@
 
 - Class Attributes should be named as follows:
     - No underscore: Never
-    - Single Underscore: 
+    - Single Underscore:
         - If keyword needed at init (init = True)
         - If keyword not always needed at initialisation (init = False)
-    - Double Underscore : If purely internal (init = False)
+    - Double Underscore : If private (init = False)
 - Create properties without underscore to secure data access and protect demeter's law
     - Properties for each accessible class attribute
     - Never get_ or set_ methods
+- Class Methods should be named as follows:
+    - No underscore: Public methods
+        - For properties
+        - For common methods
+    - Single underscore: Never (Because a method is either public or private)
+    - Double Underscore: Private methods

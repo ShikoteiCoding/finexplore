@@ -7,7 +7,7 @@ from backtest import BackTest
 from broker import AlpacaBroker
 from strategy import simple_mobile_average, simple_bollinger_bands
 
-from _utils import MSFT, AAPL, IBM, Broker, wrapped_partial, Data
+from _utils import MSFT, AAPL, IBM, Broker, wrapped_partial, Data, Position
 
 
 def alpaca_test() -> None:
@@ -28,7 +28,7 @@ def alpaca_test() -> None:
 
 def backtest_ma():
     """ Testing new data import """
-    broker = Broker(cash_amount=1_000_000)
+    broker = Broker(_cash_amount=1_000_000)
     stock_data = wrapped_partial(AAPL, _from = "2021-01-01")
     sma_partial = wrapped_partial(simple_mobile_average, sma1_window_size=10, sma2_window_size=20)
 
@@ -38,7 +38,7 @@ def backtest_ma():
 
 def backtest_bbands():
     """ Testing new data import """
-    broker = Broker(cash_amount=1_000)
+    broker = Broker(_cash_amount=1_000)
     stock_data = wrapped_partial(AAPL, _from = "2021-01-01")
     sbband_partial = wrapped_partial(simple_bollinger_bands, sma1_window_size=14, bband_window_size=21)
 
@@ -51,9 +51,7 @@ def test_data():
 
     data = AAPL()
     print(data)
-    print(data.Close)
-
-
+    print(data.columns)
     
 if __name__ == '__main__':
     backtest_bbands()

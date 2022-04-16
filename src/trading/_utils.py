@@ -64,19 +64,14 @@ class Position:
     _enter_date:     str     = field(init=True, repr=True)
 
     @property
-    def quantity(self) -> int:
-        """ Returns the quantity of the position """
+    def quantity(self) -> float:
         return self._quantity
-
     @property
     def symbol(self) -> str:
-        """ Returns the symbol of the position. """
         return self._symbol
-
     @property
     def enter_price(self) -> float:
         return self._enter_price
-
     @property
     def enter_date(self) -> str:
         return self._enter_date
@@ -101,7 +96,7 @@ class Trade:
     pass
 
 class Array(np.ndarray):
-    """ ndarray extended. """
+    """ Numpy ndarray extension. """
     def __new__(cls, array, *, name=None, **kwargs):
         obj = np.asarray(array).view(cls)
         obj.name = name or array.name
@@ -114,7 +109,6 @@ class Array(np.ndarray):
             self._opts = getattr(obj, '_opts', {})
 
     # Make sure properties name and _opts are carried over
-    # when (un-)pickling.
     def __reduce__(self):
         value = super().__reduce__()
         return value[:2] + (value[2] + (self.__dict__,),) #type: ignore
@@ -136,31 +130,22 @@ class Array(np.ndarray):
             return super().__float__()
 
     def __repr__(self):
-        return f"_Array(name={self.name}, length={len(self)})"
-
-    @property
-    def s(self) -> pd.Series:
+        return f"Array(name={self.name}, length={len(self)})"
+    
+    def to_pandas(self) -> pd.Series:
         values = np.atleast_2d(self)
         index = self._opts['index'][:values.shape[1]]
         return pd.Series(values[0], index=index, name=self.name)
-
-    @property
-    def df(self) -> pd.DataFrame:
-        values = np.atleast_2d(np.asarray(self))
-        index = self._opts['index'][:values.shape[1]]
-        df = pd.DataFrame(values.T, index=index, columns=[self.name] * len(values))
-        return df
 
 @dataclass
 class Data:
     """ Data class to hold and interact with data efficiently through numpy arrays. """
 
-    _df: pd.DataFrame  = field(init=True, repr=False)
-
-    __arrays: Dict[str, Array] = field(init=False, repr=True, default_factory=dict)
-    __len: int = field(init=False, repr=True)
-    __i: int = field(init=False, repr=False)
-    __cache: Dict[str, Array] = field(init=False, repr=False, default_factory=dict)
+    _df:        pd.DataFrame        = field(init=True,  repr=True,  default = pd.DataFrame())
+    __len:      int                 = field(init=False, repr=False, default = 0)
+    __i:        int                 = field(init=False, repr=False, default = 0)
+    __cache:    Dict[str, Array]    = field(init=False, repr=False, default_factory=dict)
+    __arrays:   Dict[str, Array]    = field(init=False, repr=True,  default_factory=dict)
 
     def __post_init__(self):
         self.__i = len(self._df)
@@ -168,27 +153,31 @@ class Data:
 
         index = self._df.index.copy()
 
-        self.__arrays = {str(col).strip(" ") : Array(arr, index=index) for col, arr in self._df.items()}
+        self.__arrays = { str(col).strip(" ") : Array(arr, index=index) for col, arr in self._df.items() }
         self.__arrays['_index'] = Array(index, index=index)
 
     @property
-    def df(self):
+    def df(self) -> pd.DataFrame:
         return self._df
 
     @property
-    def len(self):
+    def len(self) -> int:
         return self.__len
 
-    def __getitem__(self, item: str):
-        return self._get_array(item)
+    @property
+    def columns(self) -> list:
+        return list(self.__arrays.keys())
 
-    def __getattr__(self, item: str):
+    def __getitem__(self, item: str) -> Array:
+        return self.__get_array(item)
+
+    def __getattr__(self, item: str) -> Array:
         try:
-            return self._get_array(item)
+            return self.__get_array(item)
         except KeyError:
             raise AttributeError(f"Column '{item}' not in data") from None
 
-    def _get_array(self, key: str) -> Array:
+    def __get_array(self, key: str) -> Array:
         arr = self.__cache.get(key)
         if arr is None:
             arr = self.__cache[key] = cast(Array, self.__arrays[key][:self.__i])
@@ -198,6 +187,9 @@ class Data:
         self.__i = i
         self.__cache.clear()
 
+    def to_pandas(self) -> pd.DataFrame:
+        return self._df
+
 @dataclass
 class Broker:
     """
@@ -205,50 +197,60 @@ class Broker:
     Should be using duck typing through typing.Protocol.
     """
 
-    cash_amount: float = field(repr=True, default=1000)
+    _cash_amount: float             = field(init=True, repr=True, default=1000)
 
     _: KW_ONLY
-    position: Optional[Position] = field(repr=True, default=None)       # Default empty if no existing position pre deployment
-    orders: list[Order] = field(repr=True, default_factory=list)        # Default empty if no existing orders pre deployment
-    trades: list[Trade] = field(repr=True, default_factory=list)        # Always empty : don't track pre deployment trades (no sense)
+    _position: Optional[Position]   = field(init=True, repr=True, default=None)            # Default empty if no existing position pre deployment
+    _orders:   list[Order]          = field(init=True, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
+    _trades:   list[Trade]          = field(init=True, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
 
     @property
     def in_position(self) -> bool:
         """ Boolean to use in strategies. """
-        return True if (self.position) else False
+        return True if (self._position) else False
+
+    @property
+    def cash_amount(self) -> float:
+        return self._cash_amount
+
+    @property
+    def position(self) -> Optional[Position]:
+        return self._position
+    
+    @property
+    def orders(self) -> list[Order]:
+        return self._orders
+    
+    @property
+    def trades(self) -> list[Trade]:
+        return self._trades
 
     def compute_value(self, price: float) -> float :
-        return price * self.position.quantity if self.position else 0
-
-    def get_position(self) -> Optional[Position]:
-        return self.position if self.position else None
-    
-    def get_orders(self) -> list[Order]:
-        return self.orders
+        return price * self._position.quantity if self._position else 0
 
     def create_position(self, symbol: str, price: float, date: str):
         """ Create a position. Should be the work of the Order (if successfull). """
-        if self.position: raise AlreadyInPosition("Can't enter because already in position.")
-        max_quantity = int(self.cash_amount // price)
-        self.cash_amount -= price * max_quantity         # Update the cash available
-        self.position =  Position(symbol, max_quantity, price, date)
+        if self._position: raise AlreadyInPosition("Can't enter because already in position.")
+        max_quantity = int(self._cash_amount // price)
+        self._cash_amount -= price * max_quantity         # Update the cash available
+        self._position =  Position(symbol, max_quantity, price, date)
 
     def close_position(self, price: float, date:str):
         """ Close a position. Should be the work of the Order (if successfull). """
-        if not self.position: raise NotInPosition("Can't exit because not in position.")
+        if not self._position: raise NotInPosition("Can't exit because not in position.")
 
-        self.cash_amount += self.position.quantity * price
-        self.position = None
+        self._cash_amount += self._position.quantity * price
+        self._position = None
 
     def enter(self, symbol: str, price: float, date: str):
 
         self.create_position(symbol, price, date)
-        print(f"\tEntering symbol {symbol}: ", self.position)
+        print(f"\tEntering symbol {symbol}: ", self._position)
 
     def exit(self, symbol: str, price: float, date: str):
 
         self.close_position(price, date)
-        print(f"\tExiting symbol {symbol}: ", self.cash_amount, self.position)
+        print(f"\tExiting symbol {symbol}: ", self._cash_amount, self._position)
 
     def exit_all(self, symbol: str, price: float, date: str):
         self.exit(symbol, price, date)
