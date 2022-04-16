@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable, TypeAlias
 
-from _utils import _Data, Broker, _Array
+from _utils import Data, Broker, Array
 
 import numpy as np
 import talib as ta
@@ -23,7 +23,7 @@ class Decision(Enum):
 ## 
 #   Strategy Callable
 ##
-StrategyCallable: TypeAlias = Callable[[_Array, Broker], Decision]
+StrategyCallable: TypeAlias = Callable[[Array, Broker], Decision]
 
 # broker logic can be deported in the runnable class TODO: Decide on that
 # broker should be a list of broker instead ?
@@ -40,7 +40,7 @@ def simple_mobile_average(data: np.ndarray, broker: Broker, sma1_window_size=20,
             return Decision.EXIT
         return Decision.HOLD
 
-def simple_bollinger_bands(data: _Array, broker: Broker, sma1_window_size=14, bband_window_size=21) -> Decision:
+def simple_bollinger_bands(data: Array, broker: Broker, sma1_window_size=14, bband_window_size=21) -> Decision:
         """ Simple BBand Strategy """
         
         # This should work even if Runnable is not a backtest function but a websocket (for example ?) runnable (i.e: bot)

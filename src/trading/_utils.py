@@ -90,7 +90,7 @@ class Trade:
     """ Trade class. To keep track of closed orders. """
     pass
 
-class _Array(np.ndarray):
+class Array(np.ndarray):
     """ ndarray extended. """
     def __new__(cls, array, *, name=None, **kwargs):
         obj = np.asarray(array).view(cls)
@@ -142,23 +142,32 @@ class _Array(np.ndarray):
         return df
 
 @dataclass
-class _Data:
-    """ Data class to hold and interact with data efficiently. """
+class Data:
+    """ Data class to hold and interact with data efficiently through numpy arrays. """
 
-    _df: pd.DataFrame  = field(repr=False, init=True)
-    _arrays: Dict[str, _Array] = field(repr=True, init=False, default_factory=dict)
-    _len: int = field(repr=True, init=False)
-    __i: int = field(repr=False, init=False)
-    __cache: Dict[str, _Array] = field(repr=False, init=False, default_factory=dict)
+    _df: pd.DataFrame  = field(init=True, repr=False)
+
+    __arrays: Dict[str, Array] = field(init=False, repr=True, default_factory=dict)
+    __len: int = field(init=False, repr=True)
+    __i: int = field(init=False, repr=False)
+    __cache: Dict[str, Array] = field(init=False, repr=False, default_factory=dict)
 
     def __post_init__(self):
         self.__i = len(self._df)
-        self._len = len(self._df)
+        self.__len = len(self._df)
 
         index = self._df.index.copy()
 
-        self._arrays = {str(col).strip(" ") : _Array(arr, index=index) for col, arr in self._df.items()}
-        self._arrays['_index'] = _Array(index, index=index)
+        self.__arrays = {str(col).strip(" ") : Array(arr, index=index) for col, arr in self._df.items()}
+        self.__arrays['_index'] = Array(index, index=index)
+
+    @property
+    def df(self):
+        return self._df
+
+    @property
+    def len(self):
+        return self.__len
 
     def __getitem__(self, item: str):
         return self._get_array(item)
@@ -169,10 +178,10 @@ class _Data:
         except KeyError:
             raise AttributeError(f"Column '{item}' not in data") from None
 
-    def _get_array(self, key: str) -> _Array:
+    def _get_array(self, key: str) -> Array:
         arr = self.__cache.get(key)
         if arr is None:
-            arr = self.__cache[key] = cast(_Array, self._arrays[key][:self.__i])
+            arr = self.__cache[key] = cast(Array, self.__arrays[key][:self.__i])
         return arr
 
     def _set_index(self, i):
@@ -235,12 +244,12 @@ class Broker:
         self.exit(symbol, price, date)
 
 # Reader Callable Type
-DatasetReaderCallable: TypeAlias = Callable[[], _Data]
+DatasetReaderCallable: TypeAlias = Callable[[], Data]
 
 ##
 #   Reader Function
 ##
-def read_stock(stock_name: str,  _from: str = "", _to: str = "", _field: str = "") -> _Data:
+def read_stock(stock_name: str,  _from: str = "", _to: str = "", _field: str = "") -> Data:
     """ Read csv stock. Reading logic goes here """
 
     try:
@@ -251,25 +260,25 @@ def read_stock(stock_name: str,  _from: str = "", _to: str = "", _field: str = "
     df.index = df.Date
 
     if not _from and not _to:
-        return  _Data(df)
+        return  Data(df)
 
     if not _to:
-        return _Data(pd.DataFrame(df[(df.Date > _from)]))
+        return Data(pd.DataFrame(df[(df.Date > _from)]))
 
-    return _Data(pd.DataFrame(df[(df.Date > _from) & (df.Date <= _to)]))
+    return Data(pd.DataFrame(df[(df.Date > _from) & (df.Date <= _to)]))
 
 ##
 #   Implements a stock function for each. We can make it dynamic later on.
 #   If we bundle everything into a library, this code should not be part of it.
 #   For now it kept here just to keep it organized.
 ##
-def AAPL(_from: str = "", _to: str = "") -> _Data:
+def AAPL(_from: str = "", _to: str = "") -> Data:
     return read_stock("AAPL", _from, _to)
 
-def IBM(_from: str = "", _to: str = "") -> _Data:
+def IBM(_from: str = "", _to: str = "") -> Data:
     return read_stock("IBM", _from, _to)
 
-def MSFT(_from: str = "", _to: str = "") -> _Data:
+def MSFT(_from: str = "", _to: str = "") -> Data:
     return read_stock("MSFT", _from, _to)
 
 ##

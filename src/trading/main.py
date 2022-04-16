@@ -7,7 +7,7 @@ from backtest import BackTest
 from broker import AlpacaBroker
 from strategy import simple_mobile_average, simple_bollinger_bands
 
-from _utils import MSFT, AAPL, IBM, Broker, wrapped_partial, _Data
+from _utils import MSFT, AAPL, IBM, Broker, wrapped_partial, Data
 
 
 def alpaca_test() -> None:
