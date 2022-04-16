@@ -7,6 +7,7 @@
 ## Refactor
 - Make protocols for Orders as it will depend on the API Broker
 - Change dates from str to datetime object (might need a class)
+- Responsability of Broker class is too big, find a way to delegate
 
 ## Improvments
 - Compute equity and stock somewhere

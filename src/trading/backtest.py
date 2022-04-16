@@ -2,7 +2,7 @@ from dataclasses import KW_ONLY, dataclass, field
 import datetime
 
 from strategy import Decision, StrategyCallable
-from _utils import Position, DatasetReaderCallable, Broker, get_function_name, Data, Array
+from _utils import DatasetReaderCallable, Broker, get_function_name, Data, Array
 
 import pandas as pd
 import numpy as np
@@ -64,21 +64,21 @@ class BackTest:
 
         # TODO: Start should skip (in the backtest) the first data where
         # The indicators are not ready (returning NaN anyway)
-        # start = 1 + max(windiw_size over indicators)
+        # start = 0 + max(windiw_size over indicators)
+        # Make sure to start at 1 because we always want to look at least previous data
+        # If not clear enough, make it a warning ?
         start = 1
 
         for i in range(start, self._data.len + 1):
-            self._data._set_index(i)
-            # Past data is appended with current data and provided to the strategy to make decision
+            self._data.index = i
 
-            # TODO: Not optimal, change over need if we often need
-            # to use Close along with Open of ticks
-            # Then prices shoyld be of class _Data instead of single _Array
             price, decision = self._strategy(self._data, self._broker)
 
             # Will need to convert the index to a datetime object later on.
             index = self._data.Date[-1]
 
+            # TODO: Should a strategy return an order instead?
+            # Not sure of the Decision ENUM return anyway
             if not price:
                 continue
             elif decision == Decision.ENTER:

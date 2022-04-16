@@ -143,12 +143,12 @@ class Data:
 
     _df:        pd.DataFrame        = field(init=True,  repr=True,  default = pd.DataFrame())
     __len:      int                 = field(init=False, repr=False, default = 0)
-    __i:        int                 = field(init=False, repr=False, default = 0)
+    __index:    int                 = field(init=False, repr=False, default = 0)
     __cache:    Dict[str, Array]    = field(init=False, repr=False, default_factory=dict)
     __arrays:   Dict[str, Array]    = field(init=False, repr=True,  default_factory=dict)
 
     def __post_init__(self):
-        self.__i = len(self._df)
+        self.__index = len(self._df)
         self.__len = len(self._df)
 
         index = self._df.index.copy()
@@ -168,6 +168,19 @@ class Data:
     def columns(self) -> list:
         return list(self.__arrays.keys())
 
+    @property
+    def index(self) -> int:
+        return self.__index
+    
+    @index.setter
+    def index(self, i):
+        if i == 0:
+            raise IndexError("Index should be greater than 0. Need at least a len 2 array.")
+        if i > self.__len:
+            raise IndexError("Index can't be greater than the maximum number of data.")
+        self.__cache.clear()
+        self.__index = i
+
     def __getitem__(self, item: str) -> Array:
         return self.__get_array(item)
 
@@ -180,12 +193,8 @@ class Data:
     def __get_array(self, key: str) -> Array:
         arr = self.__cache.get(key)
         if arr is None:
-            arr = self.__cache[key] = cast(Array, self.__arrays[key][:self.__i])
+            arr = self.__cache[key] = cast(Array, self.__arrays[key][:self.__index])
         return arr
-
-    def _set_index(self, i):
-        self.__i = i
-        self.__cache.clear()
 
     def to_pandas(self) -> pd.DataFrame:
         return self._df
