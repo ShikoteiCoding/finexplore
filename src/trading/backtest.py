@@ -10,29 +10,41 @@ import numpy as np
 DATA_PATH = "../../data/companies_stock/"
 CSV_EXT = ".csv"
 
-@dataclass(frozen=False)
+@dataclass()
 class BackTest:
     """ Backtest Data Generator. """
 
-    broker: Broker
-    stock_data: DatasetReaderCallable
-    strategy: StrategyCallable = field(repr=False)
+    _broker:     Broker                 = field(init=True, repr=True)
+    _stock_data: DatasetReaderCallable  = field(init=True, repr=False)
+    _strategy:   StrategyCallable       = field(init=True, repr=False)
     
     _: KW_ONLY
-    _field: str = "Close"
+    _field:           str   = field(init=True, repr=True, default="Close")
+    _commission_rate: float = field(init=True, repr=True, default=0)
 
-    _data: Data = field(repr=False, init=False)
-    _symbol: str = field(repr=True, init=False)
-    commission_rate: float = field(repr=True, init=True, default=0)
+    _strategy_name: str = field(init=False, repr=True)
+    _symbol:        str = field(init=False, repr=True)
 
     ##
     #   TODO: Where to define indicators to plot ?
     ##
-
     def __post_init__(self):
-        self._data: Data = self.stock_data()
-        self._prices: Array = np.empty(shape=1) #type: ignore
-        self._symbol: str = get_function_name(self.stock_data)
+        self._data:          Data   = self._stock_data()
+        self._prices:        Array  = Array(np.empty(shape=1), name="prices")
+        self._symbol:        str    = get_function_name(self._stock_data)
+        self._strategy_name: str    = get_function_name(self._strategy)
+
+    @property
+    def broker(self) -> Broker:
+        return self._broker
+    
+    @property
+    def data(self) -> Data:
+        return self._data
+    
+    @property
+    def symbol(self) -> str:
+        return self._symbol
 
     def run(self):
         """ Run the script iteratively.  """
@@ -65,20 +77,20 @@ class BackTest:
             # to use Close along with Open of ticks
             # Then prices shoyld be of class _Data instead of single _Array
             self._prices = self._data["Close"]
-            decision = self.strategy(self._prices, self.broker)
+            decision = self._strategy(self._prices, self._broker)
 
             # Will need to convert the index to a datetime object later on.
             index = self._data._index[-1]
 
             if decision == Decision.ENTER:
                 print(f"\nDate is: {index}")
-                self.broker.enter(self._symbol, self._prices[-1], str(index))
+                self._broker.enter(self._symbol, self._prices[-1], str(index))
             if decision == Decision.EXIT:
                 print(f"\nDate is: {index}")
-                self.broker.exit(self._symbol, self._prices[-1], str(index))
+                self._broker.exit(self._symbol, self._prices[-1], str(index))
         
         # Exit no matter what do evaluate performances
-        self.broker.exit_all(self._symbol, self._data.Close[-1], str(self._data._index[-1]))
+        self._broker.exit_all(self._symbol, self._data.Close[-1], str(self._data._index[-1]))
 
 
         # From backtesting py

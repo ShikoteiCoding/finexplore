@@ -42,16 +42,18 @@ def backtest_bbands():
     stock_data = wrapped_partial(AAPL, _from = "2021-01-01")
     sbband_partial = wrapped_partial(simple_bollinger_bands, sma1_window_size=14, bband_window_size=21)
 
-    test = BackTest(broker, stock_data, sbband_partial, commission_rate=0.02)
+    test = BackTest(broker, stock_data, sbband_partial, _commission_rate=0.02)
 
     test.run()
 
 def test_data():
     """ Testing the new data class. """
+    broker = Broker(_cash_amount=1_000)
+    stock_data = wrapped_partial(AAPL, _from = "2021-01-01")
+    sbband_partial = wrapped_partial(simple_bollinger_bands, sma1_window_size=14, bband_window_size=21)
 
-    data = AAPL()
-    print(data)
-    print(data.columns)
+    test = BackTest(broker, stock_data, sbband_partial, _commission_rate=0.02)
+    print(test)
     
 if __name__ == '__main__':
-    backtest_bbands()
+    test_data()
