@@ -53,3 +53,13 @@
         return read_stock("S&P500", _from, _to)
 ```
 - Load the file as in the main.py file
+
+# Conventions
+
+## Classes
+
+- Class Attributes should be named as follows:
+    - No underscore: If keyword attribute needed at initialisation (init = True)
+    - Single Underscore: If keyword not always needed at initialisation (init = False)
+    - Double Underscore : If purely internal (init = False)
+- Create properties without underscore to secure data access and protect demeter's law

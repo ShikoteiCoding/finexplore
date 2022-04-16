@@ -58,10 +58,10 @@ class NotAlterableDataset(Exception):
 @dataclass
 class Position:
     """ Position class. Keep track of symbol positions. """
-    _symbol: str = field(repr=True)
-    _quantity: int = field(repr=True)
-    _enter_price: float = field(repr=True)
-    _enter_date: str = field(repr=True)
+    _symbol: str = field(init=True, repr=True)
+    _quantity: int = field(init=True, repr=True)
+    _enter_price: float = field(init=True, repr=True)
+    _enter_date: str = field(init=True, repr=True)
 
     def get_quantity(self) -> int:
         """ Returns the quantity of the position """
