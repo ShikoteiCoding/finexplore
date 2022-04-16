@@ -49,7 +49,7 @@ def backtest_bbands():
 def test_data():
     """ Testing the new data class. """
     data = AAPL()
-    data.index = data.len
+    data.i = data.len
     print(data.Close[data.len:data.len + 1])
     print(data.len)
     

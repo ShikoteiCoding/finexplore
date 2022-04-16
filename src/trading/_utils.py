@@ -169,11 +169,19 @@ class Data:
         return list(self.__arrays.keys())
 
     @property
-    def index(self) -> int:
+    def i(self) -> int:
+        """
+        Maximum slice value to return arrays as follows: array[:i].
+        Only used for iterative exposure of a fully known dataset.
+        """
         return self.__index
+
+    @property
+    def index(self) -> Array:
+        return self.__get_array("__index")
     
-    @index.setter
-    def index(self, i):
+    @i.setter
+    def i(self, i):
         if i == 0:
             raise IndexError("Index should be greater than 0. Need at least a len 2 array.")
         if i > self.__len:
@@ -208,10 +216,13 @@ class Broker:
 
     _cash_amount: float             = field(init=True, repr=True, default=1000)
 
-    _: KW_ONLY
-    _position: Optional[Position]   = field(init=True, repr=True, default=None)            # Default empty if no existing position pre deployment
-    _orders:   list[Order]          = field(init=True, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
-    _trades:   list[Trade]          = field(init=True, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
+    _position: Optional[Position]   = field(init=False, repr=True, default=None)            # Default empty if no existing position pre deployment
+    _orders:   list[Order]          = field(init=False, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
+    _trades:   list[Trade]          = field(init=False, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
+    _equity:   float                = field(init=False, repr=True)
+
+    def __post_init__(self):
+        self._equity = self._cash_amount
 
     @property
     def in_position(self) -> bool:
@@ -221,6 +232,10 @@ class Broker:
     @property
     def cash_amount(self) -> float:
         return self._cash_amount
+
+    @property
+    def equity(self) -> float:
+        return self._equity
 
     @property
     def position(self) -> Optional[Position]:

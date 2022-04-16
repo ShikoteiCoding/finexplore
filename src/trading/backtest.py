@@ -70,7 +70,7 @@ class BackTest:
         start = 1
 
         for i in range(start, self._data.len + 1):
-            self._data.index = i
+            self._data.i = i
 
             price, decision = self._strategy(self._data, self._broker)
 
