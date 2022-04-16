@@ -19,7 +19,6 @@ class BackTest:
     _strategy:   StrategyCallable       = field(init=True, repr=False)
     
     _: KW_ONLY
-    _field:           str   = field(init=True, repr=True, default="Close")
     _commission_rate: float = field(init=True, repr=True, default=0)
 
     _strategy_name: str = field(init=False, repr=True)
@@ -30,7 +29,6 @@ class BackTest:
     ##
     def __post_init__(self):
         self._data:          Data   = self._stock_data()
-        self._prices:        Array  = Array(np.empty(shape=1), name="prices")
         self._symbol:        str    = get_function_name(self._stock_data)
         self._strategy_name: str    = get_function_name(self._strategy)
 
@@ -76,21 +74,22 @@ class BackTest:
             # TODO: Not optimal, change over need if we often need
             # to use Close along with Open of ticks
             # Then prices shoyld be of class _Data instead of single _Array
-            self._prices = self._data["Close"]
-            decision = self._strategy(self._prices, self._broker)
+            price, decision = self._strategy(self._data, self._broker)
 
             # Will need to convert the index to a datetime object later on.
-            index = self._data._index[-1]
+            index = self._data.Date[-1]
 
-            if decision == Decision.ENTER:
+            if not price:
+                continue
+            elif decision == Decision.ENTER:
                 print(f"\nDate is: {index}")
-                self._broker.enter(self._symbol, self._prices[-1], str(index))
-            if decision == Decision.EXIT:
+                self._broker.enter(self._symbol, price, str(index))
+            elif decision == Decision.EXIT:
                 print(f"\nDate is: {index}")
-                self._broker.exit(self._symbol, self._prices[-1], str(index))
+                self._broker.exit(self._symbol, price, str(index))
         
         # Exit no matter what do evaluate performances
-        self._broker.exit_all(self._symbol, self._data.Close[-1], str(self._data._index[-1]))
+        self._broker.exit_all(self._symbol, self._data.Close[-1], str(self._data.Date[-1]))
 
 
         # From backtesting py
