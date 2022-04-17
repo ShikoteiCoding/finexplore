@@ -13,7 +13,7 @@
 - Compute equity and stock somewhere
 - Implement a full equity (enum ? class ?) instead of max long/short from the broker.
 - Convert Trade back to Array Class to compute visualization
-- Make elements of class containers interact with container through partial methods (callbacks)
+- Reduce cash amount when executing an order and not a trade (because if we open an order we bid the money until cancel)
 
 ## Features
 - Dockerize for deployment
