@@ -410,36 +410,6 @@ class Broker:
     def trades(self) -> list[Trade]:
         return self._trades
 
-    #def compute_value(self, price: float) -> float :
-    #    return price * self._position.quantity if self._position else 0
-
-    #def create_position(self, symbol: str, price: float, date: str):
-    #    """ Create a position. Should be the work of the Order (if successfull). """
-    #    if self._position: raise AlreadyInPosition("Can't enter because already in position.")
-    #    max_quantity = int(self._cash_amount // price)
-    #    self._cash_amount -= price * max_quantity         # Update the cash available
-    #    self._position =  Position(symbol, max_quantity, price, date)
-
-    #def close_position(self, price: float, date:str):
-    #    """ Close a position. Should be the work of the Order (if successfull). """
-    #    if not self._position: raise NotInPosition("Can't exit because not in position.")
-    #
-    #    self._cash_amount += self._position.quantity * price
-    #    self._position = None
-
-    #def enter(self, symbol: str, price: float, date: str):
-    #
-    #    self.create_position(symbol, price, date)
-    #    print(f"\tEntering symbol {symbol}: ", self._position)
-
-    # def exit(self, symbol: str, price: float, date: str):
-    #   
-    #    self.close_position(price, date)
-    #    print(f"\tExiting symbol {symbol}: ", self._cash_amount, self._position)
-
-    #def exit_all(self, symbol: str, price: float, date: str):
-    #    self.exit(symbol, price, date)
-
     def max_long(self, price: float) -> int:
         """ Returns the maximum positive quantity available to buy. """
         return int(self._cash_amount // price)
@@ -483,35 +453,32 @@ class Broker:
             - Orders not yet successful
             - Orders with limit (stop loss or take profit)
         """
-        
         for order in self.orders:
 
             # First case: normal order
             if order.symbol == symbol and order.entry_price == current_price:
                 self.record_trade(self.create_trade(symbol, order.size, current_price, current_time))
 
+            # Not necessarly true for sl and tp trades
             self.orders.remove(order)
 
-        self.update_position()
+        self.update_position(current_price)
 
     def record_trade(self, trade: Trade) -> None:
         """
         When a trade is created some actions are to be handled.
         Deal with those various actions here.
         """
-        # Update Cash Position
-        self._cash_amount += (trade.size * trade.entry_price)
-
-        # Update Position Boolean
-        self._position.in_position = trade.is_long
-
-        # Add the trade to the trades
+        self._cash_amount -= (trade.size * trade.entry_price)   # Update available cash
         self.trades.append(trade)
 
-    def update_position(self) -> None:
+    def update_position(self, current_price: float) -> None:
         total_size = sum(trade.size for trade in self._trades)
+
         self._position.in_position = total_size > 0
         self._position.size = total_size
+        self._position.cash_amount = self._cash_amount
+        self._position.equity = self._position._cash_amount + current_price * self._position.size
 
 
 # Reader Callable Type

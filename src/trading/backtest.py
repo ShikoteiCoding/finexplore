@@ -89,8 +89,7 @@ class BackTest:
                 self._broker.sell(self._symbol, - self._broker.max_short(), price, index)
             
             self._broker.process_orders(self._symbol, price, index)
-        
-        print(self._broker._position)
+            print(self._broker._position)
 
         # From backtesting py
         #equity = pd.Series(broker._equity).bfill().fillna(broker._cash).values
