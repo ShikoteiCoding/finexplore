@@ -42,24 +42,47 @@ class NotAlterableDataset(Exception):
 # Duck typing might be the key here to avoid fake inheritance.
 @dataclass
 class Position:
-    """ Position class. Holds data necessary for positionned money. """
-    _symbol:         str     = field(init=True, repr=True)
-    _quantity:       int     = field(init=True, repr=True)
-    _enter_price:    float   = field(init=True, repr=True)
-    _enter_date:     str     = field(init=True, repr=True)
+    """
+    Position class. Holds data necessary for positionned money.
+    To be passed to the strategy as a lighter version of Broker.
+    """
+
+    _in_position:   bool    = field(init=True, repr=True)
+    _size:          int     = field(init=True, repr=True)
+    _cash_amount:   float   = field(init=True, repr=True)
+    _equity:        float   = field(init=True, repr=True)
 
     @property
-    def quantity(self) -> float:
-        return self._quantity
+    def in_position(self) -> bool:
+        return self._in_position
+
+    @in_position.setter
+    def in_position(self, val: bool) -> None:
+        self._in_position = val
+
     @property
-    def symbol(self) -> str:
-        return self._symbol
+    def size(self) -> int:
+        return self._size
+
+    @size.setter
+    def size(self, val: int) -> None:
+        self._size = val
+
     @property
-    def enter_price(self) -> float:
-        return self._enter_price
+    def equity(self) -> float:
+        return self._equity
+
+    @equity.setter
+    def equity(self, val: float) -> None:
+        self._equity = val
+
     @property
-    def enter_date(self) -> str:
-        return self._enter_date
+    def cash_amount(self) -> float:
+        return self._cash_amount
+
+    @cash_amount.setter
+    def cash_amount(self, val: float) -> None:
+        self._cash_amount = val
     
     @staticmethod
     def load_positions(file_path: str) -> list: # type: ignore
@@ -92,8 +115,13 @@ class Order:
     _exit_price:    Optional[float]  = field(init=True, repr=False, default=None)
     _exit_date:     Optional[str]    = field(init=True, repr=False, default=None)
 
+    _long: bool  = field(init=False, repr=True)
+    _short: bool = field(init=False, repr=True)
+
     def __post_init__(self):
         self.display_init()
+        self._long = self._size > 0
+        self._short = self._size < 0
 
     @property
     def broker(self) -> 'Broker':
@@ -126,6 +154,14 @@ class Order:
     @property
     def exit_date(self) -> Optional[str]:
         return self._exit_date
+
+    @property
+    def long(self) -> bool:
+        return self.long
+
+    @property
+    def short(self) -> bool:
+        return self.short
 
     def display_init(self) -> None:
         order_size = "Long" if self._size > 0 else "Short"
@@ -157,13 +193,15 @@ class Trade:
     _type:   str = field(init=True,  repr=True)
 
     _: KW_ONLY
-    _entry_price:   Optional[float]  = field(init=True,  repr=True, default=None)
-    _entry_date:    Optional[str]    = field(init=True,  repr=True, default=None)
-    _exit_price:    Optional[float]  = field(init=True, repr=False, default=None)
-    _exit_date:     Optional[str]    = field(init=True, repr=False, default=None)
+    _entry_price:   float           = field(init=True, repr=True)
+    _entry_time:    str             = field(init=True, repr=True)
+    _exit_price:    Optional[float] = field(init=True, repr=False, default=None)
+    _exit_time:     Optional[str]   = field(init=True, repr=False, default=None)
 
     def __post_init__(self):
         self.display_init()
+        self._is_long = self._size > 0
+        self._is_short = self._size < 0
 
     @property
     def broker(self) -> 'Broker':
@@ -182,7 +220,7 @@ class Trade:
         return self._type
     
     @property
-    def entry_price(self) -> Optional[float]:
+    def entry_price(self) -> float:
         return self._entry_price
     
     @property
@@ -190,12 +228,20 @@ class Trade:
         return self._exit_price
 
     @property
-    def entry_date(self) -> Optional[str]:
-        return self._entry_date
+    def entry_time(self) -> str:
+        return self._entry_time
 
     @property
-    def exit_date(self) -> Optional[str]:
-        return self._exit_date
+    def exit_time(self) -> Optional[str]:
+        return self._exit_time
+
+    @property
+    def is_long(self) -> bool:
+        return self._is_long
+
+    @property
+    def is_short(self) -> bool:
+        return self._is_short
     
     @property
     def pl(self) -> int:
@@ -203,7 +249,7 @@ class Trade:
 
     def display_init(self) -> None:
         order_size = "Long" if self._size > 0 else "Short"
-        print(f"{self._entry_date}\n{order_size} Trade of size: {self._size} has been approved for symbol: {self._symbol}")
+        print(f"{self._entry_time}\n{order_size} Trade of size: {self._size} has been approved for symbol: {self._symbol}")
 
 class Array(np.ndarray):
     """
@@ -330,16 +376,19 @@ class Broker:
     Should be using duck typing through typing.Protocol.
     """
 
-    _cash_amount: float             = field(init=True, repr=True, default=1000)
+    _cash_amount: float     = field(init=True, repr=True, default=1000)
 
-    _position: Optional[Position]   = field(init=False, repr=True, default=None)            # Default empty if no existing position pre deployment
-    _orders:   list[Order]          = field(init=False, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
-    _trades:   list[Trade]          = field(init=False, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
+    _position: Position     = field(init=False, repr=True) # Default empty if no existing position pre deployment
+    _orders:   list[Order]  = field(init=False, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
+    _trades:   list[Trade]  = field(init=False, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
+
+    def __post_init__(self):
+        self._position = Position(False, 0, self._cash_amount, self._cash_amount)
 
     @property
     def in_position(self) -> bool:
         """ Boolean to use in strategies. """
-        return True if (self._position) else False
+        return self._position.in_position
 
     @property
     def cash_amount(self) -> float:
@@ -361,35 +410,35 @@ class Broker:
     def trades(self) -> list[Trade]:
         return self._trades
 
-    def compute_value(self, price: float) -> float :
-        return price * self._position.quantity if self._position else 0
+    #def compute_value(self, price: float) -> float :
+    #    return price * self._position.quantity if self._position else 0
 
-    def create_position(self, symbol: str, price: float, date: str):
-        """ Create a position. Should be the work of the Order (if successfull). """
-        if self._position: raise AlreadyInPosition("Can't enter because already in position.")
-        max_quantity = int(self._cash_amount // price)
-        self._cash_amount -= price * max_quantity         # Update the cash available
-        self._position =  Position(symbol, max_quantity, price, date)
+    #def create_position(self, symbol: str, price: float, date: str):
+    #    """ Create a position. Should be the work of the Order (if successfull). """
+    #    if self._position: raise AlreadyInPosition("Can't enter because already in position.")
+    #    max_quantity = int(self._cash_amount // price)
+    #    self._cash_amount -= price * max_quantity         # Update the cash available
+    #    self._position =  Position(symbol, max_quantity, price, date)
 
-    def close_position(self, price: float, date:str):
-        """ Close a position. Should be the work of the Order (if successfull). """
-        if not self._position: raise NotInPosition("Can't exit because not in position.")
+    #def close_position(self, price: float, date:str):
+    #    """ Close a position. Should be the work of the Order (if successfull). """
+    #    if not self._position: raise NotInPosition("Can't exit because not in position.")
+    #
+    #    self._cash_amount += self._position.quantity * price
+    #    self._position = None
 
-        self._cash_amount += self._position.quantity * price
-        self._position = None
+    #def enter(self, symbol: str, price: float, date: str):
+    #
+    #    self.create_position(symbol, price, date)
+    #    print(f"\tEntering symbol {symbol}: ", self._position)
 
-    def enter(self, symbol: str, price: float, date: str):
+    # def exit(self, symbol: str, price: float, date: str):
+    #   
+    #    self.close_position(price, date)
+    #    print(f"\tExiting symbol {symbol}: ", self._cash_amount, self._position)
 
-        self.create_position(symbol, price, date)
-        print(f"\tEntering symbol {symbol}: ", self._position)
-
-    def exit(self, symbol: str, price: float, date: str):
-
-        self.close_position(price, date)
-        print(f"\tExiting symbol {symbol}: ", self._cash_amount, self._position)
-
-    def exit_all(self, symbol: str, price: float, date: str):
-        self.exit(symbol, price, date)
+    #def exit_all(self, symbol: str, price: float, date: str):
+    #    self.exit(symbol, price, date)
 
     def max_long(self, price: float) -> int:
         """ Returns the maximum positive quantity available to buy. """
@@ -397,11 +446,11 @@ class Broker:
 
     def max_short(self) -> int:
         """ Returns the maximum positive quantity available to sell. """
-        return sum(order.size for order in self.orders)
+        return sum(trade.size for trade in self.trades)
 
     def sell(self, symbol: str, size: int, price: float, date: str):
         # At this step we don't know if the order is successful or not
-        self.orders.append(self.create_order(symbol, -size, price, date))
+        self.orders.append(self.create_order(symbol, size, price, date))
 
     def buy(self, symbol: str, size: int, price: float, date: str):
         # At this step we don't know if the order is successful or not
@@ -424,10 +473,10 @@ class Broker:
             _size=size,
             _type="test",
             _entry_price=price,
-            _entry_date=entry_date
+            _entry_time=entry_date
         )
 
-    def process_orders(self, symbol: str, current_price: float, current_date: str):
+    def process_orders(self, symbol: str, current_price: float, current_time: str):
         """
         Process the orders to update internal data.
         Are queing two type of oders:
@@ -439,7 +488,30 @@ class Broker:
 
             # First case: normal order
             if order.symbol == symbol and order.entry_price == current_price:
-                self.trades.append(self.create_trade(symbol, order.size, current_price, current_date))
+                self.record_trade(self.create_trade(symbol, order.size, current_price, current_time))
+
+            self.orders.remove(order)
+
+        self.update_position()
+
+    def record_trade(self, trade: Trade) -> None:
+        """
+        When a trade is created some actions are to be handled.
+        Deal with those various actions here.
+        """
+        # Update Cash Position
+        self._cash_amount += (trade.size * trade.entry_price)
+
+        # Update Position Boolean
+        self._position.in_position = trade.is_long
+
+        # Add the trade to the trades
+        self.trades.append(trade)
+
+    def update_position(self) -> None:
+        total_size = sum(trade.size for trade in self._trades)
+        self._position.in_position = total_size > 0
+        self._position.size = total_size
 
 
 # Reader Callable Type
