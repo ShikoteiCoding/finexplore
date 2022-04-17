@@ -1,6 +1,6 @@
 from dataclasses import KW_ONLY, dataclass, field
 from functools import partial, update_wrapper
-from typing import Dict, Optional, TypeAlias, cast
+from typing import Dict, NoReturn, Optional, TypeAlias, Union, cast, NoReturn
 import numpy as np
 
 import pandas as pd
@@ -178,7 +178,7 @@ class Data:
 
     @property
     def index(self) -> Array:
-        return self.__get_array("__index")
+        return self.__get_array("_index")
     
     @i.setter
     def i(self, i):
@@ -189,20 +189,23 @@ class Data:
         self.__cache.clear()
         self.__index = i
 
-    def __getitem__(self, item: str) -> Array:
-        return self.__get_array(item)
+    def __getitem__(self, key: str) -> Array:
+        return self.__get_array(key)
 
-    def __getattr__(self, item: str) -> Array:
+    def __getattr__(self, __name: str) -> Array:
         try:
-            return self.__get_array(item)
+            return self.__get_array(__name)
         except KeyError:
-            raise AttributeError(f"Column '{item}' not in data") from None
+            raise AttributeError(f"Attribute {__name} is not a known column.")
 
-    def __get_array(self, key: str) -> Array:
-        arr = self.__cache.get(key)
+    def __get_array(self, __name: str) -> Array:
+        arr = self.__cache.get(__name)
         if arr is None:
-            arr = self.__cache[key] = cast(Array, self.__arrays[key][:self.__index])
+            arr = self.__cache[__name] = cast(Array, self.__arrays[__name][:self.__index])
         return arr
+
+    def add_empty_array(self, __name: str) -> None:
+        self.__arrays[__name] = Array(np.tile(np.nan, self.__len), name=__name)
 
     def to_pandas(self) -> pd.DataFrame:
         return self._df

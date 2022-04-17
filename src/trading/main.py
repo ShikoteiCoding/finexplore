@@ -2,12 +2,13 @@ import os
 from functools import partial
 from re import M
 from dotenv import load_dotenv
+import numpy as np
 
 from backtest import BackTest
 from broker import AlpacaBroker
 from strategy import simple_mobile_average, simple_bollinger_bands
 
-from _utils import MSFT, AAPL, IBM, Broker, wrapped_partial, Data, Position
+from _utils import MSFT, AAPL, IBM, Broker, wrapped_partial, Data, Position, Array
 
 
 def alpaca_test() -> None:
@@ -50,8 +51,10 @@ def test_data():
     """ Testing the new data class. """
     data = AAPL()
     data.i = data.len
-    print(data.Close[data.len:data.len + 1])
-    print(data.len)
+
+    data.add_empty_array("equity")
+
+    print(data.equity)
     
 if __name__ == '__main__':
-    backtest_bbands()
+    test_data()
