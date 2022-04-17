@@ -76,21 +76,19 @@ class BackTest:
 
             price, decision = self._strategy(self._data, self._broker)
 
-            # Will need to convert the index to a datetime object later on.
-            index = self._data.Date[-1]
+            # TODO: Will need to convert the index to a datetime object later on.
+            index = str(self._data.Date[-1])
 
             # TODO: Should a strategy return an order instead?
             # Not sure of the Decision ENUM return anyway
             if not price:
                 continue
             elif decision == Decision.ENTER:
-                self._broker.buy(self._symbol, self._broker.max_long(price), price, str(index))
+                self._broker.buy(self._symbol, self._broker.max_long(price), price, index)
             elif decision == Decision.EXIT:
-                self._broker.sell(self._symbol, - self._broker.max_short(), price, str(index))
-        
-        # Exit no matter what do evaluate performances
-        #self._broker.exit_all(self._symbol, self._data.Close[-1], str(self._data.Date[-1]))
-
+                self._broker.sell(self._symbol, - self._broker.max_short(), price, index)
+            
+            self._broker.process_orders(self._symbol, price, index)
 
         # From backtesting py
         #equity = pd.Series(broker._equity).bfill().fillna(broker._cash).values

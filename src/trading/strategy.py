@@ -27,7 +27,7 @@ StrategyCallable: TypeAlias = Callable[[Data, Broker], tuple[Optional[float], De
 
 # broker logic can be deported in the runnable class TODO: Decide on that
 # broker should be a list of broker instead ?
-def simple_mobile_average(data: Data, broker: Broker, sma1_window_size=20, sma2_window_size=50) -> tuple[Optional[float], Decision]:
+def simple_mobile_average(data: Data, broker: Broker, sma1_window_size=20, sma2_window_size=50) -> tuple[float, Decision]:
         """ Simple Mobile Average Strategy """
         prices = data.Close
         
@@ -38,9 +38,9 @@ def simple_mobile_average(data: Data, broker: Broker, sma1_window_size=20, sma2_
             return prices[-1], Decision.ENTER
         elif broker.in_position and crossover(ma2, ma1):
             return prices[-1], Decision.EXIT
-        return None, Decision.HOLD
+        return prices[-1], Decision.HOLD
 
-def simple_bollinger_bands(data: Data, broker: Broker, sma1_window_size=14, bband_window_size=21) -> tuple[Optional[float], Decision]:
+def simple_bollinger_bands(data: Data, broker: Broker, sma1_window_size=14, bband_window_size=21) -> tuple[float, Decision]:
         """ Simple BBand Strategy """
         prices = data.Close
         
@@ -54,4 +54,4 @@ def simple_bollinger_bands(data: Data, broker: Broker, sma1_window_size=14, bban
             return prices[-1], Decision.ENTER
         elif broker.in_position and crossover(ma1, last_price):
             return prices[-1], Decision.EXIT
-        return None, Decision.HOLD
+        return prices[-1], Decision.HOLD

@@ -68,7 +68,10 @@ class Position:
 
 @dataclass
 class Order:
-    """ Order class. To keep track of any information relatively of an order. """
+    """
+    Order class. To keep track of any information relatively of an order.
+    An order is not necessarly successful. Once it is, it becomes a trade.
+    """
 
     # TODO: For now, because orders / trades are affecting the data contained in the broker
     # We need to keep the reference in each object ...
@@ -79,9 +82,9 @@ class Order:
     # What will / might be modified. So let's keep the reference for now but needed for future improvment fs.
     _broker: 'Broker' = field(init=True, repr=True)
 
-    _symbol:        str    = field(init=True,  repr=True)
-    _size:          int    = field(init=True,  repr=True)
-    _type:          str    = field(init=True,  repr=True)
+    _symbol: str = field(init=True,  repr=True)
+    _size:   int = field(init=True,  repr=True)
+    _type:   str = field(init=True,  repr=True)
 
     _: KW_ONLY
     _entry_price:   Optional[float]  = field(init=True,  repr=True, default=None)
@@ -139,10 +142,68 @@ class Order:
 @dataclass
 class Trade:
     """ Trade class. To keep track of closed orders. """
+
+    # TODO: For now, because orders / trades are affecting the data contained in the broker
+    # We need to keep the reference in each object ...
+    # This is a real bad implementation because it is not really a tree data structure
+    # This might be addressed more elegantly with functionnal programming
+    # Giving the order a broker partial method (to self) to affect the broker class
+    # I can't do it right now because I stil can't define properly
+    # What will / might be modified. So let's keep the reference for now but needed for future improvment fs.
+    _broker: 'Broker' = field(init=True, repr=True)
+
+    _symbol: str = field(init=True,  repr=True)
+    _size:   int = field(init=True,  repr=True)
+    _type:   str = field(init=True,  repr=True)
+
+    _: KW_ONLY
+    _entry_price:   Optional[float]  = field(init=True,  repr=True, default=None)
+    _entry_date:    Optional[str]    = field(init=True,  repr=True, default=None)
+    _exit_price:    Optional[float]  = field(init=True, repr=False, default=None)
+    _exit_date:     Optional[str]    = field(init=True, repr=False, default=None)
+
+    def __post_init__(self):
+        self.display_init()
+
+    @property
+    def broker(self) -> 'Broker':
+        return self._broker
+
+    @property
+    def symbol(self) -> str:
+        return self._symbol
+
+    @property
+    def size(self) -> int:
+        return self._size
+    
+    @property
+    def type(self) -> str:
+        return self._type
+    
+    @property
+    def entry_price(self) -> Optional[float]:
+        return self._entry_price
+    
+    @property
+    def exit_price(self) -> Optional[float]:
+        return self._exit_price
+
+    @property
+    def entry_date(self) -> Optional[str]:
+        return self._entry_date
+
+    @property
+    def exit_date(self) -> Optional[str]:
+        return self._exit_date
     
     @property
     def pl(self) -> int:
         return 0
+
+    def display_init(self) -> None:
+        order_size = "Long" if self._size > 0 else "Short"
+        print(f"{self._entry_date}\n{order_size} Trade of size: {self._size} has been approved for symbol: {self._symbol}")
 
 class Array(np.ndarray):
     """
@@ -338,11 +399,13 @@ class Broker:
         """ Returns the maximum positive quantity available to sell. """
         return sum(order.size for order in self.orders)
 
-    def sell(self, symbol: str, size: int, price: float, date: str) -> Order:
-        return self.create_order(symbol, -size, price, date)
+    def sell(self, symbol: str, size: int, price: float, date: str):
+        # At this step we don't know if the order is successful or not
+        self.orders.append(self.create_order(symbol, -size, price, date))
 
-    def buy(self, symbol: str, size: int, price: float, date: str) -> Order:
-        return self.create_order(symbol, size, price, date)
+    def buy(self, symbol: str, size: int, price: float, date: str):
+        # At this step we don't know if the order is successful or not
+        self.orders.append(self.create_order(symbol, size, price, date))
 
     def create_order(self, symbol: str, size: int, price: float, date: str) -> Order:
         return Order(
@@ -353,10 +416,30 @@ class Broker:
             _entry_price=price,
             _entry_date=date
         )
+    
+    def create_trade(self, symbol: str, size: int, price: float, entry_date: str) -> Trade:
+        return Trade(
+            _broker=self,
+            _symbol=symbol,
+            _size=size,
+            _type="test",
+            _entry_price=price,
+            _entry_date=entry_date
+        )
 
-    def process_orders(self):
-        """ Process the orders to update internal data. """
-        pass
+    def process_orders(self, symbol: str, current_price: float, current_date: str):
+        """
+        Process the orders to update internal data.
+        Are queing two type of oders:
+            - Orders not yet successful
+            - Orders with limit (stop loss or take profit)
+        """
+        
+        for order in self.orders:
+
+            # First case: normal order
+            if order.symbol == symbol and order.entry_price == current_price:
+                self.trades.append(self.create_trade(symbol, order.size, current_price, current_date))
 
 
 # Reader Callable Type
