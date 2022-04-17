@@ -1,16 +1,15 @@
 from dataclasses import KW_ONLY, dataclass, field
 from functools import partial, update_wrapper
-from typing import Dict, NoReturn, Optional, TypeAlias, Union, cast, NoReturn
-import numpy as np
+from re import S
+from typing import Callable, Dict, NoReturn, Optional, TypeAlias, Union, cast
 
+import numpy as np
 import pandas as pd
 
 ##
 #   Utilities
 ##
 
-import pandas as pd
-from typing import Callable
 
 
 ##
@@ -21,20 +20,6 @@ CSV_EXT = ".csv"
 
 ##
 #   Type declarations
-##
-
-# Classes
-##
-#   class Broker:
-#       pass 
-#   class Order:
-#       pass 
-#   class Trade:
-#       pass 
-#   class Position:
-#       pass 
-#   class _Data:
-#       pass
 ##
 
 # Errors
@@ -84,19 +69,86 @@ class Position:
 @dataclass
 class Order:
     """ Order class. To keep track of any information relatively of an order. """
+
+    # TODO: For now, because orders / trades are affecting the data contained in the broker
+    # We need to keep the reference in each object ...
+    # This is a real bad implementation because it is not really a tree data structure
+    # This might be addressed more elegantly with functionnal programming
+    # Giving the order a broker partial method (to self) to affect the broker class
+    # I can't do it right now because I stil can't define properly
+    # What will / might be modified. So let's keep the reference for now but needed for future improvment fs.
+    _broker: 'Broker' = field(init=True, repr=True)
+
+    _symbol:        str    = field(init=True,  repr=True)
+    _size:          int    = field(init=True,  repr=True)
+    _type:          str    = field(init=True,  repr=True)
+
+    _: KW_ONLY
+    _entry_price:   Optional[float]  = field(init=True,  repr=True, default=None)
+    _entry_date:    Optional[str]    = field(init=True,  repr=True, default=None)
+    _exit_price:    Optional[float]  = field(init=True, repr=False, default=None)
+    _exit_date:     Optional[str]    = field(init=True, repr=False, default=None)
+
+    def __post_init__(self):
+        self.display_init()
+
+    @property
+    def broker(self) -> 'Broker':
+        return self._broker
+
+    @property
+    def symbol(self) -> str:
+        return self._symbol
+
+    @property
+    def size(self) -> int:
+        return self._size
+    
+    @property
+    def type(self) -> str:
+        return self._type
+    
+    @property
+    def entry_price(self) -> Optional[float]:
+        return self._entry_price
+    
+    @property
+    def exit_price(self) -> Optional[float]:
+        return self._exit_price
+
+    @property
+    def entry_date(self) -> Optional[str]:
+        return self._entry_date
+
+    @property
+    def exit_date(self) -> Optional[str]:
+        return self._exit_date
+
+    def display_init(self) -> None:
+        order_size = "Long" if self._size > 0 else "Short"
+        print(f"{self._entry_date}\n{order_size} Order of size: {self._size} created for symbol {self._symbol}")
     
     @staticmethod
     def load_orders(file_path: str) -> list: # type: ignore
-        """ Theortically, we can have ongoing orders before debuting a strategy (for example comming from another strategy). """
+        """
+        Theortically, we can have ongoing orders before debuting a strategy.
+        For instance comming from another strategy.
+        """
         pass
 
 @dataclass
 class Trade:
     """ Trade class. To keep track of closed orders. """
-    pass
+    
+    @property
+    def pl(self) -> int:
+        return 0
 
 class Array(np.ndarray):
-    """ Numpy ndarray extension. """
+    """
+    Numpy ndarray extension for performances over pandas.
+    Allows Talib functions without to convert each call
+    """
     def __new__(cls, array, *, name=None, **kwargs):
         obj = np.asarray(array).view(cls)
         obj.name = name or array.name
@@ -222,10 +274,6 @@ class Broker:
     _position: Optional[Position]   = field(init=False, repr=True, default=None)            # Default empty if no existing position pre deployment
     _orders:   list[Order]          = field(init=False, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
     _trades:   list[Trade]          = field(init=False, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
-    _equity:   float                = field(init=False, repr=True)
-
-    def __post_init__(self):
-        self._equity = self._cash_amount
 
     @property
     def in_position(self) -> bool:
@@ -238,7 +286,7 @@ class Broker:
 
     @property
     def equity(self) -> float:
-        return self._equity
+        return self._cash_amount + sum(trade.pl for trade in self._trades)
 
     @property
     def position(self) -> Optional[Position]:
@@ -281,6 +329,35 @@ class Broker:
 
     def exit_all(self, symbol: str, price: float, date: str):
         self.exit(symbol, price, date)
+
+    def max_long(self, price: float) -> int:
+        """ Returns the maximum positive quantity available to buy. """
+        return int(self._cash_amount // price)
+
+    def max_short(self) -> int:
+        """ Returns the maximum positive quantity available to sell. """
+        return sum(order.size for order in self.orders)
+
+    def sell(self, symbol: str, size: int, price: float, date: str) -> Order:
+        return self.create_order(symbol, -size, price, date)
+
+    def buy(self, symbol: str, size: int, price: float, date: str) -> Order:
+        return self.create_order(symbol, size, price, date)
+
+    def create_order(self, symbol: str, size: int, price: float, date: str) -> Order:
+        return Order(
+            _broker=self,
+            _symbol=symbol,
+            _size=size,
+            _type="test",
+            _entry_price=price,
+            _entry_date=date
+        )
+
+    def process_orders(self):
+        """ Process the orders to update internal data. """
+        pass
+
 
 # Reader Callable Type
 DatasetReaderCallable: TypeAlias = Callable[[], Data]

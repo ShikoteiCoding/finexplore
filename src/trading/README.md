@@ -11,8 +11,9 @@
 
 ## Improvments
 - Compute equity and stock somewhere
+- Implement a full equity (enum ? class ?) instead of max long/short from the broker.
 - Convert Trade back to Array Class to compute visualization
-- Securing class attributes with property getters and setters
+- Make elements of class containers interact with container through partial methods (callbacks)
 
 ## Features
 - Dockerize for deployment

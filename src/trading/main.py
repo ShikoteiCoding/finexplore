@@ -57,4 +57,4 @@ def test_data():
     print(data.equity)
     
 if __name__ == '__main__':
-    test_data()
+    backtest_bbands()

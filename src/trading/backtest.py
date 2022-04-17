@@ -32,6 +32,8 @@ class BackTest:
         self._symbol:        str    = get_function_name(self._stock_data)
         self._strategy_name: str    = get_function_name(self._strategy)
 
+        self._data.add_empty_array("equity")
+
     @property
     def broker(self) -> Broker:
         return self._broker
@@ -82,14 +84,12 @@ class BackTest:
             if not price:
                 continue
             elif decision == Decision.ENTER:
-                print(f"\nDate is: {index}")
-                self._broker.enter(self._symbol, price, str(index))
+                self._broker.buy(self._symbol, self._broker.max_long(price), price, str(index))
             elif decision == Decision.EXIT:
-                print(f"\nDate is: {index}")
-                self._broker.exit(self._symbol, price, str(index))
+                self._broker.sell(self._symbol, - self._broker.max_short(), price, str(index))
         
         # Exit no matter what do evaluate performances
-        self._broker.exit_all(self._symbol, self._data.Close[-1], str(self._data.Date[-1]))
+        #self._broker.exit_all(self._symbol, self._data.Close[-1], str(self._data.Date[-1]))
 
 
         # From backtesting py
