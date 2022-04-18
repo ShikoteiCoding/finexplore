@@ -47,6 +47,8 @@ def backtest_bbands():
 
     test.run()
 
+    #print(test.broker.equity)
+
 def test_data():
     """ Testing the new data class. """
     data = AAPL()

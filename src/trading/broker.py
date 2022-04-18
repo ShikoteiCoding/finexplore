@@ -216,23 +216,18 @@ class Broker:
     def in_position(self) -> bool:
         """ Boolean to use in strategies. """
         return self._position.in_position
-
     @property
     def cash_amount(self) -> float:
         return self._cash_amount
-
     @property
     def equity(self) -> float:
-        return self._cash_amount + sum(trade.pl for trade in self._trades)
-
+        return self._cash_amount + sum(trade.size for trade in self._trades)
     @property
     def position(self) -> Optional[Position]:
         return self._position
-    
     @property
     def orders(self) -> list[Order]:
         return self._orders
-    
     @property
     def trades(self) -> list[Trade]:
         return self._trades
@@ -295,6 +290,8 @@ class Broker:
         Deal with those various actions here.
         """
         self._cash_amount -= (trade.size * trade.entry_price)   # Update available cash
+        # Deal with IOC partial orders here ?
+        # remove max trade.size for available cash amount should simulate IOC.
         self.trades.append(trade)
 
     def update_position(self, current_price: float) -> None:
