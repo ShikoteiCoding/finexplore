@@ -2,7 +2,8 @@ from dataclasses import KW_ONLY, dataclass, field
 import datetime
 
 from strategy import Decision, StrategyCallable
-from _utils import DatasetReaderCallable, Broker, get_function_name, Data, Array
+from _utils import DatasetReaderCallable, get_function_name, Data, Array
+from broker import Broker
 
 import pandas as pd
 import numpy as np
