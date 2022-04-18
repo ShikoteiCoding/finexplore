@@ -14,6 +14,7 @@
 - Implement a full equity (enum ? class ?) instead of max long/short from the broker.
 - Convert Trade back to Array Class to compute visualization
 - Reduce cash amount when executing an order and not a trade (because if we open an order we bid the money until cancel)
+- Deal with GTC and IOC Orders:https://www.investopedia.com/terms/g/gtc.asp, https://www.investopedia.com/terms/i/immediateorcancel.asp
 
 ## Features
 - Dockerize for deployment

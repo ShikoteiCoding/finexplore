@@ -110,62 +110,65 @@ class Order:
     _type:   str = field(init=True,  repr=True)
 
     _: KW_ONLY
-    _entry_price:   Optional[float]  = field(init=True,  repr=True, default=None)
-    _entry_date:    Optional[str]    = field(init=True,  repr=True, default=None)
-    _exit_price:    Optional[float]  = field(init=True, repr=False, default=None)
-    _exit_date:     Optional[str]    = field(init=True, repr=False, default=None)
+    _limit_price: Optional[float] = field(init=True, repr=True, default=None)
+    _stop_price:  Optional[float] = field(init=True, repr=True, default=None)
+    _sl_price:    Optional[float] = field(init=True, repr=True, default=None)
+    _tp_price:    Optional[float] = field(init=True, repr=True, default=None)
+    #_entry_price:   Optional[float]  = field(init=True,  repr=True, default=None)
+    #_entry_date:    Optional[str]    = field(init=True,  repr=True, default=None)
+    #_exit_price:    Optional[float]  = field(init=True, repr=False, default=None)
+    #_exit_date:     Optional[str]    = field(init=True, repr=False, default=None)
 
     _long: bool  = field(init=False, repr=True)
     _short: bool = field(init=False, repr=True)
 
     def __post_init__(self):
-        self.display_init()
+        #self.display_init()
         self._long = self._size > 0
         self._short = self._size < 0
 
     @property
     def broker(self) -> 'Broker':
         return self._broker
-
     @property
     def symbol(self) -> str:
         return self._symbol
-
     @property
     def size(self) -> int:
         return self._size
-    
     @property
     def type(self) -> str:
         return self._type
-    
     @property
-    def entry_price(self) -> Optional[float]:
-        return self._entry_price
-    
+    def is_long(self) -> bool:
+        return self._long
     @property
-    def exit_price(self) -> Optional[float]:
-        return self._exit_price
+    def is_short(self) -> bool:
+        return self._short
 
-    @property
-    def entry_date(self) -> Optional[str]:
-        return self._entry_date
+    #@property
+    #def entry_price(self) -> Optional[float]:
+    #    return self._entry_price
+    #
+    #@property
+    #def exit_price(self) -> Optional[float]:
+    #    return self._exit_price
+    #
+    #@property
+    #def entry_date(self) -> Optional[str]:
+    #    return self._entry_date
+    #
+    #@property
+    #def exit_date(self) -> Optional[str]:
+    #    return self._exit_date
 
-    @property
-    def exit_date(self) -> Optional[str]:
-        return self._exit_date
+    def cancel(self) -> None:
+        """ Cancel an order. """
+        raise NotImplementedError()
 
-    @property
-    def long(self) -> bool:
-        return self.long
-
-    @property
-    def short(self) -> bool:
-        return self.short
-
-    def display_init(self) -> None:
-        order_size = "Long" if self._size > 0 else "Short"
-        print(f"{self._entry_date}\n{order_size} Order of size: {self._size} created for symbol {self._symbol}")
+    #def display_init(self) -> None:
+    #    order_size = "Long" if self._size > 0 else "Short"
+    #    print(f"{self._entry_date}\n{order_size} Order of size: {self._size} created for symbol {self._symbol}")
     
     @staticmethod
     def load_orders(file_path: str) -> list: # type: ignore
@@ -431,9 +434,7 @@ class Broker:
             _broker=self,
             _symbol=symbol,
             _size=size,
-            _type="test",
-            _entry_price=price,
-            _entry_date=date
+            _type="ioc"
         )
     
     def create_trade(self, symbol: str, size: int, price: float, entry_date: str) -> Trade:
@@ -441,7 +442,7 @@ class Broker:
             _broker=self,
             _symbol=symbol,
             _size=size,
-            _type="test",
+            _type="ioc",
             _entry_price=price,
             _entry_time=entry_date
         )
@@ -456,10 +457,10 @@ class Broker:
         for order in self.orders:
 
             # First case: normal order
-            if order.symbol == symbol and order.entry_price == current_price:
+            if order.symbol == symbol and order.type=="ioc":
                 self.record_trade(self.create_trade(symbol, order.size, current_price, current_time))
 
-            # Not necessarly true for sl and tp trades
+            # TODO: Handle sl and tp trades. Be careful. They are not necessarly closed after being issued.
             self.orders.remove(order)
 
         self.update_position(current_price)
