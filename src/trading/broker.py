@@ -141,7 +141,7 @@ class Trade:
     # Giving the order a broker partial method (to self) to affect the broker class
     # I can't do it right now because I stil can't define properly
     # What will / might be modified. So let's keep the reference for now but needed for future improvment fs.
-    _broker: 'Broker' = field(init=True, repr=True)
+    _broker: 'Broker' = field(init=True, repr=False)
 
     _symbol: str = field(init=True,  repr=True)
     _size:   int = field(init=True,  repr=True)
@@ -188,9 +188,10 @@ class Trade:
     @property
     def is_short(self) -> bool:
         return self._is_short
-    @property
-    def pl(self) -> int:
-        return 0
+    
+    def compute_pl(self, price: float) -> float:
+        price = self._exit_price or price
+        return self._size * (price - self._entry_price)
 
     def display_init(self) -> None:
         order_size = "Long" if self._size > 0 else "Short"
@@ -220,9 +221,6 @@ class Broker:
     def cash_amount(self) -> float:
         return self._cash_amount
     @property
-    def equity(self) -> float:
-        return self._cash_amount + sum(trade.size for trade in self._trades)
-    @property
     def position(self) -> Optional[Position]:
         return self._position
     @property
@@ -231,6 +229,9 @@ class Broker:
     @property
     def trades(self) -> list[Trade]:
         return self._trades
+    
+    def compute_equity(self, price) -> float:
+        return self._cash_amount + sum(trade.compute_pl(price) for trade in self._trades)
 
     def max_long(self, price: float) -> int:
         """ Returns the maximum positive quantity available to buy. """
