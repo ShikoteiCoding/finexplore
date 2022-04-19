@@ -47,7 +47,7 @@ def backtest_bbands():
 
     test.run()
 
-    #print(test.broker.equity)
+    print(test.data.equity)
 
 def test_data():
     """ Testing the new data class. """

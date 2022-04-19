@@ -150,8 +150,6 @@ class Trade:
     _: KW_ONLY
     _entry_price:   float           = field(init=True, repr=True)
     _entry_time:    str             = field(init=True, repr=True)
-    _exit_price:    Optional[float] = field(init=True, repr=False, default=None)
-    _exit_time:     Optional[str]   = field(init=True, repr=False, default=None)
 
     def __post_init__(self):
         self.display_init()
@@ -174,24 +172,14 @@ class Trade:
     def entry_price(self) -> float:
         return self._entry_price
     @property
-    def exit_price(self) -> Optional[float]:
-        return self._exit_price
-    @property
     def entry_time(self) -> str:
         return self._entry_time
-    @property
-    def exit_time(self) -> Optional[str]:
-        return self._exit_time
     @property
     def is_long(self) -> bool:
         return self._is_long
     @property
     def is_short(self) -> bool:
         return self._is_short
-    
-    def compute_pl(self, price: float) -> float:
-        price = self._exit_price or price
-        return self._size * (price - self._entry_price)
 
     def display_init(self) -> None:
         order_size = "Long" if self._size > 0 else "Short"
@@ -221,7 +209,7 @@ class Broker:
     def cash_amount(self) -> float:
         return self._cash_amount
     @property
-    def position(self) -> Optional[Position]:
+    def position(self) -> Position:
         return self._position
     @property
     def orders(self) -> list[Order]:
@@ -230,8 +218,8 @@ class Broker:
     def trades(self) -> list[Trade]:
         return self._trades
     
-    def compute_equity(self, price) -> float:
-        return self._cash_amount + sum(trade.compute_pl(price) for trade in self._trades)
+    def get_equity(self, price) -> float:
+        return self._cash_amount + self.position.size * price
 
     def max_long(self, price: float) -> int:
         """ Returns the maximum positive quantity available to buy. """
@@ -239,7 +227,7 @@ class Broker:
 
     def max_short(self) -> int:
         """ Returns the maximum positive quantity available to sell. """
-        return sum(trade.size for trade in self.trades)
+        return self.position.size
 
     def sell(self, symbol: str, size: int, price: float, date: str):
         # At this step we don't know if the order is successful or not
