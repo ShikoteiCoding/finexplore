@@ -1,14 +1,12 @@
 import os
-from functools import partial
 from dotenv import load_dotenv
-import numpy as np
 
 from backtest import BackTest
 from broker import AlpacaBroker
 from strategy import simple_mobile_average, simple_bollinger_bands
 
-from _utils import MSFT, AAPL, IBM, wrapped_partial, Data, Array
-from broker import Broker, Position
+from _utils import MSFT, AAPL, IBM, wrapped_partial
+from broker import Broker
 
 
 def alpaca_test() -> None:

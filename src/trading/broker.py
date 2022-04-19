@@ -32,31 +32,24 @@ class Position:
     @property
     def in_position(self) -> bool:
         return self._in_position
-
     @in_position.setter
     def in_position(self, val: bool) -> None:
         self._in_position = val
-
     @property
     def size(self) -> int:
         return self._size
-
     @size.setter
     def size(self, val: int) -> None:
         self._size = val
-
     @property
     def equity(self) -> float:
         return self._equity
-
     @equity.setter
     def equity(self, val: float) -> None:
         self._equity = val
-
     @property
     def cash_amount(self) -> float:
         return self._cash_amount
-
     @cash_amount.setter
     def cash_amount(self, val: float) -> None:
         self._cash_amount = val
@@ -217,9 +210,9 @@ class Broker:
     @property
     def trades(self) -> list[Trade]:
         return self._trades
-    
-    def get_equity(self, price) -> float:
-        return self._cash_amount + self.position.size * price
+    @property
+    def equity(self) -> float:
+        return self.position.equity
 
     def max_long(self, price: float) -> int:
         """ Returns the maximum positive quantity available to buy. """
@@ -284,30 +277,17 @@ class Broker:
         self.trades.append(trade)
 
     def update_position(self, current_price: float) -> None:
-        total_size = sum(trade.size for trade in self._trades)
+        """
+        This methods allows to systematically keep position up to date.
+        """
+        # Sum of previous trade size is the current held size
+        current_size = sum(trade.size for trade in self._trades)
 
-        self._position.in_position = total_size > 0
-        self._position.size = total_size
+        # In position if at least one symbol hold
+        self._position.in_position = current_size > 0
+        self._position.size = current_size
         self._position.cash_amount = self._cash_amount
         self._position.equity = self._position._cash_amount + current_price * self._position.size
-
-@dataclass
-class BackTestBroker:
-    """ Backtesting Broker to log transactions. """
-    
-    transaction_history: list[int]
-
-    def buy(self, symbol: str, amount: int) -> None:
-        """Simulate buying an amount of a given symbol at the current price."""
-        print(f"Buying amount {amount} in market {symbol}.")
-
-    def sell(self, symbol: str, amount: int) -> None:
-        """Simulate selling an amount of a given symbol at the current price."""
-        print(f"Selling amount {amount} in market {symbol}.")
-
-    def get_transactions(self) -> list[int]:
-        """ Get Transaction History. """
-        return self.transaction_history
 
 @dataclass
 class AlpacaBroker:
