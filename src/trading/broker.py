@@ -195,6 +195,7 @@ class Broker:
     _position: Position     = field(init=False, repr=True) # Default empty if no existing position pre deployment
     _orders:   list[Order]  = field(init=False, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
     _trades:   list[Trade]  = field(init=False, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
+    _cover_rate: int        = field(init=False, repr=True, default=0)
 
     def __post_init__(self):
         self._position = Position(False, 0, self._cash_amount, self._cash_amount)
@@ -239,11 +240,11 @@ class Broker:
         self.orders.append(self.create_order(symbol, size, price, time))
 
     def reserve_cash(self, amount: float) -> None:
-        self._cash_amount -= amount
+        """ When an order is created, the amount is unavailable and bound to the successfullness of the order. """
+        self._cash_amount -= (amount * (1 + self._cover_rate))
 
     def create_order(self, symbol: str, size: int, price: float, time: str) -> Order:
         self.reserve_cash(size * price if size > 0 else 0)
-        print(size * price if size > 0 else 0)
         return Order(
             _broker=self,
             _symbol=symbol,
@@ -301,7 +302,7 @@ class Broker:
 
     def update_position(self, current_price: float) -> None:
         """
-        This methods allows to systematically keep position up to date.
+        This method allows to systematically keep position up to date.
         """
         # Sum of previous trade size is the current held size
         current_size = sum(trade.size for trade in self._trades)
@@ -310,7 +311,7 @@ class Broker:
         self._position.in_position = current_size > 0
         self._position.size = current_size
         self._position.cash_amount = self._cash_amount
-        self._position.equity = self._position._cash_amount + current_price * self._position.size
+        self._position.equity = self._cash_amount + current_price * current_size
 
 @dataclass
 class AlpacaBroker:
