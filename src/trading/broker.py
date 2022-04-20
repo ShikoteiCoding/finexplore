@@ -112,6 +112,9 @@ class Order:
     @property
     def is_short(self) -> bool:
         return self._short
+    @property
+    def cash_reserved(self) -> float:
+        return self._cash_reserved
 
     def cancel(self) -> None:
         """ Cancel an order. """
@@ -189,9 +192,6 @@ class Broker:
 
     _cash_amount: float     = field(init=True, repr=True, default=1000)
 
-    _:KW_ONLY
-    _cash_reserved: float   = field(init=True, repr=True, default=0)   # Can be initialized if previous orders still in queue
-
     _position: Position     = field(init=False, repr=True) # Default empty if no existing position pre deployment
     _orders:   list[Order]  = field(init=False, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
     _trades:   list[Trade]  = field(init=False, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
@@ -238,7 +238,11 @@ class Broker:
         # At this step we don't know if the order is successful or not
         self.orders.append(self.create_order(symbol, size, price, time))
 
+    def reserve_cash(self, amount: float) -> None:
+        self._cash_amount -= amount
+
     def create_order(self, symbol: str, size: int, price: float, time: str) -> Order:
+        self.reserve_cash(size * price if size > 0 else 0)
         return Order(
             _broker=self,
             _symbol=symbol,
@@ -284,7 +288,14 @@ class Broker:
         When a trade is created some actions are to be handled.
         Deal with those various actions here.
         """
-        self._cash_amount -= (trade.size * trade.entry_price)   # Update available cash
+        if order.is_long:
+            print("is long")
+            left_over = order.cash_reserved - (trade.size * trade.entry_price) # Reserved amount is always higher
+            self._cash_amount = self._cash_amount - (trade.size * trade.entry_price) + left_over   # Add the left over
+        if order.is_short:
+            print("is short")
+            self._cash_amount -= (trade.size * trade.entry_price)
+        _ = input()
         # Deal with IOC partial orders here ?
         # remove max trade.size for available cash amount should simulate IOC.
         self.trades.append(trade)
