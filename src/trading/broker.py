@@ -243,6 +243,7 @@ class Broker:
 
     def create_order(self, symbol: str, size: int, price: float, time: str) -> Order:
         self.reserve_cash(size * price if size > 0 else 0)
+        print(size * price if size > 0 else 0)
         return Order(
             _broker=self,
             _symbol=symbol,
@@ -289,13 +290,11 @@ class Broker:
         Deal with those various actions here.
         """
         if order.is_long:
-            print("is long")
             left_over = order.cash_reserved - (trade.size * trade.entry_price) # Reserved amount is always higher
-            self._cash_amount = self._cash_amount - (trade.size * trade.entry_price) + left_over   # Add the left over
+            self._cash_amount = self._cash_amount + left_over       # Add the left over
         if order.is_short:
-            print("is short")
-            self._cash_amount -= (trade.size * trade.entry_price)
-        _ = input()
+            self._cash_amount -= (trade.size * trade.entry_price)   # Add to cash amount sold
+
         # Deal with IOC partial orders here ?
         # remove max trade.size for available cash amount should simulate IOC.
         self.trades.append(trade)
