@@ -75,9 +75,11 @@ class Order:
     # What will / might be modified. So let's keep the reference for now but needed for future improvment fs.
     _broker: 'Broker' = field(init=True, repr=True)
 
-    _symbol: str = field(init=True,  repr=True)
-    _size:   int = field(init=True,  repr=True)
-    _type:   str = field(init=True,  repr=True)
+    _symbol:        str     = field(init=True,  repr=True)
+    _size:          int     = field(init=True,  repr=True)
+    _type:          str     = field(init=True,  repr=True)
+    _time:          str     = field(init=True,  repr=True)
+    _cash_reserved: float   = field(init=True, repr=True)   # TODO: Stock cash reservation somewhere else? Seems weak here
 
     _: KW_ONLY
     _limit_price: Optional[float] = field(init=True, repr=True, default=None)
@@ -187,6 +189,9 @@ class Broker:
 
     _cash_amount: float     = field(init=True, repr=True, default=1000)
 
+    _:KW_ONLY
+    _cash_reserved: float   = field(init=True, repr=True, default=0)   # Can be initialized if previous orders still in queue
+
     _position: Position     = field(init=False, repr=True) # Default empty if no existing position pre deployment
     _orders:   list[Order]  = field(init=False, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
     _trades:   list[Trade]  = field(init=False, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
@@ -213,6 +218,9 @@ class Broker:
     @property
     def equity(self) -> float:
         return self.position.equity
+    @property
+    def cash_reserved(self) -> float:
+        return sum(order._cash_reserved for order in self.orders)
 
     def max_long(self, price: float) -> int:
         """ Returns the maximum positive quantity available to buy. """
@@ -222,30 +230,33 @@ class Broker:
         """ Returns the maximum positive quantity available to sell. """
         return self.position.size
 
-    def sell(self, symbol: str, size: int, price: float, date: str):
+    def sell(self, symbol: str, size: int, price: float, time: str):
         # At this step we don't know if the order is successful or not
-        self.orders.append(self.create_order(symbol, size, price, date))
+        self.orders.append(self.create_order(symbol, size, price, time))
 
-    def buy(self, symbol: str, size: int, price: float, date: str):
+    def buy(self, symbol: str, size: int, price: float, time: str):
         # At this step we don't know if the order is successful or not
-        self.orders.append(self.create_order(symbol, size, price, date))
+        self.orders.append(self.create_order(symbol, size, price, time))
 
-    def create_order(self, symbol: str, size: int, price: float, date: str) -> Order:
+    def create_order(self, symbol: str, size: int, price: float, time: str) -> Order:
         return Order(
             _broker=self,
             _symbol=symbol,
             _size=size,
-            _type="ioc"
+            _type="ioc",
+            _time=time,
+            _cash_reserved= size * price if size > 0 else 0
         )
     
-    def create_trade(self, symbol: str, size: int, price: float, entry_date: str) -> Trade:
-        return Trade(
+    def create_trade(self, order: Order, price: float, entry_time: str) -> tuple[Order, Trade]:
+        """ Create a trade from an existing order. """
+        return order, Trade(
             _broker=self,
-            _symbol=symbol,
-            _size=size,
-            _type="ioc",
+            _symbol=order.symbol,
+            _size=order.size,
+            _type=order.type,
             _entry_price=price,
-            _entry_time=entry_date
+            _entry_time=entry_time
         )
 
     def process_orders(self, symbol: str, current_price: float, current_time: str):
@@ -254,19 +265,21 @@ class Broker:
         Are queing two type of oders:
             - Orders not yet successful
             - Orders with limit (stop loss or take profit)
+        Not sure of this method if it reflects truly the behavior of the API.
+        Might be more like : create order -> create trade
         """
         for order in self.orders:
 
             # First case: normal order
             if order.symbol == symbol and order.type=="ioc":
-                self.record_trade(self.create_trade(symbol, order.size, current_price, current_time))
+                self.record_trade(*self.create_trade(order, current_price, current_time)) # Unpack tuple
 
             # TODO: Handle sl and tp trades. Be careful. They are not necessarly closed after being issued.
             self.orders.remove(order)
 
         self.update_position(current_price)
 
-    def record_trade(self, trade: Trade) -> None:
+    def record_trade(self, order: Order, trade: Trade) -> None:
         """
         When a trade is created some actions are to be handled.
         Deal with those various actions here.
