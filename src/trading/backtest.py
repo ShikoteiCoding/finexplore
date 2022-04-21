@@ -16,21 +16,22 @@ class BackTest:
     """ Backtest Data Generator. """
 
     _broker:     Broker                 = field(init=True, repr=True)
-    _stock_data: DatasetReaderCallable  = field(init=True, repr=False)
+    _data_func:  DatasetReaderCallable  = field(init=True, repr=False)
     _strategy:   StrategyCallable       = field(init=True, repr=False)
     
     _: KW_ONLY
+    _visual_mode:     bool  = field(init=True, repr=True, default=False)
     _commission_rate: float = field(init=True, repr=True, default=0)
+    _symbol:            str = field(init=False, repr=True)
 
     _strategy_name: str = field(init=False, repr=True)
-    _symbol:        str = field(init=False, repr=True)
 
     ##
     #   TODO: Where to define indicators to plot ?
     ##
     def __post_init__(self):
-        self._data:          Data   = self._stock_data()
-        self._symbol:        str    = get_function_name(self._stock_data)
+        self._data:          Data   = self._data_func()
+        self._symbol:        str    = get_function_name(self._data_func)
         self._strategy_name: str    = get_function_name(self._strategy)
 
         self._data.add_empty_array("equity")

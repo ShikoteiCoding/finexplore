@@ -10,8 +10,8 @@
 
 ## Improvments
 - Implement a full equity (enum ? class ?) instead of max long/short from the broker.
+- Implement commision rats
 - Convert Trade back to Array Class to compute visualization
-- Reduce cash amount when executing an order and not a trade (because if we open an order we bid the money until cancel)
 - Deal with GTC and IOC Orders:https://www.investopedia.com/terms/g/gtc.asp, https://www.investopedia.com/terms/i/immediateorcancel.asp
 
 ## Features
@@ -47,6 +47,7 @@
     pip3 install python-dotenv
     pip3 install yfinance
     pip3 install alpaca_trade_api
+    pip3 install dash
     ```
 
 # Run a backtest

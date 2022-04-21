@@ -7,6 +7,7 @@ from strategy import simple_mobile_average, simple_bollinger_bands
 
 from _utils import MSFT, AAPL, IBM, wrapped_partial
 from broker import Broker
+from plotting import plot
 
 
 def alpaca_test() -> None:
@@ -55,6 +56,15 @@ def test_data():
     data.add_empty_array("equity")
 
     print(data.equity)
+
+def plot():
+    """ Testing the Plotting. """
+    data = AAPL()
+
+    app = plot(data)
+    
+    app.server_run()
+
     
 if __name__ == '__main__':
-    backtest_bbands()
+    plot()
