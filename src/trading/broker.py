@@ -231,6 +231,9 @@ class Broker:
         """ Returns the maximum positive quantity available to sell. """
         return self.position.size
 
+    #class FULL_EQUITY(float):
+    #    def __init__(self): 
+
     def sell(self, symbol: str, size: int, price: float, time: str):
         # At this step we don't know if the order is successful or not
         self.orders.append(self.create_order(symbol, size, price, time))
