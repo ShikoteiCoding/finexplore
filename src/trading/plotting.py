@@ -1,23 +1,41 @@
-from functools import partial
-from typing import TypeAlias, Callable
+
 import dash
-from dash import html
-from dash import  dcc
 import plotly.graph_objects as go
 import plotly.express as px
 
-from _utils import Data, Array
+from dash import html, dcc
+from enum import Enum
+from typing import TypeAlias, Callable
+
+from _utils import Data, Array, get_function_name, wrapped_partial
 
 ##
 #   Data Types Declarations
 ##
 Symbol: TypeAlias = str
+class Temporality(Enum):
+    DAY     = 'day'
+    WEEK    = 'week'
+    MONTH   = 'month'
+    YEAR    = 'year'
+
 
 ##
 #   Function signature declarations
 ##
 FigurePlot: TypeAlias = Callable[[Symbol, Data], go.Figure] # type: ignore
 
+##
+#   Utils Functions
+##
+def _temporal_reduce(data: Data, _to: Temporality) -> Data:
+    """ Reduce the time granularity of the data. """
+
+    return Data()
+
+##
+#   Plotting Functions and Dashboards
+##
 def _plot_candlestick_stock_prices(symbol: Symbol, data:Data) -> go.Figure: # type: ignore
     """ Figure for ticked stock prices curve. """
     fig = go.Figure([go.Candlestick(
@@ -53,16 +71,17 @@ def _dashboard_html_title(title: str) -> html.H1:
 
 def _dashboard_temporal_graph(data: Data, symbol: Symbol, plot_func: FigurePlot) -> dcc.Graph:
     """ HTML for a dashboard graph. """
-    return dcc.Graph(id = 'line_plot', figure = plot_func(symbol, data))
+    return dcc.Graph(id = get_function_name(plot_func), figure = plot_func(symbol, data))
 
 def backtest_dashboard(app: dash.Dash, symbol: Symbol, data: Data) -> dash.Dash:
     """ Main dashboard for backtest data. """
 
-    #func = partial(_plot_line_stock_prices, _key='Close')
+    func = wrapped_partial(_plot_line_stock_prices, _key='Close')
 
     app.layout = html.Div(id= 'container', children = [
         _dashboard_html_title('Backtesting Dashboard'),
-        _dashboard_temporal_graph(data, symbol, _plot_candlestick_stock_prices)
+        _dashboard_temporal_graph(data, symbol, _plot_candlestick_stock_prices),
+        _dashboard_temporal_graph(data, symbol, func)
     ])
 
     return app
