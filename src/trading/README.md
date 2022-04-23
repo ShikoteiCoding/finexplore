@@ -80,3 +80,7 @@
         - For common methods
     - Single underscore: Never (Because a method is either public or private)
     - Double Underscore: Private methods
+- Function input should be named as follow:
+    - No underscore: mandatory arguments
+    - Single underscore : non-mandatory arguments. To be used in partial
+    - Double underscore : No need yet
