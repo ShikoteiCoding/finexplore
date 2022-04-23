@@ -5,9 +5,10 @@ from backtest import BackTest
 from broker import AlpacaBroker
 from strategy import simple_mobile_average, simple_bollinger_bands
 
-from _utils import MSFT, AAPL, IBM, wrapped_partial
+from _utils import MSFT, AAPL, IBM, wrapped_partial, get_function_name
 from broker import Broker
-from plotting import dashboard
+from plotting import backtest_dashboard
+import dash
 
 
 def alpaca_test() -> None:
@@ -61,7 +62,9 @@ def plot():
     """ Testing the Plotting. """
     data = AAPL()
 
-    app = dashboard(data)
+    app = dash.Dash()
+
+    app = backtest_dashboard(app, get_function_name(AAPL), data)
     
     app.run_server()
 
