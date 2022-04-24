@@ -5,7 +5,7 @@ from backtest import BackTest
 from broker import AlpacaBroker
 from strategy import simple_mobile_average, simple_bollinger_bands
 
-from _utils import MSFT, AAPL, IBM, wrapped_partial, get_function_name
+from _utils import MSFT, AAPL, IBM, wrapped_partial, get_function_name, Data
 from broker import Broker
 from plotting import backtest_dashboard, _temporal_reduce, Temporality
 import dash
@@ -71,4 +71,4 @@ def plot():
 
     
 if __name__ == '__main__':
-    test_data()
+    plot()

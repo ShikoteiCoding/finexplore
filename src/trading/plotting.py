@@ -49,6 +49,7 @@ def _temporal_reduce(data: Data, _to: Temporality) -> Data:
 
     # Remove the artificially created week
     agg_df = agg_df[agg_df.index > min(df.Date)] #type: ignore
+    agg_df['Date'] = agg_df.index
 
     return Data(agg_df)
 
@@ -99,7 +100,7 @@ def backtest_dashboard(app: dash.Dash, symbol: Symbol, data: Data) -> dash.Dash:
 
     app.layout = html.Div(id= 'container', children = [
         _dashboard_html_title('Backtesting Dashboard'),
-        _dashboard_temporal_graph(data, symbol, _plot_candlestick_stock_prices),
+        _dashboard_temporal_graph(_temporal_reduce(data, Temporality.WEEK), symbol, _plot_candlestick_stock_prices),
         _dashboard_temporal_graph(data, symbol, func)
     ])
 
