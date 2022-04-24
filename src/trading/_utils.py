@@ -68,7 +68,7 @@ class Array(np.ndarray):
     def __repr__(self):
         return f"Array(name={self.name}, length={len(self)})"
     
-    def to_pandas(self) -> pd.Series:
+    def to_series(self) -> pd.Series:
         values = np.atleast_2d(self)
         index = self._opts['index'][:values.shape[1]]
         return pd.Series(values[0], index=index, name=self.name)
@@ -90,10 +90,14 @@ class Data:
         index = self._df.index.copy()
 
         self.__arrays = { str(col).strip(" ") : Array(arr, index=index) for col, arr in self._df.items() }
-        self.__arrays['_index'] = Array(index, index=index)
 
     @property
     def df(self) -> pd.DataFrame:
+        original_columns = self._df.columns
+        for column in self.columns:
+            if column not in original_columns:
+                arr = self.__arrays[column]
+                self._df[column] = arr.to_series()
         return self._df
 
     @property
@@ -111,10 +115,6 @@ class Data:
         Only used for iterative exposure of a fully known dataset.
         """
         return self.__index
-
-    @property
-    def index(self) -> Array:
-        return self.__get_array("_index")
     
     @i.setter
     def i(self, i):
@@ -141,7 +141,7 @@ class Data:
         return arr
 
     def add_empty_array(self, __name: str) -> None:
-        self.__arrays[__name] = Array(np.tile(np.nan, self.__len), name=__name)
+        self.__arrays[__name] = Array(np.tile(np.nan, self.__len), name=__name, index=self._df.index.copy())
 
     def to_pandas(self) -> pd.DataFrame:
         return self._df

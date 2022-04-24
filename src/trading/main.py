@@ -7,7 +7,7 @@ from strategy import simple_mobile_average, simple_bollinger_bands
 
 from _utils import MSFT, AAPL, IBM, wrapped_partial, get_function_name
 from broker import Broker
-from plotting import backtest_dashboard
+from plotting import backtest_dashboard, _temporal_reduce, Temporality
 import dash
 
 
@@ -54,9 +54,9 @@ def test_data():
     data = AAPL()
     data.i = data.len
 
-    data.add_empty_array("equity")
+    data.add_empty_array('test')
 
-    print(data.equity)
+    _temporal_reduce(data, Temporality.WEEK)
 
 def plot():
     """ Testing the Plotting. """
@@ -70,4 +70,4 @@ def plot():
 
     
 if __name__ == '__main__':
-    plot()
+    test_data()

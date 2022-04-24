@@ -31,6 +31,11 @@ FigurePlot: TypeAlias = Callable[[Symbol, Data], go.Figure] # type: ignore
 def _temporal_reduce(data: Data, _to: Temporality) -> Data:
     """ Reduce the time granularity of the data. """
 
+    # Get the pandas dataframe... 
+    # (honestly, that's bad aggregating of arrays is complicated without a Query Language)
+
+    df = data.df
+    print(df)
     return Data()
 
 ##
