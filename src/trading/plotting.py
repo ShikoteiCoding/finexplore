@@ -1,5 +1,6 @@
 
 import dash
+import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
@@ -14,10 +15,7 @@ from _utils import Data, Array, get_function_name, wrapped_partial
 ##
 Symbol: TypeAlias = str
 class Temporality(Enum):
-    DAY     = 'day'
     WEEK    = 'week'
-    MONTH   = 'month'
-    YEAR    = 'year'
 
 
 ##
@@ -33,10 +31,26 @@ def _temporal_reduce(data: Data, _to: Temporality) -> Data:
 
     # Get the pandas dataframe... 
     # (honestly, that's bad aggregating of arrays is complicated without a Query Language)
+    # TODO: Fix the agg, it seems like there is 1 day shifted
 
-    df = data.df
-    print(df)
-    return Data()
+    if _to != Temporality.WEEK: raise NotImplementedError("Only WEEK aggregation supported yet. Please retry")
+
+    df = data.df.copy()
+
+    # Remove one week to slide compute for "the week after".
+    df.Date = pd.to_datetime(df.Date) - pd.to_timedelta(7, unit='d')
+
+    agg_df = df.resample('W-Mon', on='Date').agg({
+        'Open':   'first',
+        'High':   'max',
+        'Low':    'min',
+        'Close':  'last',
+        'Volume': 'sum'})
+
+    # Remove the artificially created week
+    agg_df = agg_df[agg_df.index > min(df.Date)] #type: ignore
+
+    return Data(agg_df)
 
 ##
 #   Plotting Functions and Dashboards

@@ -56,7 +56,8 @@ def test_data():
 
     data.add_empty_array('test')
 
-    _temporal_reduce(data, Temporality.WEEK)
+    agg_data = _temporal_reduce(data, Temporality.WEEK)
+    print(agg_data)
 
 def plot():
     """ Testing the Plotting. """

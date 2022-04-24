@@ -22,6 +22,9 @@
     - Should serve a web page
     - Add a "vis" mode and "RT" mode to the backtest class
 
+## Fix
+- Temporal Aggregation has one day shift for some reason ?
+
 # Installation
 - Virtual Environment Setup
     - Create a virtual env in a separate directory
