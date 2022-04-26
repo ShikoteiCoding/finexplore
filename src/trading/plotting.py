@@ -1,10 +1,9 @@
 
-import dash
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
-from dash import html, dcc
+from dash import html, dcc, Input, Output, Dash
 from enum import Enum
 from typing import TypeAlias, Callable
 
@@ -56,19 +55,20 @@ def _temporal_reduce(data: Data, _to: Temporality) -> Data:
 ##
 #   Plotting Functions and Dashboards
 ##
-def _plot_candlestick_stock_prices(symbol: Symbol, data:Data) -> go.Figure: # type: ignore
+def _plot_candlestick_stock_prices(symbol: Symbol, data:Data, _has_slider: str) -> go.Figure: # type: ignore
     """ Figure for ticked stock prices curve. """
-    fig = go.Figure([go.Candlestick(
+    fig = go.Figure(go.Candlestick(
         x = data.Date, 
         open = data.Open,
         high = data.High,
         close = data.Close,
         low = data.Low,
-        name = 'Candle')])
+        name = 'Candle'))
     fig.update_layout(
         title = f'Prices of symbol: {symbol}',
         xaxis_title = data.Date.name,
-        yaxis_title = 'Price sticks'
+        yaxis_title = 'Price sticks',
+        xaxis_rangeslider_visible='slider' in _has_slider
     )
     return fig
 
@@ -93,15 +93,24 @@ def _dashboard_temporal_graph(data: Data, symbol: Symbol, plot_func: FigurePlot)
     """ HTML for a dashboard graph. """
     return dcc.Graph(id = get_function_name(plot_func), figure = plot_func(symbol, data))
 
-def backtest_dashboard(app: dash.Dash, symbol: Symbol, data: Data) -> dash.Dash:
+def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
     """ Main dashboard for backtest data. """
 
-    func = wrapped_partial(_plot_line_stock_prices, _key='Close')
+    line_stock_func = wrapped_partial(_plot_line_stock_prices, _key='Close')
+
+    @app.callback(Output("graph", "figure"), Input("toggle-rangeslider", "value"))
+    candle_stock_func = wrapped_partial(_plot_candlestick_stock_prices, _has_slider='slider')
+
 
     app.layout = html.Div(id= 'container', children = [
         _dashboard_html_title('Backtesting Dashboard'),
-        _dashboard_temporal_graph(_temporal_reduce(data, Temporality.WEEK), symbol, _plot_candlestick_stock_prices),
-        _dashboard_temporal_graph(data, symbol, func)
+        dcc.Checklist(
+            id='toggle-rangeslider',
+            options=[{'label': 'Include Rangeslider', 'value': 'slider'}],
+            value=['slider']
+        ),
+        _dashboard_temporal_graph(_temporal_reduce(data, Temporality.WEEK), symbol, candle_stock_func),
+        _dashboard_temporal_graph(data, symbol, line_stock_func)
     ])
 
     return app
