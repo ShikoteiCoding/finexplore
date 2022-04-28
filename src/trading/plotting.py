@@ -1,4 +1,6 @@
 
+from functools import partial
+from pyclbr import Function
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
@@ -93,14 +95,21 @@ def _dashboard_temporal_graph(data: Data, symbol: Symbol, plot_func: FigurePlot)
     """ HTML for a dashboard graph. """
     return dcc.Graph(id = get_function_name(plot_func), figure = plot_func(symbol, data))
 
+def _dashboard_temporal_graph_with_input(graph_id) -> dcc.Graph:
+    """ HTML for a dashboard graph with inputs. """
+    return dcc.Graph(id = graph_id)
+
 def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
     """ Main dashboard for backtest data. """
 
     line_stock_func = wrapped_partial(_plot_line_stock_prices, _key='Close')
 
-    @app.callback(Output("graph", "figure"), Input("toggle-rangeslider", "value"))
-    candle_stock_func = wrapped_partial(_plot_candlestick_stock_prices, _has_slider='slider')
-
+    graph_id = get_function_name(_plot_candlestick_stock_prices)
+    @app.callback(
+        Output(graph_id, "figure"), 
+        Input("toggle-rangeslider", "value"))
+    def candle_stock_func(input: str):
+       return _plot_candlestick_stock_prices(symbol=symbol, data=data, _has_slider=input)
 
     app.layout = html.Div(id= 'container', children = [
         _dashboard_html_title('Backtesting Dashboard'),
@@ -109,7 +118,8 @@ def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
             options=[{'label': 'Include Rangeslider', 'value': 'slider'}],
             value=['slider']
         ),
-        _dashboard_temporal_graph(_temporal_reduce(data, Temporality.WEEK), symbol, candle_stock_func),
+        _dashboard_temporal_graph_with_input(graph_id),
+        #_dashboard_temporal_graph(data, symbol, candle_stock_func),
         _dashboard_temporal_graph(data, symbol, line_stock_func)
     ])
 

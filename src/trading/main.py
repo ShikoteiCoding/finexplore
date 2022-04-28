@@ -67,7 +67,7 @@ def plot():
 
     app = backtest_dashboard(app, get_function_name(AAPL), data)
     
-    app.run_server()
+    app.run_server(debug=True)
 
     
 if __name__ == '__main__':
