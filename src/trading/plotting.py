@@ -7,7 +7,7 @@ import plotly.express as px
 
 from dash import html, dcc, Input, Output, Dash
 from enum import Enum
-from typing import Any, TypeAlias, Callable
+from typing import Any, Concatenate, ParamSpec, TypeAlias, Callable, Optional, Union
 
 from _utils import Data, Array, get_function_name, wrapped_partial
 
@@ -15,6 +15,9 @@ from _utils import Data, Array, get_function_name, wrapped_partial
 #   Data Types Declarations
 ##
 Symbol: TypeAlias = str
+Kwargs = ParamSpec('Kwargs')
+
+
 class Temporality(Enum):
     WEEK    = 'week'
 
@@ -22,7 +25,10 @@ class Temporality(Enum):
 ##
 #   Function signature declarations
 ##
-FigurePlot: TypeAlias = Callable[[Symbol, Data], go.Figure] # type: ignore
+SimpleFigurePlot: TypeAlias = Callable[[Symbol, Data], go.Figure] # type: ignore
+ComplexFigurePlot: TypeAlias = Callable[[Symbol, Data, str], go.Figure] # type: ignore
+
+#FigurePlot: TypeAlias = Union[SimpleFigurePlot, ComplexFigurePlot]
 
 ##
 #   Utils Functions
@@ -94,22 +100,18 @@ def _dashboard_html_title(title: str) -> html.H1:
     """ HTML for a dashboard title. <H1>. """
     return html.H1(id = 'H1', children = title, style = {'textAlign':'center', 'marginTop':40,'marginBottom':40})
 
-def _dashboard_temporal_graph(data: Data, symbol: Symbol, plot_func: FigurePlot) -> dcc.Graph:
+def _dashboard_temporal_graph(data: Data, symbol: Symbol, plot_func: SimpleFigurePlot) -> dcc.Graph:
     """ HTML for a dashboard graph. """
     return dcc.Graph(id = get_function_name(plot_func), figure = plot_func(symbol, data))
 
-def _dashboard_temporal_graph_with_input(graph_id) -> dcc.Graph:
-    """ HTML for a dashboard graph with inputs. """
-    return dcc.Graph(id = graph_id)
-
-def _dashboard_callback_graph(app: Dash, data: Data, symbol: Symbol, plot_func: FigurePlot, input: Input) -> dcc.Graph:
+def _dashboard_callback_graph(app: Dash, data: Data, symbol: Symbol, plot_func: ComplexFigurePlot, input: Input) -> dcc.Graph:
     """ Return HTML for a callback function. """
 
     graph_id = get_function_name(plot_func)
 
     @app.callback(Output(graph_id, "figure"), input)
-    def _callback_plot_candlestick(input: str):
-       return plot_func(symbol=symbol, data=data, _has_slider=input)
+    def _callback_plot_candlestick(_input: str):
+       return plot_func(symbol, data, _input)
 
     return dcc.Graph(id=graph_id)
 
