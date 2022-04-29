@@ -63,7 +63,7 @@ def _temporal_reduce(data: Data, _to: Temporality) -> Data:
 ##
 #   Plotting Functions and Dashboards
 ##
-def _plot_candlestick_stock_prices(symbol: Symbol, data:Data, _has_slider: str = 'slider') -> go.Figure: # type: ignore
+def _plot_ohlc_stock_prices(symbol: Symbol, data: Data, _has_slider: str = 'slider') -> go.Figure: # type: ignore
     """ Figure for ticked stock prices curve. """
     fig = go.Figure(go.Candlestick(
         x = data.Date, 
@@ -71,13 +71,19 @@ def _plot_candlestick_stock_prices(symbol: Symbol, data:Data, _has_slider: str =
         high = data.High,
         close = data.Close,
         low = data.Low,
-        name = 'Prices Candlestock'))
+        name = 'OHLC Plot'))
     fig.update_layout(
-        title = f'Prices of symbol: {symbol}',
+        title = f'OHLC Plot: {symbol}',
         xaxis_title = data.Date.name,
         yaxis_title = 'Price sticks',
         xaxis_rangeslider_visible='slider' in _has_slider
     )
+    return fig
+
+def _plot_bar_stock_volume(symbol: Symbol, data: Data) -> go.Figure: # type: ignore
+    """ Figure for volumes """
+    fig = go.Figure(go.Bar(x = data.Date, y=data.Volume, showlegend=False))
+
     return fig
 
 def _plot_line_stock_prices(symbol: Symbol, data: Data, _key: str = 'Close') -> go.Figure:  # type: ignore
@@ -121,6 +127,8 @@ def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
 
     line_stock_func = wrapped_partial(_plot_line_stock_prices, _key='Close')
 
+    weekly_data = _temporal_reduce(data, Temporality.WEEK)
+
     _input = Input("toggle-rangeslider", "value")
 
     app.layout = html.Div(id= 'container', children = [
@@ -130,7 +138,8 @@ def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
             options=[{'label': 'Include Rangeslider', 'value': 'slider'}],
             value=['slider']
         ),
-        _dashboard_callback_graph(app, data, symbol, _plot_candlestick_stock_prices, _input),
+        _dashboard_callback_graph(app, weekly_data, symbol, _plot_ohlc_stock_prices, _input),
+        _dashboard_temporal_graph(weekly_data, symbol, _plot_bar_stock_volume),
         _dashboard_temporal_graph(data, symbol, line_stock_func)
     ])
 
