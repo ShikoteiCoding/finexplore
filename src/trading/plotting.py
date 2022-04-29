@@ -7,7 +7,7 @@ import plotly.express as px
 
 from dash import html, dcc, Input, Output, Dash
 from enum import Enum
-from typing import TypeAlias, Callable
+from typing import Any, TypeAlias, Callable
 
 from _utils import Data, Array, get_function_name, wrapped_partial
 
@@ -57,7 +57,7 @@ def _temporal_reduce(data: Data, _to: Temporality) -> Data:
 ##
 #   Plotting Functions and Dashboards
 ##
-def _plot_candlestick_stock_prices(symbol: Symbol, data:Data, _has_slider: str) -> go.Figure: # type: ignore
+def _plot_candlestick_stock_prices(symbol: Symbol, data:Data, _has_slider: str = 'slider') -> go.Figure: # type: ignore
     """ Figure for ticked stock prices curve. """
     fig = go.Figure(go.Candlestick(
         x = data.Date, 
@@ -65,7 +65,7 @@ def _plot_candlestick_stock_prices(symbol: Symbol, data:Data, _has_slider: str) 
         high = data.High,
         close = data.Close,
         low = data.Low,
-        name = 'Candle'))
+        name = 'Prices Candlestock'))
     fig.update_layout(
         title = f'Prices of symbol: {symbol}',
         xaxis_title = data.Date.name,
@@ -74,10 +74,10 @@ def _plot_candlestick_stock_prices(symbol: Symbol, data:Data, _has_slider: str) 
     )
     return fig
 
-def _plot_line_stock_prices(symbol: Symbol, data: Data, _key: str) -> go.Figure:  # type: ignore
+def _plot_line_stock_prices(symbol: Symbol, data: Data, _key: str = 'Close') -> go.Figure:  # type: ignore
     """ Figure for stock prices curve. """
     index = data.Date
-    serie = data[_key] or data.Close # default
+    serie = data[_key]
 
     fig = go.Figure([go.Scatter(x = index, y = serie, line = dict(color = 'firebrick', width = 4), name = f'{serie.name} Line plot')])
     fig.update_layout(
@@ -87,6 +87,9 @@ def _plot_line_stock_prices(symbol: Symbol, data: Data, _key: str) -> go.Figure:
     )
     return fig
 
+##
+#   HTML Functions
+##
 def _dashboard_html_title(title: str) -> html.H1:
     """ HTML for a dashboard title. <H1>. """
     return html.H1(id = 'H1', children = title, style = {'textAlign':'center', 'marginTop':40,'marginBottom':40})
@@ -99,17 +102,24 @@ def _dashboard_temporal_graph_with_input(graph_id) -> dcc.Graph:
     """ HTML for a dashboard graph with inputs. """
     return dcc.Graph(id = graph_id)
 
+def _dashboard_callback_graph(app: Dash, data: Data, symbol: Symbol, plot_func: FigurePlot, input: Input) -> dcc.Graph:
+    """ Return HTML for a callback function. """
+
+    graph_id = get_function_name(plot_func)
+
+    @app.callback(Output(graph_id, "figure"), input)
+    def _callback_plot_candlestick(input: str):
+       return plot_func(symbol=symbol, data=data, _has_slider=input)
+
+    return dcc.Graph(id=graph_id)
+
+
 def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
     """ Main dashboard for backtest data. """
 
     line_stock_func = wrapped_partial(_plot_line_stock_prices, _key='Close')
 
-    graph_id = get_function_name(_plot_candlestick_stock_prices)
-    @app.callback(
-        Output(graph_id, "figure"), 
-        Input("toggle-rangeslider", "value"))
-    def candle_stock_func(input: str):
-       return _plot_candlestick_stock_prices(symbol=symbol, data=data, _has_slider=input)
+    _input = Input("toggle-rangeslider", "value")
 
     app.layout = html.Div(id= 'container', children = [
         _dashboard_html_title('Backtesting Dashboard'),
@@ -118,8 +128,7 @@ def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
             options=[{'label': 'Include Rangeslider', 'value': 'slider'}],
             value=['slider']
         ),
-        _dashboard_temporal_graph_with_input(graph_id),
-        #_dashboard_temporal_graph(data, symbol, candle_stock_func),
+        _dashboard_callback_graph(app, data, symbol, _plot_candlestick_stock_prices, _input),
         _dashboard_temporal_graph(data, symbol, line_stock_func)
     ])
 
