@@ -11,6 +11,23 @@ from typing import ParamSpec, TypeAlias, Callable, Tuple
 from _utils import Data, get_function_name, wrapped_partial
 
 ##
+#       General Plotly to Dash logic:
+#
+#
+#        Plotly Graph Object CLass
+#                   |
+#                   |
+#     Plotly Graph Object Figure Class
+#                   |
+#                   |
+#             Dash dcc Graph
+#                   |
+#                   |
+#             Dash html Div
+#
+##
+
+##
 #   Data Types Declarations
 ##
 Symbol: TypeAlias = str
@@ -58,9 +75,9 @@ def _temporal_reduce(data: Data, _to: Temporality) -> Data:
     return Data(agg_df)
 
 ##
-#   Plotly Graph Object Charts
+#   Plotly Graph Object Charts Primitives
 ##
-def _ohlc_candlesticks(data: Data, name: str) -> go.Candlestick: # type: ignore
+def _ohlc_candlesticks(data: Data, name: str = 'OHLC') -> go.Candlestick: # type: ignore
     return go.Candlestick(
         x = data.Date, 
         open = data.Open,
@@ -68,14 +85,16 @@ def _ohlc_candlesticks(data: Data, name: str) -> go.Candlestick: # type: ignore
         close = data.Close,
         low = data.Low,
         name = name
-        )
+    )
 
-def _volume_bar(data: Data, name: str) -> go.Bar: # type: ignore
-    return go.Bar(x=data.Date, y=data.Volume, showlegend=False, name='Volume')
+def _volume_bar(data: Data, showlegend: bool, name: str = 'Volume') -> go.Bar: # type: ignore
+    return go.Bar(x = data.Date, y = data.Volume, showlegend = showlegend, name = name)
 
+def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatter: # type: ignore 
+    return go.Scatter(x = data.Date, y = data.equity, line = dict(color = 'firebrick', width = 1), showlegend=showlegend, name=name)
 
 ##
-#   Plotly Graph Object Figures
+#   Plotly Graph Object Figures Primitives
 ##
 def _plot_ohlc_candlesticks(symbol: Symbol, data: Data, _has_slider: str = 'slider') -> go.Figure: # type: ignore
     """ Figure for ticked stock prices curve. """
@@ -91,15 +110,15 @@ def _plot_ohlc_candlesticks(symbol: Symbol, data: Data, _has_slider: str = 'slid
 
 def _plot_volume_bar(symbol: Symbol, data: Data) -> go.Figure: # type: ignore
     """ Figure for volumes """
-    fig = go.Figure(_volume_bar(data, 'Volume'))
+    fig = go.Figure(_volume_bar(data, False))
 
     return fig
 
 def _subplot_ohlc_grid(nrows: int, ncols: int) -> go.Figure:  # type: ignore
     """ To combine figures """ 
     return make_subplots(rows=nrows, cols=ncols, shared_xaxes=True, 
-               vertical_spacing=0.03, subplot_titles=('OHLC', 'Volume'), 
-               row_width=[0.2, 0.7])
+               vertical_spacing=0.03, 
+               row_width=[0.2, 0.2, 0.6])
 
 def _plot_line_stock_prices(symbol: Symbol, data: Data, _key: str = 'Close') -> go.Figure:  # type: ignore
     """ Figure for stock prices curve. """
@@ -136,27 +155,35 @@ def _dashboard_callback_graph(app: Dash, data: Data, symbol: Symbol, plot_func: 
 
     return dcc.Graph(id=graph_id)
 
-def test_subplot(app: Dash, symbol: Symbol, data: Data, input: Input) -> dcc.Graph:
+def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input) -> dcc.Graph:
     """ Return HTML For callback OHLC Plot. """
 
-    graph_id = "ohlc_subplot"
+    graph_id = "ohlc_graph"
 
     @app.callback(Output(graph_id, "figure"), input)
-    def __get_figure(_input: list):
-        print(_input)
-
-        fig = _subplot_ohlc_grid(2, 1)
+    def __figure_update(_input: list):
+        """ 
+        Update Logic here. 
+        Carefull, whole figure need to be created and returned here.
+        Function is called on each linked input change in value.
+        Cross inputs need to be managed in this single function.
+        Only the input list is accepted as the update value.
+        """
+        fig = _subplot_ohlc_grid(3, 1)
 
         fig.add_trace(
             _ohlc_candlesticks(data, 'OHLC'),
             row=1, col=1
         )
 
-        if 'slider' in _input:
-            print("add slider please")
+        if 'details' in _input:
             fig.add_trace(
-                _volume_bar(data, 'Volume'),
+                _volume_bar(data, True),
                 row=2, col=1
+            )
+            fig.add_trace(
+                _equity_line(data, True),
+                row=3, col=1
             )
 
         fig.update(layout_xaxis_rangeslider_visible=False)
@@ -168,20 +195,17 @@ def test_subplot(app: Dash, symbol: Symbol, data: Data, input: Input) -> dcc.Gra
 def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
     """ Main dashboard for backtest data. """
 
-    line_stock_func = wrapped_partial(_plot_line_stock_prices, _key='Close')
-
-    weekly_data = _temporal_reduce(data, Temporality.WEEK)
-
-    _input = Input("toggle-rangeslider", "value")
+    # Useless later, let it as a reference on know-how-to
+    _input = Input("toggle-details", "value")
 
     app.layout = html.Div(id= 'container', children = [
         _dashboard_html_title('Backtesting Dashboard'),
         dcc.Checklist(
-            id='toggle-rangeslider',
-            options=[{'label': 'Include Rangeslider', 'value': 'slider'}],
-            value=['slider']
+            id='toggle-details',
+            options=[{'label': 'Show Details', 'value': 'details'}],
+            value=['details']
         ),
-        test_subplot(app, symbol, data, _input)
+        _dashboard_ohlc_graph(app, symbol, data, _input)
     ])
 
     return app

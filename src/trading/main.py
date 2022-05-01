@@ -49,19 +49,16 @@ def backtest_bbands():
 
     print(test.data.equity)
 
-def test_data():
-    """ Testing the new data class. """
-    data = AAPL()
-    data.i = data.len
-
-    data.add_empty_array('test')
-
-    agg_data = _temporal_reduce(data, Temporality.WEEK)
-    print(agg_data)
-
 def plot():
     """ Testing the Plotting. """
-    data = AAPL(_from = "2021-01-01")
+    broker = Broker(_cash_amount=1_000)
+    stock_data = wrapped_partial(AAPL, _from = "2021-01-01")
+    sbband_partial = wrapped_partial(simple_bollinger_bands, sma1_window_size=14, bband_window_size=21)
+
+    test = BackTest(broker, stock_data, sbband_partial, _commission_rate=0.02)
+    test.run()
+
+    data = test.data
 
     app = dash.Dash()
 
