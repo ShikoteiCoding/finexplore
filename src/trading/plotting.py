@@ -136,23 +136,33 @@ def _dashboard_callback_graph(app: Dash, data: Data, symbol: Symbol, plot_func: 
 
     return dcc.Graph(id=graph_id)
 
-def test_subplot(symbol: Symbol, data: Data) -> dcc.Graph: # type: ignore
+def test_subplot(app: Dash, symbol: Symbol, data: Data, input: Input) -> dcc.Graph:
+    """ Return HTML For callback OHLC Plot. """
 
-    fig = _subplot_ohlc_grid(2, 1)
+    graph_id = "ohlc_subplot"
 
-    fig.add_trace(
-        _ohlc_candlesticks(data, 'OHLC'),
-        row=1, col=1
-    )
+    @app.callback(Output(graph_id, "figure"), input)
+    def __get_figure(_input: list):
+        print(_input)
 
-    fig.add_trace(
-        _volume_bar(data, 'Volume'),
-        row=2, col=1
-    )
+        fig = _subplot_ohlc_grid(2, 1)
 
-    fig.update(layout_xaxis_rangeslider_visible=False)
+        fig.add_trace(
+            _ohlc_candlesticks(data, 'OHLC'),
+            row=1, col=1
+        )
 
-    return dcc.Graph(id='testing_subplot', figure=fig)
+        if 'slider' in _input:
+            print("add slider please")
+            fig.add_trace(
+                _volume_bar(data, 'Volume'),
+                row=2, col=1
+            )
+
+        fig.update(layout_xaxis_rangeslider_visible=False)
+        return fig
+
+    return dcc.Graph(id=graph_id)
 
 
 def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
@@ -171,7 +181,7 @@ def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
             options=[{'label': 'Include Rangeslider', 'value': 'slider'}],
             value=['slider']
         ),
-        test_subplot(symbol, data)
+        test_subplot(app, symbol, data, _input)
     ])
 
     return app
