@@ -61,14 +61,13 @@ def test_data():
 
 def plot():
     """ Testing the Plotting. """
-    data = AAPL()
+    data = AAPL(_from = "2021-01-01")
 
     app = dash.Dash()
 
     app = backtest_dashboard(app, get_function_name(AAPL), data)
     
     app.run_server(debug=True)
-
     
 if __name__ == '__main__':
     plot()
