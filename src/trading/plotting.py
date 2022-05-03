@@ -1,10 +1,9 @@
-
-from xxlimited import Str
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from dash import html, dcc, Input, Output, Dash
+
 from enum import Enum
 from typing import ParamSpec, TypeAlias, Callable, Tuple
 
@@ -125,7 +124,7 @@ def _plot_line_stock_prices(symbol: Symbol, data: Data, _key: str = 'Close') -> 
     index = data.Date
     serie = data[_key]
 
-    fig = go.Figure([go.Scatter(x = index, y = serie, line = dict(color = 'firebrick', width = 4), name = f'{serie.name} Line plot')])
+    fig = go.Figure(go.Scatter(x = index, y = serie, line = dict(color = 'firebrick', width = 4), name = f'{serie.name} Line plot'))
     fig.update_layout(
         title = f'Prices of symbol: {symbol}',
         xaxis_title = index.name,
@@ -138,7 +137,7 @@ def _plot_line_stock_prices(symbol: Symbol, data: Data, _key: str = 'Close') -> 
 ##
 def _dashboard_html_title(title: str) -> html.H1:
     """ HTML for a dashboard title. <H1>. """
-    return html.H1(id = 'H1', children = title, style = {'textAlign':'center', 'marginTop':40,'marginBottom':40})
+    return html.H1(id = 'H1', children = title, style = {'textAlign':'center', 'marginTop':40,'marginBottom':40, 'color':'white'})
 
 def _dashboard_temporal_graph(data: Data, symbol: Symbol, plot_func: SimpleFigurePlot) -> dcc.Graph:
     """ HTML for a dashboard graph. """
@@ -198,14 +197,24 @@ def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
     # Useless later, let it as a reference on know-how-to
     _input = Input("toggle-details", "value")
 
-    app.layout = html.Div(id= 'container', children = [
-        _dashboard_html_title('Backtesting Dashboard'),
-        dcc.Checklist(
-            id='toggle-details',
-            options=[{'label': 'Show Details', 'value': 'details'}],
-            value=['details']
-        ),
-        _dashboard_ohlc_graph(app, symbol, data, _input)
-    ])
+    app.layout = html.Div(
+        id='dark-theme-components', 
+        children = html.Div([
+            _dashboard_html_title('Backtesting Dashboard'),
+            dcc.Checklist(
+                id='toggle-details',
+                options=[{'label': 'Show Details', 'value': 'details'}],
+                value=['details']
+            ),
+            _dashboard_ohlc_graph(app, symbol, data, _input)
+        ], 
+        style={
+            'border': 'solid 1px #A2B1C6',
+            'border-radius': '5px',
+            'padding': '50px',
+            'margin-top': '20px',
+            'backgroundColor': '#3D3D3D'
+        })
+    )
 
     return app
