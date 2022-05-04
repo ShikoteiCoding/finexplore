@@ -1,3 +1,4 @@
+from re import X
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -34,6 +35,11 @@ Kwargs = ParamSpec('Kwargs')
 
 class Temporality(Enum):
     WEEK    = 'week'
+
+Color = {
+    'POSITIVE': 'rgb(0,222,0)',
+    'NEGATIVE': 'rgb(256,0,0)'
+}
 
 ##
 #   Function signature declarations
@@ -86,8 +92,8 @@ def _ohlc_candlesticks(data: Data, name: str = 'OHLC') -> go.Candlestick: # type
         name = name
     )
 
-def _volume_bar(data: Data, showlegend: bool, name: str = 'Volume') -> go.Bar: # type: ignore
-    return go.Bar(x=data.Date, y=data.Volume, showlegend=showlegend, name=name)
+def _volume_bar(data: Data, showlegend: bool, colors: list[str], name: str = 'Volume') -> go.Bar: # type: ignore
+    return go.Bar(x=data.Date, y=data.Volume, showlegend=showlegend, name=name, marker_color=colors)
 
 def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatter: # type: ignore 
     return go.Scatter(x = data.Date, y = data.equity, 
@@ -112,7 +118,7 @@ def _dashboard_html_title(title: str) -> html.H1:
     """ HTML for a dashboard title. <H1>. """
     return html.H1(id = 'H1', children = title, style = {'textAlign':'center', 'marginTop':'20','marginBottom':40, 'color':'white'})
 
-def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input) -> dcc.Graph:
+def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, colors: list[str]) -> dcc.Graph:
     """ Return HTML For callback OHLC Plot. """
 
     graph_id = "ohlc_graph"
@@ -130,14 +136,22 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input) -
         fig = _subplot_ohlc_grid(3, 1)
         fig.layout.template = 'plotly_dark'
 
+        candlestick = _ohlc_candlesticks(data, 'OHLC')
+        candlestick.increasing.fillcolor = Color['POSITIVE']
+        candlestick.increasing.line.color = Color['POSITIVE']
+        candlestick.decreasing.fillcolor = Color['NEGATIVE']
+        candlestick.decreasing.line.color = Color['NEGATIVE']
+
+        bar = _volume_bar(data, True, colors)
+
         fig.add_trace(
-            _ohlc_candlesticks(data, 'OHLC'),
+            candlestick,
             row=1, col=1
         )
 
         if 'details' in _input:
             fig.add_trace(
-                _volume_bar(data, True),
+                bar,
                 row=2, col=1
             )
             fig.add_trace(
@@ -153,7 +167,10 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input) -
 
 def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
     """ Main dashboard for backtest data. """
-
+    
+    # Colors for positive / negative trades
+    _clrs = [Color["POSITIVE"] if data.Close[i] > data.Open[i] else Color["NEGATIVE"] for i in range(0, data.len)]
+    
     # Useless later, let it as a reference on know-how-to
     _input = Input("toggle-details", "value")
 
@@ -166,7 +183,7 @@ def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
                 options=[{'label': 'Show Details', 'value': 'details'}],
                 value=['details']
             ),
-            _dashboard_ohlc_graph(app, symbol, data, _input)
+            _dashboard_ohlc_graph(app, symbol, data, _input, _clrs)
         ], 
         style={
             'border': 'solid 1px #A2B1C6',
