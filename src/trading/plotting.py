@@ -92,7 +92,7 @@ def _volume_bar(data: Data, showlegend: bool, name: str = 'Volume') -> go.Bar: #
 def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatter: # type: ignore 
     return go.Scatter(x = data.Date, y = data.equity, 
             line = dict(color = 'firebrick', width = 1), 
-            showlegend=showlegend, name=name)
+            showlegend=showlegend, name=name,fill='tozeroy')
 
 ##
 #   Plotly Graph Object Figures Primitives
@@ -110,7 +110,7 @@ def _subplot_ohlc_grid(nrows: int, ncols: int) -> go.Figure:  # type: ignore
 ##
 def _dashboard_html_title(title: str) -> html.H1:
     """ HTML for a dashboard title. <H1>. """
-    return html.H1(id = 'H1', children = title, style = {'textAlign':'center', 'marginTop':40,'marginBottom':40, 'color':'white'})
+    return html.H1(id = 'H1', children = title, style = {'textAlign':'center', 'marginTop':'20','marginBottom':40, 'color':'white'})
 
 def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input) -> dcc.Graph:
     """ Return HTML For callback OHLC Plot. """
@@ -128,6 +128,7 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input) -
         Only the input list is accepted as the update value.
         """
         fig = _subplot_ohlc_grid(3, 1)
+        fig.layout.template = 'plotly_dark'
 
         fig.add_trace(
             _ohlc_candlesticks(data, 'OHLC'),
@@ -169,9 +170,9 @@ def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
         ], 
         style={
             'border': 'solid 1px #A2B1C6',
-            'border-radius': '5px',
+            'borderRadius': '5px',
             'padding': '50px',
-            'margin-top': '20px',
+            'marginTop': '20px',
             'backgroundColor': '#3D3D3D'
         })
     )
