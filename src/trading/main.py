@@ -51,7 +51,7 @@ def backtest_bbands():
 
 def plot():
     """ Testing the Plotting. """
-    broker = Broker(_cash_amount=1_000)
+    broker = Broker(_cash_amount=1_000, _debug=False)
     stock_data = wrapped_partial(AAPL, _from = "2021-01-01")
     sbband_partial = wrapped_partial(simple_bollinger_bands, sma1_window_size=14, bband_window_size=21)
 

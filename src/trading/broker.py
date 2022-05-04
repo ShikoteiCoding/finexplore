@@ -148,9 +148,10 @@ class Trade:
     _: KW_ONLY
     _entry_price:   float           = field(init=True, repr=True)
     _entry_time:    str             = field(init=True, repr=True)
+    _debug: bool                    = field(init=True, repr=False, default=True)
 
     def __post_init__(self):
-        self.display_init()
+        if self._debug: self.display_init()
         self._is_long = self._size > 0
         self._is_short = self._size < 0
 
@@ -192,11 +193,14 @@ class Broker:
 
     _cash_amount: float     = field(init=True, repr=True, default=1000)
 
+    _:KW_ONLY
+    _debug: bool = field(init=True, repr=False, default=True)
+
     _position: Position     = field(init=False, repr=True) # Default empty if no existing position pre deployment
     _orders:   list[Order]  = field(init=False, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
     _trades:   list[Trade]  = field(init=False, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
     _cover_rate: int        = field(init=False, repr=True, default=0)
-
+    
     def __post_init__(self):
         self._position = Position(False, 0, self._cash_amount, self._cash_amount)
 
@@ -231,9 +235,6 @@ class Broker:
         """ Returns the maximum positive quantity available to sell. """
         return self.position.size
 
-    #class FULL_EQUITY(float):
-    #    def __init__(self): 
-
     def sell(self, symbol: str, size: int, price: float, time: str):
         # At this step we don't know if the order is successful or not
         self.orders.append(self.create_order(symbol, size, price, time))
@@ -265,7 +266,8 @@ class Broker:
             _size=order.size,
             _type=order.type,
             _entry_price=price,
-            _entry_time=entry_time
+            _entry_time=entry_time,
+            _debug=self._debug
         )
 
     def process_orders(self, symbol: str, current_price: float, current_time: str):
