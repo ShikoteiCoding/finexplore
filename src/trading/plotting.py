@@ -87,31 +87,16 @@ def _ohlc_candlesticks(data: Data, name: str = 'OHLC') -> go.Candlestick: # type
     )
 
 def _volume_bar(data: Data, showlegend: bool, name: str = 'Volume') -> go.Bar: # type: ignore
-    return go.Bar(x = data.Date, y = data.Volume, showlegend = showlegend, name = name)
+    return go.Bar(x=data.Date, y=data.Volume, showlegend=showlegend, name=name)
 
 def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatter: # type: ignore 
-    return go.Scatter(x = data.Date, y = data.equity, line = dict(color = 'firebrick', width = 1), showlegend=showlegend, name=name)
+    return go.Scatter(x = data.Date, y = data.equity, 
+            line = dict(color = 'firebrick', width = 1), 
+            showlegend=showlegend, name=name)
 
 ##
 #   Plotly Graph Object Figures Primitives
 ##
-def _plot_ohlc_candlesticks(symbol: Symbol, data: Data, _has_slider: str = 'slider') -> go.Figure: # type: ignore
-    """ Figure for ticked stock prices curve. """
-    fig = go.Figure(_ohlc_candlesticks(data, 'OHLC'))
-
-    fig.update_layout(
-        title = f'OHLC Plot: {symbol}',
-        xaxis_title = data.Date.name,
-        yaxis_title = 'Price Cnandlesticks',
-        xaxis_rangeslider_visible='slider' in _has_slider
-    )
-    return fig
-
-def _plot_volume_bar(symbol: Symbol, data: Data) -> go.Figure: # type: ignore
-    """ Figure for volumes """
-    fig = go.Figure(_volume_bar(data, False))
-
-    return fig
 
 def _subplot_ohlc_grid(nrows: int, ncols: int) -> go.Figure:  # type: ignore
     """ To combine figures """ 
@@ -119,18 +104,6 @@ def _subplot_ohlc_grid(nrows: int, ncols: int) -> go.Figure:  # type: ignore
                vertical_spacing=0.03, 
                row_width=[0.2, 0.2, 0.6])
 
-def _plot_line_stock_prices(symbol: Symbol, data: Data, _key: str = 'Close') -> go.Figure:  # type: ignore
-    """ Figure for stock prices curve. """
-    index = data.Date
-    serie = data[_key]
-
-    fig = go.Figure(go.Scatter(x = index, y = serie, line = dict(color = 'firebrick', width = 4), name = f'{serie.name} Line plot'))
-    fig.update_layout(
-        title = f'Prices of symbol: {symbol}',
-        xaxis_title = index.name,
-        yaxis_title = serie.name
-    )
-    return fig
 
 ##
 #   Dash HTML
@@ -139,26 +112,12 @@ def _dashboard_html_title(title: str) -> html.H1:
     """ HTML for a dashboard title. <H1>. """
     return html.H1(id = 'H1', children = title, style = {'textAlign':'center', 'marginTop':40,'marginBottom':40, 'color':'white'})
 
-def _dashboard_temporal_graph(data: Data, symbol: Symbol, plot_func: SimpleFigurePlot) -> dcc.Graph:
-    """ HTML for a dashboard graph. """
-    return dcc.Graph(id = get_function_name(plot_func), figure = plot_func(symbol, data))
-
-def _dashboard_callback_graph(app: Dash, data: Data, symbol: Symbol, plot_func: ComplexFigurePlot, input: Input) -> dcc.Graph:
-    """ Return HTML for a callback function. """
-
-    graph_id = get_function_name(plot_func)
-
-    @app.callback(Output(graph_id, "figure"), input)
-    def _callback_plot_candlestick(_input: str):
-       return plot_func(symbol, data, _input)
-
-    return dcc.Graph(id=graph_id)
-
 def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input) -> dcc.Graph:
     """ Return HTML For callback OHLC Plot. """
 
     graph_id = "ohlc_graph"
 
+    # This callback is just for reference, it might be deleted
     @app.callback(Output(graph_id, "figure"), input)
     def __figure_update(_input: list):
         """ 
