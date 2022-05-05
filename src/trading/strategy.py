@@ -21,6 +21,9 @@ class Decision(Enum):
     HOLD = 0
     EXIT = -1
 
+    def __int__(self):
+        return self.value
+
 ## 
 #   Strategy Callable
 ##

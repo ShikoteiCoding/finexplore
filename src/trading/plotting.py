@@ -100,6 +100,9 @@ def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatt
             line = dict(color = 'firebrick', width = 1), 
             showlegend=showlegend, name=name,fill='tozeroy')
 
+def _entry_exit_scatter(data: Data, name: str = 'Entry/Exits') -> go.Scatter: # type: ignore
+    return go.Scatter(name = name)
+
 ##
 #   Plotly Graph Object Figures Primitives
 ##
@@ -108,7 +111,7 @@ def _subplot_ohlc_grid(nrows: int, ncols: int) -> go.Figure:  # type: ignore
     """ To combine figures """ 
     return make_subplots(rows=nrows, cols=ncols, shared_xaxes=True, 
                vertical_spacing=0.03, 
-               row_width=[0.2, 0.2, 0.6])
+               row_width=[0.2, 0.2, 0.6, 0.2])
 
 
 ##
@@ -124,7 +127,7 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
     graph_id = "ohlc_graph"
 
     # This callback is just for reference, it might be deleted
-    @app.callback(Output(graph_id, "figure"), input)
+    #@app.callback(Output(graph_id, "figure"), input)
     def __figure_update(_input: list):
         """ 
         Update Logic here. 
@@ -133,7 +136,7 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
         Cross inputs need to be managed in this single function.
         Only the input list is accepted as the update value.
         """
-        fig = _subplot_ohlc_grid(3, 1)
+        fig = _subplot_ohlc_grid(4, 1)
         fig.layout.template = 'plotly_dark'
 
         candlestick = _ohlc_candlesticks(data, 'OHLC')
@@ -144,25 +147,31 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
 
         bar = _volume_bar(data, True, colors)
 
+        equity = _equity_line(data, True)
+
+        entry_exit = _entry_exit_scatter(data)
+
         fig.add_trace(
-            candlestick,
+            equity,
             row=1, col=1
         )
-
-        if 'details' in _input:
-            fig.add_trace(
-                bar,
-                row=2, col=1
-            )
-            fig.add_trace(
-                _equity_line(data, True),
-                row=3, col=1
-            )
+        fig.add_trace(
+            candlestick,
+            row=2, col=1
+        )
+        fig.add_trace(
+            entry_exit,
+            row=3, col=1
+        )
+        fig.add_trace(
+            bar,
+            row=4, col=1
+        )
 
         fig.update(layout_xaxis_rangeslider_visible=False)
         return fig
 
-    return dcc.Graph(id=graph_id)
+    return dcc.Graph(id=graph_id, figure=__figure_update([]))
 
 
 def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
