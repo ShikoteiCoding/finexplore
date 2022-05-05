@@ -91,7 +91,7 @@ class BackTest:
             
             self._broker.process_orders(self._symbol, price, index)
             self._data.equity[i - 1] = self._broker.equity
-            self._data.position[i - 1] = int(decision)
+            self._data.position[i - 1] = int(decision) if not decision == Decision.HOLD else None
 
         # From backtesting py
         #equity = pd.Series(broker._equity).bfill().fillna(broker._cash).values

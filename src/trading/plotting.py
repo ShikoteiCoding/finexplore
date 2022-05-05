@@ -102,8 +102,10 @@ def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatt
             line = dict(color = 'firebrick', width = 1), 
             showlegend=showlegend, name=name,fill='tozeroy')
 
-def _entry_exit_scatter(data: Data, name: str = 'Entry/Exits') -> go.Scatter: # type: ignore
-    return go.Scatter(x=data.Date, y=data.position, name=name, marker_color=data.position)
+def _entry_exit_scatter(data: Data, showlegend: bool, name: str = 'Entry/Exits') -> go.Scatter: # type: ignore
+    return go.Scatter(mode='markers', x=data.Date, y=data.position, name=name, 
+            showlegend=showlegend,
+            marker_color=data.position)
 
 ##
 #   Plotly Graph Object Figures Primitives
@@ -142,16 +144,12 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
         fig.layout.template = 'plotly_dark'
 
         candlestick = _ohlc_candlesticks(data, 'OHLC')
-        #candlestick.increasing.fillcolor = Color['POSITIVE']
-        #candlestick.increasing.line.color = Color['POSITIVE']
-        #candlestick.decreasing.fillcolor = Color['NEGATIVE']
-        #candlestick.decreasing.line.color = Color['NEGATIVE']
 
         bar = _volume_bar(data, True, colors)
 
         equity = _equity_line(data, True)
 
-        entry_exit = _entry_exit_scatter(data)
+        entry_exit = _entry_exit_scatter(data, True)
 
         fig.add_trace(
             equity,
