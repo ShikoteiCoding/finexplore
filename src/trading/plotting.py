@@ -83,13 +83,15 @@ def _temporal_reduce(data: Data, _to: Temporality) -> Data:
 #   Plotly Graph Object Charts Primitives
 ##
 def _ohlc_candlesticks(data: Data, name: str = 'OHLC') -> go.Candlestick: # type: ignore
-    return go.Candlestick(
+    return go.Ohlc(
         x = data.Date, 
         open = data.Open,
         high = data.High,
         close = data.Close,
         low = data.Low,
-        name = name
+        name = name,
+        increasing_line_color = Color['POSITIVE'],
+        decreasing_line_color = Color['NEGATIVE']
     )
 
 def _volume_bar(data: Data, showlegend: bool, colors: list[str], name: str = 'Volume') -> go.Bar: # type: ignore
@@ -101,7 +103,7 @@ def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatt
             showlegend=showlegend, name=name,fill='tozeroy')
 
 def _entry_exit_scatter(data: Data, name: str = 'Entry/Exits') -> go.Scatter: # type: ignore
-    return go.Scatter(name = name)
+    return go.Scatter(x=data.Date, y=data.position, name=name, marker_color=data.position)
 
 ##
 #   Plotly Graph Object Figures Primitives
@@ -140,10 +142,10 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
         fig.layout.template = 'plotly_dark'
 
         candlestick = _ohlc_candlesticks(data, 'OHLC')
-        candlestick.increasing.fillcolor = Color['POSITIVE']
-        candlestick.increasing.line.color = Color['POSITIVE']
-        candlestick.decreasing.fillcolor = Color['NEGATIVE']
-        candlestick.decreasing.line.color = Color['NEGATIVE']
+        #candlestick.increasing.fillcolor = Color['POSITIVE']
+        #candlestick.increasing.line.color = Color['POSITIVE']
+        #candlestick.decreasing.fillcolor = Color['NEGATIVE']
+        #candlestick.decreasing.line.color = Color['NEGATIVE']
 
         bar = _volume_bar(data, True, colors)
 
@@ -168,7 +170,8 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
             row=4, col=1
         )
 
-        fig.update(layout_xaxis_rangeslider_visible=False)
+        #fig.update(layout_xaxis_rangeslider_visible=False)
+        fig.update_xaxes(rangeslider_visible=False)
         return fig
 
     return dcc.Graph(id=graph_id, figure=__figure_update([]))
