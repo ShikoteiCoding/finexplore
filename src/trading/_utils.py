@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from enum import Enum
 from functools import partial, update_wrapper
 from typing import Callable, Dict, TypeAlias, cast
 
@@ -140,7 +141,7 @@ class Data:
             arr = self.__cache[__name] = cast(Array, self.__arrays[__name][:self.__index])
         return arr
 
-    def add_empty_array(self, __name: str) -> None:
+    def add_empty_serie(self, __name: str) -> None:
         self.__arrays[__name] = Array(np.tile(np.nan, self.__len), name=__name, index=self._df.index.copy())
 
     def to_pandas(self) -> pd.DataFrame:

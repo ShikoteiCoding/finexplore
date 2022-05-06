@@ -3,7 +3,7 @@
 #   Modify to make it work
 ##
 from dataclasses import KW_ONLY, dataclass, field
-from typing import Optional
+from typing import Optional, Union
 from alpaca_trade_api.common import URL
 from alpaca_trade_api.rest import REST
 
@@ -184,6 +184,12 @@ class Trade:
         order_size = "Long" if self._size > 0 else "Short"
         print(f"{self._entry_time}\n{order_size} Trade of size: {self._size} has been approved for symbol: {self._symbol}")
 
+
+
+class Equity(int):
+    MAX_LONG    = 1
+    MAX_SHORT   = -1
+
 @dataclass
 class Broker:
     """
@@ -237,11 +243,17 @@ class Broker:
 
     def sell(self, symbol: str, size: int, price: float, time: str):
         # At this step we don't know if the order is successful or not
-        self.orders.append(self.create_order(symbol, size, price, time))
+        if size == Equity.MAX_SHORT:
+            self.orders.append(self.create_order(symbol, - self.max_short(), price, time))
+        else:
+            self.orders.append(self.create_order(symbol, - size, price, time))
 
     def buy(self, symbol: str, size: int, price: float, time: str):
         # At this step we don't know if the order is successful or not
-        self.orders.append(self.create_order(symbol, size, price, time))
+        if size == Equity.MAX_LONG:
+            self.orders.append(self.create_order(symbol, self.max_long(price), price, time))
+        else:
+            self.orders.append(self.create_order(symbol, size, price, time))
 
     def reserve_cash(self, amount: float) -> None:
         """ When an order is created, the amount is unavailable and bound to the successfullness of the order. """
@@ -270,7 +282,7 @@ class Broker:
             _debug=self._debug
         )
 
-    def process_orders(self, symbol: str, current_price: float, current_time: str):
+    def process_orders(self, symbol: str, current_price: float, current_time: str) -> dict[str, int]:
         """
         Process the orders to update internal data.
         Are queing two type of oders:
@@ -279,18 +291,25 @@ class Broker:
         Not sure of this method if it reflects truly the behavior of the API.
         Might be more like : create order -> create trade
         """
+        sum_long = 0
+        sum_short = 0
+
         for order in self.orders:
 
             # First case: normal order
             if order.symbol == symbol and order.type=="ioc":
-                self.record_trade(*self.create_trade(order, current_price, current_time)) # Unpack tuple
+                trade_size = self.record_trade(*self.create_trade(order, current_price, current_time))
+                if (trade_size > 0) : sum_long += trade_size
+                else: sum_short += trade_size
 
             # TODO: Handle sl and tp trades. Be careful. They are not necessarly closed after being issued.
             self.orders.remove(order)
 
         self.update_position(current_price)
 
-    def record_trade(self, order: Order, trade: Trade) -> None:
+        return {"enter": sum_long, "exit": sum_short}
+
+    def record_trade(self, order: Order, trade: Trade) -> int:
         """
         When a trade is created some actions are to be handled.
         Deal with those various actions here.
@@ -304,6 +323,7 @@ class Broker:
         # Deal with IOC partial orders here ?
         # remove max trade.size for available cash amount should simulate IOC.
         self.trades.append(trade)
+        return trade.size
 
     def update_position(self, current_price: float) -> None:
         """

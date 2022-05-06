@@ -2,8 +2,8 @@ from dataclasses import KW_ONLY, dataclass, field
 import datetime
 
 from strategy import Decision, StrategyCallable
-from _utils import DatasetReaderCallable, get_function_name, Data, Array
-from broker import Broker
+from _utils import DatasetReaderCallable, get_function_name, Data
+from broker import Broker, Equity
 
 import pandas as pd
 import numpy as np
@@ -34,8 +34,10 @@ class BackTest:
         self._symbol:        str    = get_function_name(self._data_func)
         self._strategy_name: str    = get_function_name(self._strategy)
 
-        self._data.add_empty_array("equity")
-        self._data.add_empty_array("position")
+        # Enrich Data
+        self._data.add_empty_serie("equity")
+        self._data.add_empty_serie("enter")
+        self._data.add_empty_serie("exit")
 
     @property
     def broker(self) -> Broker:
@@ -78,20 +80,25 @@ class BackTest:
             price, decision = self._strategy(self._data, self._broker)
 
             # TODO: Will need to convert the index to a datetime object later on.
-            index = str(self._data.Date[-1])
+            time = str(self._data.Date[-1])
 
             # TODO: Should a strategy return an order instead?
             # Not sure of the Decision ENUM return anyway
+            # Too much arguments given to buy and sell, should be easier
             if not price:
                 continue
             elif decision == Decision.ENTER:
-                self._broker.buy(self._symbol, self._broker.max_long(price), price, index)
+                self._broker.buy(self._symbol, Equity.MAX_LONG, price, time)
             elif decision == Decision.EXIT:
-                self._broker.sell(self._symbol, - self._broker.max_short(), price, index)
+                self._broker.sell(self._symbol, Equity.MAX_SHORT, price, time)
             
-            self._broker.process_orders(self._symbol, price, index)
+            iter_trades = self._broker.process_orders(self._symbol, price, time)
+
+            # Data is the runner responsability
+            # Update in accordance with the broker results
             self._data.equity[i - 1] = self._broker.equity
-            self._data.position[i - 1] = int(decision) if not decision == Decision.HOLD else None
+            self._data.enter[i - 1] = iter_trades["enter"]
+            self._data.exit[i - 1] = iter_trades["exit"]
 
         # From backtesting py
         #equity = pd.Series(broker._equity).bfill().fillna(broker._cash).values
