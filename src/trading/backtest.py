@@ -97,8 +97,8 @@ class BackTest:
             # Data is the runner responsability
             # Update in accordance with the broker results
             self._data.equity[i - 1] = self._broker.equity
-            self._data.enter[i - 1] = iter_trades["enter"]
-            self._data.exit[i - 1] = iter_trades["exit"]
+            self._data.enter[i - 1] = iter_trades["enter"] if iter_trades["enter"] > 0 else None
+            self._data.exit[i - 1] = iter_trades["exit"] if iter_trades["exit"] < 0 else None
 
         # From backtesting py
         #equity = pd.Series(broker._equity).bfill().fillna(broker._cash).values

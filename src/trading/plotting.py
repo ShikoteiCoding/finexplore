@@ -38,7 +38,9 @@ class Temporality(Enum):
 
 Color = {
     'POSITIVE': 'rgb(0,222,0)',
-    'NEGATIVE': 'rgb(256,0,0)'
+    'NEGATIVE': 'rgb(256,0,0)',
+    'ENTRY': 'rgb(0,180,0)',
+    'EXIT': 'rgb(180,0,0)'
 }
 
 ##
@@ -102,10 +104,15 @@ def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatt
             line = dict(color = 'firebrick', width = 1), 
             showlegend=showlegend, name=name,fill='tozeroy')
 
-def _entry_exit_scatter(data: Data, showlegend: bool, name: str = 'Entry/Exits') -> go.Scatter: # type: ignore
-    return go.Scatter(mode='markers', x=data.Date, y=data.position, name=name, 
+def _entry_scatter(data: Data, showlegend: bool, name: str = 'Entries') -> go.Scatter: # type: ignore
+    return go.Scatter(mode='markers', x=data.Date, y=data.enter, name=name, 
             showlegend=showlegend,
-            marker_color=data.position)
+            marker_color=Color['ENTRY'])
+
+def _exit_scatter(data: Data, showlegend: bool, name: str = 'Exits') -> go.Scatter: # type: ignore
+    return go.Scatter(mode='markers', x=data.Date, y=data.exit, name=name, 
+            showlegend=showlegend,
+            marker_color=Color['EXIT'])
 
 ##
 #   Plotly Graph Object Figures Primitives
@@ -149,7 +156,8 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
 
         equity = _equity_line(data, True)
 
-        entry_exit = _entry_exit_scatter(data, True)
+        entry = _entry_scatter(data, True)
+        exit = _exit_scatter(data, True)
 
         fig.add_trace(
             equity,
@@ -160,7 +168,11 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
             row=2, col=1
         )
         fig.add_trace(
-            entry_exit,
+            entry,
+            row=3, col=1
+        )
+        fig.add_trace(
+            exit,
             row=3, col=1
         )
         fig.add_trace(
