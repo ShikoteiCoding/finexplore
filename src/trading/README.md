@@ -9,9 +9,10 @@
 - Responsability of Broker class is too big, find a way to delegate
 
 ## Improvments
+- Use slots for object performances.
 - Implement a full equity (enum ? class ?) instead of max long/short from the broker.
-- Implement commision rats
-- Convert Trade back to Array Class to compute visualization
+- Implement commision rates
+- Convert Trade back to Array Class to Compute Visualization.
 - Deal with GTC and IOC Orders:https://www.investopedia.com/terms/g/gtc.asp, https://www.investopedia.com/terms/i/immediateorcancel.asp
 
 ## Features
@@ -21,9 +22,6 @@
     - Should be compatible with Real Time
     - Should serve a web page
     - Add a "vis" mode and "RT" mode to the backtest class
-
-## Fix
-- Temporal Aggregation has one day shift for some reason ?
 
 # Installation
 - Virtual Environment Setup
