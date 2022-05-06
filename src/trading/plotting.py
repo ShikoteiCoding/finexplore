@@ -43,6 +43,11 @@ Color = {
     'EXIT': 'rgb(180,0,0)'
 }
 
+Marker = {
+    'ENTRY_MARKER': 'triangle-up',
+    'EXIT_MARKER': 'triangle-down'
+}
+
 ##
 #   Function signature declarations
 ##
@@ -107,12 +112,16 @@ def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatt
 def _entry_scatter(data: Data, showlegend: bool, name: str = 'Entries') -> go.Scatter: # type: ignore
     return go.Scatter(mode='markers', x=data.Date, y=data.enter, name=name, 
             showlegend=showlegend,
-            marker_color=Color['ENTRY'])
+            marker_color=Color['ENTRY'],
+            marker_symbol=Marker['ENTRY_MARKER'],
+            marker_size=10)
 
 def _exit_scatter(data: Data, showlegend: bool, name: str = 'Exits') -> go.Scatter: # type: ignore
     return go.Scatter(mode='markers', x=data.Date, y=data.exit, name=name, 
             showlegend=showlegend,
-            marker_color=Color['EXIT'])
+            marker_color=Color['EXIT'],
+            marker_symbol=Marker['EXIT_MARKER'],
+            marker_size=10)
 
 ##
 #   Plotly Graph Object Figures Primitives
@@ -181,7 +190,8 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
         )
 
         #fig.update(layout_xaxis_rangeslider_visible=False)
-        fig.update_xaxes(rangeslider_visible=False)
+        fig.update_traces(xaxis="x1")
+        fig.update_xaxes(rangeslider_visible=False, spikemode='across+marker')
         return fig
 
     return dcc.Graph(id=graph_id, figure=__figure_update([]))
