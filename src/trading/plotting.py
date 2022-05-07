@@ -1,4 +1,6 @@
 from re import X
+from xmlrpc.client import FastMarshaller
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -89,7 +91,7 @@ def _temporal_reduce(data: Data, _to: Temporality) -> Data:
 ##
 #   Plotly Graph Object Charts Primitives
 ##
-def _ohlc_candlesticks(data: Data, name: str = 'OHLC') -> go.Candlestick: # type: ignore
+def _ohlc_candlesticks(data: Data, showlegend: bool, name: str = '') -> go.Candlestick: # type: ignore
     return go.Ohlc(
         x = data.Date, 
         open = data.Open,
@@ -101,7 +103,7 @@ def _ohlc_candlesticks(data: Data, name: str = 'OHLC') -> go.Candlestick: # type
         decreasing_line_color = Color['NEGATIVE']
     )
 
-def _volume_bar(data: Data, showlegend: bool, colors: list[str], name: str = 'Volume') -> go.Bar: # type: ignore
+def _volume_bar(data: Data, showlegend: bool, colors: list[str], name: str = '') -> go.Bar: # type: ignore
     return go.Bar(x=data.Date, y=data.Volume, 
             showlegend=showlegend, name=name, 
             marker_color=colors,
@@ -109,16 +111,19 @@ def _volume_bar(data: Data, showlegend: bool, colors: list[str], name: str = 'Vo
                 '<br>Time=%{x}</br>'+
                 '<br>Volume=%{y}$</br>')
 
-def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatter: # type: ignore 
+def _equity_line(data: Data, showlegend: bool, name: str = '') -> go.Scatter: # type: ignore
     return go.Scatter(x = data.Date, y = data.equity, 
             line = dict(color = 'firebrick', width = 1), 
             showlegend=showlegend, name=name,fill='tozeroy',
+            customdata=np.dstack((data.position_size, data.cash, data.position_amount))[0],
             hovertemplate=
                 '<br>Time=%{x}</br>'+
-                '<br>Equity=%{y}$</br>'+
-                '<br>Position Size=%{text}')
+                '<br>Equity=$%{y}</br>'+
+                '<br>Position Size=%{customdata[0]}'+
+                '<br>Position Amount=$%{customdata[1]:.2f}'+
+                '<br>Cash Amount=$%{customdata[2]:.2f}')
 
-def _entry_scatter(data: Data, showlegend: bool, name: str = 'Entries') -> go.Scatter: # type: ignore
+def _entry_scatter(data: Data, showlegend: bool, name: str = '') -> go.Scatter: # type: ignore
     return go.Scatter(mode='markers', x=data.Date, y=data.enter, name=name, 
             showlegend=showlegend,
             marker_color=Color['ENTRY'],
@@ -128,7 +133,7 @@ def _entry_scatter(data: Data, showlegend: bool, name: str = 'Entries') -> go.Sc
                 '<br>Time=%{x}</br>'+
                 '<br>Entry size=%{y}</br>')
 
-def _exit_scatter(data: Data, showlegend: bool, name: str = 'Exits') -> go.Scatter: # type: ignore
+def _exit_scatter(data: Data, showlegend: bool, name: str = '') -> go.Scatter: # type: ignore
     return go.Scatter(mode='markers', x=data.Date, y=data.exit, name=name, 
             showlegend=showlegend,
             marker_color=Color['EXIT'],
@@ -174,14 +179,14 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
         fig = _subplot_ohlc_grid(4, 1)
         fig.layout.template = 'plotly_dark'
 
-        candlestick = _ohlc_candlesticks(data, 'OHLC')
+        candlestick = _ohlc_candlesticks(data, False)
 
-        bar = _volume_bar(data, True, colors)
+        bar = _volume_bar(data, False, colors)
 
-        equity = _equity_line(data, True)
+        equity = _equity_line(data, False)
 
-        entry = _entry_scatter(data, True)
-        exit = _exit_scatter(data, True)
+        entry = _entry_scatter(data, False)
+        exit = _exit_scatter(data, False)
 
         fig.add_trace(
             equity,
