@@ -39,8 +39,8 @@ class Temporality(Enum):
 Color = {
     'POSITIVE': 'rgb(0,222,0)',
     'NEGATIVE': 'rgb(256,0,0)',
-    'ENTRY': 'rgb(0,180,0)',
-    'EXIT': 'rgb(180,0,0)'
+    'ENTRY': 'rgb(180,180,180)',
+    'EXIT': 'rgb(50,50,180)'
 }
 
 Marker = {
@@ -102,26 +102,41 @@ def _ohlc_candlesticks(data: Data, name: str = 'OHLC') -> go.Candlestick: # type
     )
 
 def _volume_bar(data: Data, showlegend: bool, colors: list[str], name: str = 'Volume') -> go.Bar: # type: ignore
-    return go.Bar(x=data.Date, y=data.Volume, showlegend=showlegend, name=name, marker_color=colors)
+    return go.Bar(x=data.Date, y=data.Volume, 
+            showlegend=showlegend, name=name, 
+            marker_color=colors,
+            hovertemplate=
+                '<br>Time=%{x}</br>'+
+                '<br>Volume=%{y}$</br>')
 
 def _equity_line(data: Data, showlegend: bool, name: str = 'Equity') -> go.Scatter: # type: ignore 
     return go.Scatter(x = data.Date, y = data.equity, 
             line = dict(color = 'firebrick', width = 1), 
-            showlegend=showlegend, name=name,fill='tozeroy')
+            showlegend=showlegend, name=name,fill='tozeroy',
+            hovertemplate=
+                '<br>Time=%{x}</br>'+
+                '<br>Equity=%{y}$</br>'+
+                '<br>Position Size=%{text}')
 
 def _entry_scatter(data: Data, showlegend: bool, name: str = 'Entries') -> go.Scatter: # type: ignore
     return go.Scatter(mode='markers', x=data.Date, y=data.enter, name=name, 
             showlegend=showlegend,
             marker_color=Color['ENTRY'],
             marker_symbol=Marker['ENTRY_MARKER'],
-            marker_size=10)
+            marker_size=10,
+            hovertemplate=
+                '<br>Time=%{x}</br>'+
+                '<br>Entry size=%{y}</br>')
 
 def _exit_scatter(data: Data, showlegend: bool, name: str = 'Exits') -> go.Scatter: # type: ignore
     return go.Scatter(mode='markers', x=data.Date, y=data.exit, name=name, 
             showlegend=showlegend,
             marker_color=Color['EXIT'],
             marker_symbol=Marker['EXIT_MARKER'],
-            marker_size=10)
+            marker_size=10,
+            hovertemplate=
+                '<br>Time=%{x}</br>'+
+                '<br>Exit size=%{y}</br>')
 
 ##
 #   Plotly Graph Object Figures Primitives
