@@ -120,8 +120,8 @@ def _equity_line(data: Data, showlegend: bool, name: str = '') -> go.Scatter: # 
                 '<br>Time=%{x}</br>'+
                 '<br>Equity=$%{y}</br>'+
                 '<br>Position Size=%{customdata[0]}'+
-                '<br>Position Amount=$%{customdata[1]:.2f}'+
-                '<br>Cash Amount=$%{customdata[2]:.2f}')
+                '<br>Cash Amount=$%{customdata[2]:.2f}'+
+                '<br>Position Amount=$%{customdata[1]:.2f}')
 
 def _entry_scatter(data: Data, showlegend: bool, name: str = '') -> go.Scatter: # type: ignore
     return go.Scatter(mode='markers', x=data.Date, y=data.enter, name=name, 

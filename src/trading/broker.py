@@ -24,10 +24,11 @@ class Position:
     To be passed to the strategy as a lighter version of Broker.
     """
 
-    _in_position:   bool    = field(init=True, repr=True)
-    _size:          int     = field(init=True, repr=True)
-    _cash_amount:   float   = field(init=True, repr=True)
-    _equity:        float   = field(init=True, repr=True)
+    _in_position:     bool    = field(init=True, repr=True)
+    _size:            int     = field(init=True, repr=True)
+    _cash_amount:     float   = field(init=True, repr=True)
+    _equity:          float   = field(init=True, repr=True)
+    _position_amount: float   = field(init=True, repr=False)
 
     @property
     def in_position(self) -> bool:
@@ -53,6 +54,12 @@ class Position:
     @cash_amount.setter
     def cash_amount(self, val: float) -> None:
         self._cash_amount = val
+    @property
+    def position_amount(self) -> float:
+        return self._position_amount
+    @position_amount.setter
+    def position_amount(self, val: float) -> None:
+        self._position_amount = val
     
     @staticmethod
     def load_positions(file_path: str) -> list: # type: ignore
@@ -208,7 +215,7 @@ class Broker:
     _cover_rate: int        = field(init=False, repr=True, default=0)
     
     def __post_init__(self):
-        self._position = Position(False, 0, self._cash_amount, self._cash_amount)
+        self._position = Position(False, 0, self._cash_amount, self._cash_amount, 0)
 
     @property
     def in_position(self) -> bool:
@@ -337,6 +344,7 @@ class Broker:
         self._position.size = current_size
         self._position.cash_amount = self._cash_amount
         self._position.equity = self._cash_amount + current_price * current_size
+        self._position.position_amount = current_price * current_size
 
 @dataclass
 class AlpacaBroker:
