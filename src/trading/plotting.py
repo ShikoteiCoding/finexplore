@@ -115,13 +115,13 @@ def _equity_line(data: Data, showlegend: bool, name: str = '') -> go.Scatter: # 
     return go.Scatter(x = data.Date, y = data.equity, 
             line = dict(color = 'firebrick', width = 1), 
             showlegend=showlegend, name=name,fill='tozeroy',
-            customdata=np.dstack((data.position_size, data.cash, data.position_amount))[0],
+            customdata=np.dstack((data.position_size, data.cash_amount, data.position_amount))[0],
             hovertemplate=
                 '<br>Time=%{x}</br>'+
                 '<br>Equity=$%{y}</br>'+
                 '<br>Position Size=%{customdata[0]}'+
-                '<br>Cash Amount=$%{customdata[2]:.2f}'+
-                '<br>Position Amount=$%{customdata[1]:.2f}')
+                '<br>Cash Amount=$%{customdata[1]:.2f}'+
+                '<br>Position Amount=$%{customdata[2]:.2f}')
 
 def _entry_scatter(data: Data, showlegend: bool, name: str = '') -> go.Scatter: # type: ignore
     return go.Scatter(mode='markers', x=data.Date, y=data.enter, name=name, 

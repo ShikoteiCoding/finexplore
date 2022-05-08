@@ -39,7 +39,7 @@ class BackTest:
         self._data.add_empty_serie("enter")
         self._data.add_empty_serie("exit")
         self._data.add_empty_serie("position_size")
-        self._data.add_empty_serie("cash")
+        self._data.add_empty_serie("cash_amount")
         self._data.add_empty_serie("position_amount")
 
     @property
@@ -103,7 +103,8 @@ class BackTest:
             self._data.enter[i - 1] = iter_trades["enter"] if iter_trades["enter"] > 0 else None
             self._data.exit[i - 1] = iter_trades["exit"] if iter_trades["exit"] < 0 else None
             self._data.position_size[i - 1] = self._broker.position.size if self._broker.in_position else 0
-            self._data.cash[i - 1] = self._broker.cash_amount
+
+            self._data.cash_amount[i - 1] = self._broker.cash_amount
             self._data.position_amount[i - 1] = self._broker.position.position_amount if self._broker.in_position else 0
 
         # From backtesting py
