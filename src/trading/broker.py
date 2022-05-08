@@ -213,6 +213,7 @@ class Broker:
     _orders:   list[Order]  = field(init=False, repr=True, default_factory=list)    # Default empty if no existing orders pre deployment
     _trades:   list[Trade]  = field(init=False, repr=True, default_factory=list)    # Always empty : don't track pre deployment trades (no sense)
     _cover_rate: int        = field(init=False, repr=True, default=0)
+    _commision_rate: float  = field(init=False, repr=True, default=0.0)
     
     def __post_init__(self):
         self._position = Position(False, 0, self._cash_amount, self._cash_amount, 0)
@@ -239,6 +240,12 @@ class Broker:
     @property
     def cash_reserved(self) -> float:
         return sum(order._cash_reserved for order in self.orders)
+    @property
+    def commision_rate(self) -> float:
+        return self._commision_rate
+    @commision_rate.setter
+    def commision_rate(self, val: float) -> None:
+        self._commision_rate = val
 
     def max_long(self, price: float) -> int:
         """ Returns the maximum positive quantity available to buy. """

@@ -35,6 +35,8 @@ class BackTest:
         self._symbol:        str    = get_function_name(self._data_func)
         self._strategy_name: str    = get_function_name(self._strategy)
 
+        self._broker.commision_rate = self._commission_rate
+
         # Enrich Data
         self._data.add_empty_serie("equity")
         self._data.add_empty_serie("enter")
