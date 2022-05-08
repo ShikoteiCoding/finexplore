@@ -11,7 +11,7 @@ import numpy as np
 DATA_PATH = "../../data/companies_stock/"
 CSV_EXT = ".csv"
 
-@dataclass()
+@dataclass
 class BackTest:
     """ Backtest Data Generator. """
 
@@ -28,6 +28,7 @@ class BackTest:
 
     ##
     #   TODO: Where to define indicators to plot ?
+    #   -> Indicators are now the responsability of the Backtest to store and the strategy to compute.
     ##
     def __post_init__(self):
         self._data:          Data   = self._data_func()
@@ -51,6 +52,13 @@ class BackTest:
     @property
     def symbol(self) -> str:
         return self._symbol
+
+    def add_indicator(self, name: str):
+        """
+        Add an indicator computed in the strategy and store it in the Data class.
+        Used for plotting the backtest.
+        """
+        self._data.add_empty_serie(name)
 
     def run(self):
         """ Run the script iteratively.  """
