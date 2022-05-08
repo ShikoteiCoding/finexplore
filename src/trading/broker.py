@@ -269,20 +269,28 @@ class Broker:
         else:
             self.orders.append(self.create_order(symbol, size, price, time))
 
-    def reserve_cash(self, amount: float) -> None:
-        """ When an order is created, the amount is unavailable and bound to the successfullness of the order. """
-        self._cash_amount -= (amount * (1 + self._cover_rate))
-
     def create_order(self, symbol: str, size: int, price: float, time: str) -> Order:
-        self.reserve_cash(size * price if size > 0 else 0)
+        """ Create an Order. If it is a long Order, reserve the amount plus commission and cover rates. """
+        cash_reserved = 0
+        if size > 0:
+            cash_reserved = self.reserve_cash(size)
         return Order(
             _broker=self,
             _symbol=symbol,
             _size=size,
             _type="ioc",
             _time=time,
-            _cash_reserved= size * price if size > 0 else 0
+            _cash_reserved=cash_reserved
         )
+
+    def reserve_cash(self, amount: float) -> float:
+        """ 
+        When an order is created, the amount is unavailable and bound to the successfullness of the order. 
+        Handle cover rate and commision rate for long trades.
+        """
+        cash_reserved = (amount * (1 + self._cover_rate + self._commision_rate))
+        self._cash_amount -= cash_reserved
+        return cash_reserved
     
     def create_trade(self, order: Order, price: float, entry_time: str) -> tuple[Order, Trade]:
         """ Create a trade from an existing order. """
@@ -326,13 +334,16 @@ class Broker:
     def record_trade(self, order: Order, trade: Trade) -> int:
         """
         When a trade is created some actions are to be handled.
-        Deal with those various actions here.
+        Deal with the computation of prices and left amount.
         """
         if order.is_long:
-            left_over = order.cash_reserved - (trade.size * trade.entry_price) # Reserved amount is always higher
-            self._cash_amount = self._cash_amount + left_over       # Add the left over
+            # Reserved amount is always higher or equal
+            left_over = order.cash_reserved - (trade.size * trade.entry_price * (1 + self._commision_rate))
+            # Add the left over to the cash (left over is always the cover rate if not spent)
+            self._cash_amount = self._cash_amount + left_over
         if order.is_short:
-            self._cash_amount -= (trade.size * trade.entry_price)   # Add to cash amount sold
+            # Add to cash amount sold. Size is negative so need to substract.
+            self._cash_amount -= (trade.size * trade.entry_price * (1 - self._commision_rate))
 
         # Deal with IOC partial orders here ?
         # remove max trade.size for available cash amount should simulate IOC.

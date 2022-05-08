@@ -22,8 +22,8 @@ class BackTest:
     _: KW_ONLY
     _visual_mode:     bool  = field(init=True, repr=True, default=False)
     _commission_rate: float = field(init=True, repr=True, default=0)
-    _symbol:            str = field(init=False, repr=True)
 
+    _symbol:        str = field(init=False, repr=True)
     _strategy_name: str = field(init=False, repr=True)
 
     ##
