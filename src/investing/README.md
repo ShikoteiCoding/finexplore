@@ -6,6 +6,10 @@ This part of the project attends to explore financial data of the market both pr
 - Detect both stable and growth stocks
 - Guess bull and bear market
 
+# Ultimate goal
+
+The ultimate goal of the project is a super architecture able to deploy trading bots over automatic decision and manual triggers.
+
 # TODO
 
 ## Features
