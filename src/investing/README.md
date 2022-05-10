@@ -14,6 +14,7 @@ The ultimate goal of the project is a super architecture able to deploy trading 
 
 ## Features
 - Get ticker for US Market and Historicy of tickers
+- For each ticker, automate the fetch of required financial data
 
 ## Improvments
 - Deal with / understand company take over
