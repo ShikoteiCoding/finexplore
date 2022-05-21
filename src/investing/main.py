@@ -1,4 +1,5 @@
 import yfinance as yf
+import pprint
 
 from utils import load_json
 
@@ -9,12 +10,14 @@ from utils import load_json
 # Financial statements: https://www.sec.gov/dera/data/financial-statement-data-sets.html
 
 def main():
+    pp = pprint.PrettyPrinter(indent=2)
 
     DATA_PATH = 'data'
     ETF_PATH  = DATA_PATH + '/ETFs.json'
 
     etf_configs = load_json(ETF_PATH)
-    print(etf_configs)
+
+    pp.pprint(etf_configs)
 
 
 

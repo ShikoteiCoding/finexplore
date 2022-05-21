@@ -37,3 +37,9 @@ Use the same virtual environment as the other sub projects
     ```
     cd src/trading
     ```
+
+- Dependencies Installation (Update python version)
+    ```
+    pip3 install yfinance
+    pip3 install pprinter
+    ```
