@@ -42,4 +42,6 @@ Use the same virtual environment as the other sub projects
     ```
     pip3 install yfinance
     pip3 install pprinter
+    pip3 install beautifulsoup4
+    pip3 install requests
     ```
