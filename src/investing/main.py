@@ -2,6 +2,7 @@ import yfinance as yf
 import pprint
 
 from utils import load_json
+from scrap import scrap_ishares_holdings
 
 ## Intersting URLs to scrap
 
@@ -17,7 +18,9 @@ def main():
 
     etf_configs = load_json(ETF_PATH)
 
-    pp.pprint(etf_configs)
+    for etf in etf_configs["tickers"]:
+        holdings_url = etf["holdings_url"]
+        holdings = scrap_ishares_holdings(holdings_url)
 
 if __name__ == '__main__':
     main()
