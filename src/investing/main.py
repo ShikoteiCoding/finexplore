@@ -19,7 +19,5 @@ def main():
 
     pp.pprint(etf_configs)
 
-
-
 if __name__ == '__main__':
     main()
