@@ -2,7 +2,10 @@ import yfinance as yf
 import pprint
 
 from utils import load_json
-from scrap import scrap_ishares_holdings_download_link
+from scrap import (
+    scrap_ishares_holdings_download_link,
+    download_ishares_holdings_data
+)
 
 ## Intersting URLs to scrap
 
@@ -22,8 +25,8 @@ def main():
     for etf in etf_configs["tickers"]:
         holdings_url = etf["holdings_url"]
         holdings_data_url = scrap_ishares_holdings_download_link(holdings_url)
-        #for url in holdings_data_url:
-        #    ISHARES_PATH
+        for url in holdings_data_url:
+            download_ishares_holdings_data(url, ISHARES_PATH)
 
 
 if __name__ == '__main__':

@@ -26,9 +26,11 @@ def scrap_ishares_holdings_download_link(url: str) -> list[str]:
 
     return downloadable_urls
 
-def download_ishares_holdings_data(url: str, store_path: str):
+def download_ishares_holdings_data(url: str, store_path: str) -> bool:
     """
     Given a data url, download the file and store it in the folder path.
     Need to transform it to DataFrame
     """
-    req = requests.get(url)
+    req = requests.get( url)
+
+    return True
