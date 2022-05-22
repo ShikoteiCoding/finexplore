@@ -6,22 +6,29 @@ import requests
 # Only functionnal as most of the scrapp will be specific
 # Will be too code-heavy to find generalities in scrapping websites
 
-HEADERS = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Max-Age': '3600',
-    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
-}
-
-def scrap_ishares_holdings(url: str) -> list[str]:
+def scrap_ishares_holdings_download_link(url: str) -> list[str]:
     """
-    Given an iShare URL, this returns the list of tickers and associated weight.
+    Given an iShare URL, this returns the url to download data from.
     """
 
-    req = requests.get(url, HEADERS)
+    export_classname = "fund-download fund-component-data-export"
+
+    req = requests.get(url)
     soup = BeautifulSoup(req.content, 'html.parser')
 
-    print(soup.prettify())
+    # Hypothesis: only one div with this class name
+    export_class_div = soup.find_all(class_=export_classname)
 
-    return []
+    downloadable_urls = []
+
+    for export_div in export_class_div:
+        downloadable_urls.append(export_div.a.get("href"))
+
+    return downloadable_urls
+
+def download_ishares_holdings_data(url: str, store_path: str):
+    """
+    Given a data url, download the file and store it in the folder path.
+    Need to transform it to DataFrame
+    """
+    req = requests.get(url)
