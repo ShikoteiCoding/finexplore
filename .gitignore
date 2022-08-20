@@ -4,3 +4,4 @@ src/trading/alpaca.env
 src/trading/alpaca-paper.env
 **/__pycache__/**
 /typings
+**/.ipynb_checkpoints/**
