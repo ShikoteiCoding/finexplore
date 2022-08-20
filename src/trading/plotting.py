@@ -1,5 +1,3 @@
-from re import X
-from xmlrpc.client import FastMarshaller
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -159,7 +157,7 @@ def _subplot_ohlc_grid(nrows: int, ncols: int) -> go.Figure:  # type: ignore
 ##
 def _dashboard_html_title(title: str) -> html.H1:
     """ HTML for a dashboard title. <H1>. """
-    return html.H1(id = 'H1', children = title, style = {'textAlign':'center', 'marginTop':'20','marginBottom':40, 'color':'white'})
+    return html.H1(id='H1', children = title, style={'textAlign':'center', 'marginTop':'20','marginBottom':40, 'color':'white'}) # type: ignore
 
 def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, colors: list[str]) -> dcc.Graph:
     """ Return HTML For callback OHLC Plot. """
@@ -214,7 +212,7 @@ def _dashboard_ohlc_graph(app: Dash, symbol: Symbol, data: Data, input: Input, c
         fig.update_xaxes(rangeslider_visible=False, spikemode='across+marker')
         return fig
 
-    return dcc.Graph(id=graph_id, figure=__figure_update([]))
+    return dcc.Graph(id=graph_id, figure=__figure_update([])) # type: ignore
 
 
 def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
@@ -226,24 +224,24 @@ def backtest_dashboard(app: Dash, symbol: Symbol, data: Data) -> Dash:
     # Useless later, let it as a reference on know-how-to
     _input = Input("toggle-details", "value")
 
-    app.layout = html.Div(
-        id='dark-theme-components', 
-        children = html.Div([
-            _dashboard_html_title('Backtesting Dashboard'),
-            dcc.Checklist(
-                id='toggle-details',
-                options=[{'label': 'Show Details', 'value': 'details'}],
-                value=['details']
-            ),
-            _dashboard_ohlc_graph(app, symbol, data, _input, _clrs)
-        ], 
-        style={
-            'border': 'solid 1px #A2B1C6',
-            'borderRadius': '5px',
-            'padding': '50px',
-            'marginTop': '20px',
-            'backgroundColor': '#3D3D3D'
-        })
-    )
+    #app.layout = html.Div(
+    #    id='dark-theme-components', 
+    #    children = html.Div([
+    #        _dashboard_html_title('Backtesting Dashboard'),
+    #        dcc.Checklist(
+    #            id='toggle-details',
+    #            options=[{'label': 'Show Details', 'value': 'details'}],
+    #            value=['details']
+    #        ),
+    #        _dashboard_ohlc_graph(app, symbol, data, _input, _clrs)
+    #    ], 
+    #    style={
+    #        'border': 'solid 1px #A2B1C6',
+    #        'borderRadius': '5px',
+    #        'padding': '50px',
+    #        'marginTop': '20px',
+    #        'backgroundColor': '#3D3D3D'
+    #    })
+    #)
 
     return app
