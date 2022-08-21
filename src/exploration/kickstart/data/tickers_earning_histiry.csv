@@ -1,0 +1,635 @@
+index,symbol,company,earning_dates,eps_estimates,eps_reported,surprise_percent
+0,AOS,A. O. Smith Corporation,"Jul 28, 2022, 2 AMEDT",0.81,0.82,1.61
+1,AOS,A. O. Smith Corporation,"Apr 28, 2022, 2 AMEDT",0.75,0.77,3.08
+2,AOS,A. O. Smith Corporation,"Jan 27, 2022, 1 AMEST",0.77,0.87,13.28
+3,AOS,A. O. Smith Corporation,"Oct 28, 2021, 2 AMEDT",0.68,0.82,20.59
+4,AOS,A. O. Smith Corporation,"Jul 29, 2021, 2 AMEDT",0.65,0.73,12.31
+5,AOS,A. O. Smith Corporation,"Apr 29, 2021, 2 AMEDT",0.57,0.6,5.26
+6,AOS,A. O. Smith Corporation,"Jan 28, 2021, 1 AMEST",0.59,0.74,26.5
+7,AOS,A. O. Smith Corporation,"Oct 29, 2020, 2 AMEDT",0.52,0.66,27.66
+8,AOS,A. O. Smith Corporation,"Jul 30, 2020, 2 AMEDT",0.42,0.45,7.14
+9,AOS,A. O. Smith Corporation,"May 05, 2020, 2 AMEDT",0.34,0.32,-5.88
+10,AOS,A. O. Smith Corporation,"Jan 28, 2020, 1 AMEST",0.6,0.56,-5.88
+11,AOS,A. O. Smith Corporation,"Oct 29, 2019, 2 AMEDT",0.53,0.53,-0.19
+12,AOS,A. O. Smith Corporation,"Jul 30, 2019, 2 AMEDT",0.63,0.61,-3.02
+13,AOS,A. O. Smith Corporation,"Apr 30, 2019, 3 AMEDT",0.57,0.53,-7.02
+14,AOS,A. O. Smith Corporation,"Jan 29, 2019, 1 AMEST",0.71,0.74,4.96
+15,AOS,A. O. Smith Corporation,"Oct 30, 2018, 2 AMEDT",0.63,0.61,-3.02
+16,AOS,A. O. Smith Corporation,"Jul 25, 2018, 3 AMEDT",0.62,0.66,6.45
+17,AOS,A. O. Smith Corporation,"Apr 25, 2018, 3 AMEDT",0.58,0.6,3.99
+18,AOS,A. O. Smith Corporation,"Jan 30, 2018, 1 AMEST",0.56,0.6,6.57
+19,AOS,A. O. Smith Corporation,"Oct 25, 2017, 2 AMEDT",0.53,0.54,1.5
+20,AOS,A. O. Smith Corporation,"Jul 26, 2017, 2 AMEDT",0.53,0.53,0.38
+21,AOS,A. O. Smith Corporation,"Apr 27, 2017, 2 AMEDT",0.47,0.5,6.61
+22,AOS,A. O. Smith Corporation,"Feb 02, 2017, 1 AMEST",0.46,0.47,2.17
+23,AOS,A. O. Smith Corporation,"Oct 26, 2016, 2 AMEDT",0.45,0.47,4.44
+24,AOS,A. O. Smith Corporation,"Jul 26, 2016, 2 AMEDT",0.45,0.49,8.65
+25,AOS,A. O. Smith Corporation,"Apr 27, 2016, 2 AMEDT",0.38,0.42,8.64
+26,AOS,A. O. Smith Corporation,"Jan 29, 2016, 1 AMEST",0.42,0.45,7.4
+27,AOS,A. O. Smith Corporation,"Oct 21, 2015, 2 AMEDT",0.4,0.41,3.8
+28,AOS,A. O. Smith Corporation,"Jul 23, 2015, 3 AMEDT",0.33,0.4,20.06
+29,AOS,A. O. Smith Corporation,"Apr 24, 2015, 3 AMEDT",0.31,0.33,4.5
+30,AOS,A. O. Smith Corporation,"Jan 27, 2015, 2 AMEST",0.3,0.32,5.26
+31,AOS,A. O. Smith Corporation,"Oct 21, 2014, 2 AMEDT",0.28,0.3,4.24
+32,AOS,A. O. Smith Corporation,"Jul 22, 2014, 12 AMEDT",0.3,0.33,9.5
+33,AOS,A. O. Smith Corporation,"Apr 22, 2014, 12 AMEDT",0.26,0.27,2.41
+34,AOS,A. O. Smith Corporation,"Jan 28, 2014, 12 AMEST",0.26,0.26,1.56
+35,AOS,A. O. Smith Corporation,"Oct 21, 2013, 12 AMEDT",0.22,0.27,24.01
+36,AOS,A. O. Smith Corporation,"Jul 24, 2013, 12 AMEDT",0.21,0.26,21.14
+37,AOS,A. O. Smith Corporation,"Apr 23, 2013, 12 AMEDT",0.19,0.24,24.38
+38,AOS,A. O. Smith Corporation,"Jan 24, 2013, 12 AMEST",0.2,0.23,12.25
+39,AOS,A. O. Smith Corporation,"Oct 17, 2012, 12 AMEDT",0.17,0.18,4.65
+40,AOS,A. O. Smith Corporation,"Jul 18, 2012, 12 AMEDT",0.17,0.19,12.36
+41,AOS,A. O. Smith Corporation,"Apr 20, 2012, 12 AMEDT",0.15,0.17,8.03
+42,AOS,A. O. Smith Corporation,"Jan 27, 2012, 12 AMEST",0.16,0.17,8.12
+43,AOS,A. O. Smith Corporation,"Oct 21, 2011, 12 AMEDT",0.12,0.1,-16.67
+44,AOS,A. O. Smith Corporation,"Jul 19, 2011, 12 AMEDT",0.13,0.13,1.24
+45,AOS,A. O. Smith Corporation,"Apr 19, 2011, 12 AMEDT",0.12,0.13,10.35
+46,AOS,A. O. Smith Corporation,"Jan 25, 2011, 12 AMEST",0.14,0.17,27.51
+47,AOS,A. O. Smith Corporation,"Oct 19, 2010, 12 AMEDT",0.15,0.17,12.52
+48,AOS,A. O. Smith Corporation,"Jul 20, 2010, 12 AMEDT",0.14,0.2,45.67
+49,AOS,A. O. Smith Corporation,"Apr 20, 2010, 12 AMEDT",0.16,0.17,3.41
+50,AOS,A. O. Smith Corporation,"Jan 26, 2010, 12 AMEST",0.1,0.12,29.44
+51,AOS,A. O. Smith Corporation,"Oct 16, 2009, 12 AMEDT",0.11,0.17,44.18
+52,AOS,A. O. Smith Corporation,"Jul 17, 2009, 12 AMEDT",0.09,0.13,44.52
+53,AOS,A. O. Smith Corporation,"Apr 17, 2009, 12 AMEDT",0.07,0.05,-18.99
+54,AOS,A. O. Smith Corporation,"Jan 22, 2009, 12 AMEST",0.05,0.05,5.45
+55,AOS,A. O. Smith Corporation,"Oct 16, 2008, 12 AMEDT",0.09,0.13,34.41
+56,AOS,A. O. Smith Corporation,"Jul 17, 2008, 12 AMEDT",0.13,0.18,35.2
+57,AOS,A. O. Smith Corporation,"Apr 17, 2008, 12 AMEDT",0.11,0.14,23.36
+58,AOS,A. O. Smith Corporation,"Jan 23, 2008, 12 AMEST",0.11,0.09,-14.06
+59,AOS,A. O. Smith Corporation,"Oct 16, 2007, 12 AMEDT",0.12,0.13,11.53
+60,AOS,A. O. Smith Corporation,"Jul 18, 2007, 12 AMEDT",0.12,0.14,19.45
+61,AOS,A. O. Smith Corporation,"Apr 18, 2007, 12 AMEDT",0.1,0.11,3.0
+62,AOS,A. O. Smith Corporation,"Jan 22, 2007, 12 AMEST",0.08,0.1,24.4
+63,AOS,A. O. Smith Corporation,"Oct 17, 2006, 12 AMEDT",0.09,0.09,4.52
+64,AOS,A. O. Smith Corporation,"Jul 19, 2006, 12 AMEDT",0.1,0.12,14.75
+65,AOS,A. O. Smith Corporation,"Apr 18, 2006, 12 AMEDT",0.09,0.1,11.99
+66,AOS,A. O. Smith Corporation,"Jan 20, 2006, 12 AMEST",0.08,0.1,32.91
+67,AOS,A. O. Smith Corporation,"Oct 14, 2005, 12 AMEDT",0.05,0.07,21.88
+68,AOS,A. O. Smith Corporation,"Jul 15, 2005, 12 AMEDT",0.08,0.08,4.81
+69,AOS,A. O. Smith Corporation,"Apr 15, 2005, 12 AMEDT",0.05,0.08,58.67
+70,AOS,A. O. Smith Corporation,"Jan 21, 2005, 12 AMEST",0.01,0.03,92.31
+71,AOS,A. O. Smith Corporation,"Oct 14, 2004, 12 AMEDT",,0.02,1908.43
+72,AOS,A. O. Smith Corporation,"Jul 15, 2004, 12 AMEDT",0.09,0.09,1.39
+73,AOS,A. O. Smith Corporation,"Apr 15, 2004, 12 AMEDT",0.06,0.06,-0.55
+74,AOS,A. O. Smith Corporation,"Jan 21, 2004, 12 AMEST",0.08,0.07,-7.69
+75,AOS,A. O. Smith Corporation,"Oct 14, 2003, 12 AMEDT",0.03,0.03,8.11
+76,AOS,A. O. Smith Corporation,"Jul 15, 2003, 12 AMEDT",0.11,0.11,2.55
+77,AOS,A. O. Smith Corporation,"Apr 15, 2003, 12 AMEDT",0.07,0.08,6.98
+78,AOS,A. O. Smith Corporation,"Jan 21, 2003, 12 AMEST",0.06,0.06,13.43
+79,AOS,A. O. Smith Corporation,"Oct 14, 2002, 12 AMEDT",0.05,0.06,11.49
+80,AOS,A. O. Smith Corporation,"Jul 12, 2002, 12 AMEDT",0.08,0.11,36.09
+81,AOS,A. O. Smith Corporation,"Apr 12, 2002, 12 AMEDT",0.06,0.08,33.33
+82,AOS,A. O. Smith Corporation,"Jan 23, 2002, 12 AMEST",,0.01,299.4
+83,AOS,A. O. Smith Corporation,"Oct 17, 2001, 12 AMEDT",,,301.2
+84,AOS,A. O. Smith Corporation,"Jul 17, 2001, 12 AMEDT",0.08,0.08,-3.23
+85,AOS,A. O. Smith Corporation,"Apr 12, 2001, 12 AMEDT",0.06,0.06,4.35
+86,AOS,A. O. Smith Corporation,"Jan 22, 2001, 12 AMEST",0.02,0.02,15.79
+87,AOS,A. O. Smith Corporation,"Oct 19, 2000, 12 AMEDT",0.07,0.05,-23.45
+88,AOS,A. O. Smith Corporation,"Jul 17, 2000, 12 AMEDT",0.12,0.12,0.68
+89,AOS,A. O. Smith Corporation,"Apr 14, 2000, 12 AMEDT",0.1,0.1,4.35
+90,AOS,A. O. Smith Corporation,"Jan 21, 2000, 12 AMEST",0.08,0.08,-0.67
+91,AOS,A. O. Smith Corporation,"Oct 18, 1999, 12 AMEDT",0.08,0.09,4.7
+92,AOS,A. O. Smith Corporation,"Jul 16, 1999, 12 AMEDT",0.1,0.1,1.72
+93,AOS,A. O. Smith Corporation,"Apr 15, 1999, 12 AMEDT",0.08,0.08,-0.7
+94,AOS,A. O. Smith Corporation,"Jan 19, 1999, 12 AMEST",0.07,0.08,4.65
+95,AOS,A. O. Smith Corporation,"Oct 13, 1998, 12 AMEDT",0.07,0.08,6.57
+96,AOS,A. O. Smith Corporation,"Jul 15, 1998, 12 AMEDT",0.08,0.09,2.64
+97,AOS,A. O. Smith Corporation,"Apr 15, 1998, 12 AMEDT",0.06,0.07,12.73
+98,AOS,A. O. Smith Corporation,"Jan 20, 1998, 12 AMEST",0.06,0.06,2.74
+99,AOS,A. O. Smith Corporation,"Oct 14, 1997, 12 AMEDT",0.06,0.06,2.0
+100,ABT,Abbott Laboratories,"Jul 20, 2022, 3 AMEDT",1.13,1.43,26.89
+101,ABT,Abbott Laboratories,"Apr 20, 2022, 3 AMEDT",1.47,1.73,18.09
+102,ABT,Abbott Laboratories,"Jan 26, 2022, 2 AMEST",1.21,1.32,9.45
+103,ABT,Abbott Laboratories,"Oct 20, 2021, 3 AMEDT",0.95,1.4,48.15
+104,ABT,Abbott Laboratories,"Jul 22, 2021, 3 AMEDT",1.02,1.17,14.93
+105,ABT,Abbott Laboratories,"Apr 20, 2021, 3 AMEDT",1.27,1.32,3.61
+106,ABT,Abbott Laboratories,"Jan 27, 2021, 2 AMEST",1.35,1.45,7.17
+107,ABT,Abbott Laboratories,"Oct 21, 2020, 3 AMEDT",0.91,0.98,7.93
+108,ABT,Abbott Laboratories,"Jul 16, 2020, 3 AMEDT",0.42,0.57,34.43
+109,ABT,Abbott Laboratories,"Apr 16, 2020, 3 AMEDT",0.58,0.65,11.68
+110,ABT,Abbott Laboratories,"Jan 22, 2020, 2 AMEST",0.95,0.95,0.42
+111,ABT,Abbott Laboratories,"Oct 16, 2019, 3 AMEDT",0.84,0.84,-0.12
+112,ABT,Abbott Laboratories,"Jul 17, 2019, 3 AMEDT",0.8,0.82,2.24
+113,ABT,Abbott Laboratories,"Apr 17, 2019, 3 AMEDT",0.61,0.63,2.77
+114,ABT,Abbott Laboratories,"Jan 23, 2019, 2 AMEST",0.81,0.81,
+115,ABT,Abbott Laboratories,"Oct 17, 2018, 3 AMEDT",0.75,0.75,0.54
+116,ABT,Abbott Laboratories,"Jul 18, 2018, 3 AMEDT",0.71,0.73,2.82
+117,ABT,Abbott Laboratories,"Apr 18, 2018, 3 AMEDT",0.58,0.59,1.72
+118,ABT,Abbott Laboratories,"Jan 24, 2018, 2 AMEST",0.73,0.74,1.09
+119,ABT,Abbott Laboratories,"Oct 18, 2017, 3 AMEDT",0.65,0.66,1.07
+120,ABT,Abbott Laboratories,"Jul 20, 2017, 3 AMEDT",0.61,0.62,2.48
+121,ABT,Abbott Laboratories,"Apr 19, 2017, 3 AMEDT",0.43,0.48,11.63
+122,ABT,Abbott Laboratories,"Jan 25, 2017, 2 AMEST",0.65,0.65,0.62
+123,ABT,Abbott Laboratories,"Oct 19, 2016, 3 AMEDT",0.58,0.59,1.55
+124,ABT,Abbott Laboratories,"Jul 20, 2016, 3 AMEDT",0.53,0.55,3.19
+125,ABT,Abbott Laboratories,"Apr 20, 2016, 3 AMEDT",0.39,0.41,4.59
+126,ABT,Abbott Laboratories,"Jan 28, 2016, 2 AMEST",0.61,0.62,1.64
+127,ABT,Abbott Laboratories,"Oct 21, 2015, 3 AMEDT",0.53,0.54,1.12
+128,ABT,Abbott Laboratories,"Jul 22, 2015, 3 AMEDT",0.5,0.52,3.38
+129,ABT,Abbott Laboratories,"Apr 22, 2015, 3 AMEDT",0.42,0.47,12.44
+130,ABT,Abbott Laboratories,"Jan 29, 2015, 2 AMEST",0.68,0.71,3.95
+131,ABT,Abbott Laboratories,"Oct 22, 2014, 3 AMEDT",0.59,0.62,4.73
+132,ABT,Abbott Laboratories,"Jul 16, 2014, 12 AMEDT",0.51,0.54,6.68
+133,ABT,Abbott Laboratories,"Apr 16, 2014, 12 AMEDT",0.36,0.41,15.07
+134,ABT,Abbott Laboratories,"Jan 22, 2014, 12 AMEST",0.58,0.58,-0.34
+135,ABT,Abbott Laboratories,"Oct 16, 2013, 12 AMEDT",0.51,0.55,7.18
+136,ABT,Abbott Laboratories,"Jul 17, 2013, 12 AMEDT",0.44,0.46,4.22
+137,ABT,Abbott Laboratories,"Apr 17, 2013, 12 AMEDT",0.41,0.42,2.0
+138,ABT,Abbott Laboratories,"Jan 23, 2013, 12 AMEST",1.5,1.51,0.94
+139,ABT,Abbott Laboratories,"Oct 17, 2012, 12 AMEDT",1.28,1.3,1.38
+140,ABT,Abbott Laboratories,"Jul 18, 2012, 12 AMEDT",1.22,1.23,1.08
+141,ABT,Abbott Laboratories,"Apr 18, 2012, 12 AMEDT",1.0,1.03,3.23
+142,ABT,Abbott Laboratories,"Jan 25, 2012, 12 AMEST",1.44,1.45,0.97
+143,ABT,Abbott Laboratories,"Oct 19, 2011, 12 AMEDT",1.17,1.18,0.85
+144,ABT,Abbott Laboratories,"Jul 20, 2011, 12 AMEDT",1.11,1.12,0.85
+145,ABT,Abbott Laboratories,"Apr 20, 2011, 12 AMEDT",0.9,0.91,0.74
+146,ABT,Abbott Laboratories,"Jan 26, 2011, 12 AMEST",1.29,1.3,0.78
+147,ABT,Abbott Laboratories,"Oct 20, 2010, 12 AMEDT",1.04,1.05,0.79
+148,ABT,Abbott Laboratories,"Jul 21, 2010, 12 AMEDT",1.0,1.01,1.32
+149,ABT,Abbott Laboratories,"Apr 21, 2010, 12 AMEDT",0.8,0.81,1.01
+150,ABT,Abbott Laboratories,"Jan 27, 2010, 12 AMEST",1.17,1.18,0.74
+151,ABT,Abbott Laboratories,"Oct 14, 2009, 12 AMEDT",0.9,0.92,2.63
+152,ABT,Abbott Laboratories,"Jul 15, 2009, 12 AMEDT",0.89,0.89,0.38
+153,ABT,Abbott Laboratories,"Apr 15, 2009, 12 AMEDT",0.7,0.73,3.67
+154,ABT,Abbott Laboratories,"Jan 21, 2009, 12 AMEST",1.06,1.06,-0.09
+155,ABT,Abbott Laboratories,"Oct 15, 2008, 12 AMEDT",0.77,0.79,2.03
+156,ABT,Abbott Laboratories,"Jul 16, 2008, 12 AMEDT",0.79,0.84,6.85
+157,ABT,Abbott Laboratories,"Apr 16, 2008, 12 AMEDT",0.62,0.63,1.36
+158,ABT,Abbott Laboratories,"Jan 23, 2008, 12 AMEST",0.92,0.93,1.26
+159,ABT,Abbott Laboratories,"Oct 17, 2007, 12 AMEDT",0.66,0.67,1.28
+160,ABT,Abbott Laboratories,"Jul 18, 2007, 12 AMEDT",0.68,0.69,2.07
+161,ABT,Abbott Laboratories,"Apr 18, 2007, 12 AMEDT",0.52,0.55,4.93
+162,ABT,Abbott Laboratories,"Jan 24, 2007, 12 AMEST",0.74,0.75,0.92
+163,ABT,Abbott Laboratories,"Oct 18, 2006, 12 AMEDT",0.58,0.58,-0.22
+164,ABT,Abbott Laboratories,"Jul 19, 2006, 12 AMEDT",0.57,0.62,8.64
+165,ABT,Abbott Laboratories,"Apr 19, 2006, 12 AMEDT",0.57,0.57,-0.27
+166,ABT,Abbott Laboratories,"Jan 25, 2006, 12 AMEST",0.76,0.76,0.3
+167,ABT,Abbott Laboratories,"Oct 19, 2005, 12 AMEDT",0.58,0.58,0.62
+168,ABT,Abbott Laboratories,"Jul 13, 2005, 12 AMEDT",0.57,0.58,1.5
+169,ABT,Abbott Laboratories,"Apr 12, 2005, 12 AMEDT",0.58,0.58,
+170,ABT,Abbott Laboratories,"Jan 18, 2005, 12 AMEST",0.67,0.67,0.32
+171,ABT,Abbott Laboratories,"Oct 14, 2004, 12 AMEDT",0.53,0.53,0.58
+172,ABT,Abbott Laboratories,"Jul 09, 2004, 12 AMEDT",0.54,0.54,-0.23
+173,ABT,Abbott Laboratories,"Apr 08, 2004, 12 AMEDT",0.56,0.57,1.09
+174,ABT,Abbott Laboratories,"Jan 16, 2004, 12 AMEST",0.65,0.65,0.19
+175,ABT,Abbott Laboratories,"Oct 09, 2003, 12 AMEDT",0.53,0.53,-0.33
+176,ABT,Abbott Laboratories,"Jul 10, 2003, 12 AMEDT",0.52,0.52,0.11
+177,ABT,Abbott Laboratories,"Apr 09, 2003, 12 AMEDT",0.51,0.51,0.37
+178,ABT,Abbott Laboratories,"Jan 16, 2003, 12 AMEST",0.56,0.55,-1.39
+179,ABT,Abbott Laboratories,"Oct 09, 2002, 12 AMEDT",0.48,0.48,-0.12
+180,ABT,Abbott Laboratories,"Jul 11, 2002, 12 AMEDT",0.49,0.49,-0.95
+181,ABT,Abbott Laboratories,"Apr 09, 2002, 12 AMEDT",0.54,0.54,-0.1
+182,ABT,Abbott Laboratories,"Jan 16, 2002, 12 AMEST",0.52,0.52,0.97
+183,ABT,Abbott Laboratories,"Oct 10, 2001, 12 AMEDT",0.44,0.44,-0.11
+184,ABT,Abbott Laboratories,"Jul 12, 2001, 12 AMEDT",0.45,0.45,0.62
+185,ABT,Abbott Laboratories,"Apr 12, 2001, 12 AMEDT",0.47,0.47,-0.92
+186,ABT,Abbott Laboratories,"Jan 16, 2001, 12 AMEST",0.48,0.48,0.7
+187,ABT,Abbott Laboratories,"Oct 10, 2000, 12 AMEDT",0.42,0.42,-0.13
+188,ABT,Abbott Laboratories,"Jul 12, 2000, 12 AMEDT",0.44,0.44,0.4
+189,ABT,Abbott Laboratories,"Apr 11, 2000, 12 AMEDT",0.44,0.44,
+190,ABT,Abbott Laboratories,"Jan 18, 2000, 12 AMEST",0.43,0.43,-0.13
+191,ABT,Abbott Laboratories,"Oct 11, 1999, 12 AMEDT",0.38,0.38,-0.17
+192,ABT,Abbott Laboratories,"Jul 09, 1999, 12 AMEDT",0.42,0.42,-0.14
+193,ABT,Abbott Laboratories,"Apr 08, 1999, 12 AMEDT",0.43,0.44,3.53
+194,ABT,Abbott Laboratories,"Jan 15, 1999, 12 AMEST",0.41,0.41,0.14
+195,ABT,Abbott Laboratories,"Oct 08, 1998, 12 AMEDT",0.34,0.34,
+196,ABT,Abbott Laboratories,"Jul 09, 1998, 12 AMEDT",0.37,0.38,1.88
+197,ABT,Abbott Laboratories,"Apr 09, 1998, 12 AMEDT",0.38,0.38,
+198,ABT,Abbott Laboratories,"Jan 16, 1998, 12 AMEST",0.37,0.37,-0.15
+199,ABT,Abbott Laboratories,"Oct 08, 1997, 12 AMEDT",0.31,0.31,
+200,ABBV,AbbVie Inc.,"Jul 29, 2022, 3 AMEDT",3.31,3.37,1.69
+201,ABBV,AbbVie Inc.,"Apr 29, 2022, 3 AMEDT",3.14,3.16,0.57
+202,ABBV,AbbVie Inc.,"Feb 02, 2022, 2 AMEST",3.29,3.31,0.73
+203,ABBV,AbbVie Inc.,"Oct 29, 2021, 3 AMEDT",3.22,3.33,3.32
+204,ABBV,AbbVie Inc.,"Jul 30, 2021, 3 AMEDT",3.09,3.11,0.65
+205,ABBV,AbbVie Inc.,"Apr 30, 2021, 3 AMEDT",2.83,2.95,4.28
+206,ABBV,AbbVie Inc.,"Feb 03, 2021, 2 AMEST",2.85,2.92,2.42
+207,ABBV,AbbVie Inc.,"Oct 30, 2020, 3 AMEDT",2.77,2.83,2.35
+208,ABBV,AbbVie Inc.,"Jul 31, 2020, 3 AMEDT",2.19,2.34,6.9
+209,ABBV,AbbVie Inc.,"May 01, 2020, 3 AMEDT",2.25,2.42,7.75
+210,ABBV,AbbVie Inc.,"Feb 07, 2020, 2 AMEST",2.19,2.21,0.82
+211,ABBV,AbbVie Inc.,"Nov 01, 2019, 3 AMEDT",2.3,2.33,1.44
+212,ABBV,AbbVie Inc.,"Jul 26, 2019, 3 AMEDT",2.21,2.26,2.22
+213,ABBV,AbbVie Inc.,"Apr 25, 2019, 3 AMEDT",2.05,2.14,4.19
+214,ABBV,AbbVie Inc.,"Jan 25, 2019, 2 AMEST",1.94,1.9,-1.96
+215,ABBV,AbbVie Inc.,"Nov 02, 2018, 4 AMEDT",2.02,2.14,6.2
+216,ABBV,AbbVie Inc.,"Jul 27, 2018, 3 AMEDT",1.97,2.0,1.37
+217,ABBV,AbbVie Inc.,"Apr 26, 2018, 3 AMEDT",1.79,1.87,4.29
+218,ABBV,AbbVie Inc.,"Jan 26, 2018, 2 AMEST",1.44,1.48,2.92
+219,ABBV,AbbVie Inc.,"Oct 27, 2017, 4 AMEDT",1.39,1.41,1.81
+220,ABBV,AbbVie Inc.,"Jul 28, 2017, 3 AMEDT",1.4,1.42,1.5
+221,ABBV,AbbVie Inc.,"Apr 27, 2017, 3 AMEDT",1.26,1.28,1.43
+222,ABBV,AbbVie Inc.,"Jan 27, 2017, 2 AMEST",1.2,1.2,0.42
+223,ABBV,AbbVie Inc.,"Oct 28, 2016, 3 AMEDT",1.2,1.21,1.09
+224,ABBV,AbbVie Inc.,"Jul 29, 2016, 3 AMEDT",1.2,1.26,5.0
+225,ABBV,AbbVie Inc.,"Apr 28, 2016, 3 AMEDT",1.13,1.15,1.5
+226,ABBV,AbbVie Inc.,"Jan 29, 2016, 2 AMEST",1.12,1.13,0.8
+227,ABBV,AbbVie Inc.,"Oct 30, 2015, 2 AMEDT",1.08,1.13,4.73
+228,ABBV,AbbVie Inc.,"Jul 24, 2015, 3 AMEDT",1.06,1.08,1.98
+229,ABBV,AbbVie Inc.,"Apr 23, 2015, 3 AMEDT",0.85,0.94,10.2
+230,ABBV,AbbVie Inc.,"Jan 30, 2015, 2 AMEST",0.86,0.89,3.97
+231,ABBV,AbbVie Inc.,"Oct 31, 2014, 3 AMEDT",0.77,0.89,15.14
+232,ABBV,AbbVie Inc.,"Jul 25, 2014, 12 AMEDT",0.76,0.82,8.18
+233,ABBV,AbbVie Inc.,"Apr 25, 2014, 12 AMEDT",0.68,0.71,4.41
+234,ABBV,AbbVie Inc.,"Jan 31, 2014, 12 AMEST",0.82,0.82,-0.46
+235,ABBV,AbbVie Inc.,"Oct 25, 2013, 12 AMEDT",0.78,0.82,5.67
+236,ABBV,AbbVie Inc.,"Jul 26, 2013, 12 AMEDT",0.79,0.82,4.16
+237,ABBV,AbbVie Inc.,"Apr 26, 2013, 12 AMEDT",0.67,0.68,2.1
+238,ABBV,AbbVie Inc.,"Jan 23, 2013, 12 AMEST",0.99,,
+239,ABMD,"Abiomed, Inc.","Aug 04, 2022, 3 AMEDT",1.06,1.25,18.37
+240,ABMD,"Abiomed, Inc.","Apr 28, 2022, 3 AMEDT",1.09,1.16,6.72
+241,ABMD,"Abiomed, Inc.","Feb 03, 2022, 2 AMEST",0.95,1.13,18.95
+242,ABMD,"Abiomed, Inc.","Oct 28, 2021, 3 AMEDT",0.97,1.03,5.86
+243,ABMD,"Abiomed, Inc.","Aug 04, 2021, 12 PMEDT",1.05,1.1,4.36
+244,ABMD,"Abiomed, Inc.","Apr 29, 2021, 3 AMEDT",1.1,1.24,13.14
+245,ABMD,"Abiomed, Inc.","Jan 28, 2021, 2 AMEST",1.13,1.35,19.57
+246,ABMD,"Abiomed, Inc.","Oct 29, 2020, 3 AMEDT",0.92,1.36,47.67
+247,ABMD,"Abiomed, Inc.","Aug 06, 2020, 3 AMEDT",0.29,0.98,233.33
+248,ABMD,"Abiomed, Inc.","Apr 30, 2020, 3 AMEDT",0.94,0.7,-25.21
+249,ABMD,"Abiomed, Inc.","Feb 06, 2020, 2 AMEST",1.09,1.51,38.91
+250,ABMD,"Abiomed, Inc.","Oct 31, 2019, 3 AMEDT",0.93,0.28,-69.86
+251,ABMD,"Abiomed, Inc.","Aug 01, 2019, 3 AMEDT",0.97,1.93,99.17
+252,ABMD,"Abiomed, Inc.","May 02, 2019, 3 AMEDT",1.08,1.09,0.93
+253,ABMD,"Abiomed, Inc.","Jan 31, 2019, 2 AMEST",0.94,0.97,2.97
+254,ABMD,"Abiomed, Inc.","Nov 01, 2018, 3 AMEDT",0.74,1.09,46.7
+255,ABMD,"Abiomed, Inc.","Jul 26, 2018, 3 AMEDT",0.82,1.95,138.97
+256,ABMD,"Abiomed, Inc.","May 03, 2018, 3 AMEDT",0.64,0.8,24.61
+257,ABMD,"Abiomed, Inc.","Feb 01, 2018, 2 AMEST",0.51,0.29,-42.57
+258,ABMD,"Abiomed, Inc.","Oct 26, 2017, 3 AMEDT",0.38,0.54,42.86
+259,ABMD,"Abiomed, Inc.","Jul 27, 2017, 3 AMEDT",0.42,0.82,95.7
+260,ABMD,"Abiomed, Inc.","May 04, 2017, 3 AMEDT",0.35,0.33,-5.17
+261,ABMD,"Abiomed, Inc.","Jan 26, 2017, 2 AMEST",0.29,0.34,17.24
+262,ABMD,"Abiomed, Inc.","Oct 27, 2016, 3 AMEDT",0.24,0.2,-18.03
+263,ABMD,"Abiomed, Inc.","Jul 28, 2016, 3 AMEDT",0.23,0.29,26.09
+264,ABMD,"Abiomed, Inc.","May 03, 2016, 5 AMEDT",0.19,0.24,26.32
+265,ABMD,"Abiomed, Inc.","Feb 04, 2016, 2 AMEST",0.15,0.23,51.32
+266,ABMD,"Abiomed, Inc.","Oct 29, 2015, 3 AMEDT",0.16,0.17,9.68
+267,ABMD,"Abiomed, Inc.","Aug 04, 2015, 3 AMEDT",0.08,0.2,143.9
+268,ABMD,"Abiomed, Inc.","May 05, 2015, 3 AMEDT",0.14,0.28,104.38
+269,ABMD,"Abiomed, Inc.","Jan 27, 2015, 11 AMEST",0.04,0.3,650.0
+270,ABMD,"Abiomed, Inc.","Oct 30, 2014, 3 AMEDT",0.02,0.09,328.57
+271,ABMD,"Abiomed, Inc.","Jul 31, 2014, 12 AMEDT",0.02,-0.04,-335.29
+272,ABMD,"Abiomed, Inc.","May 01, 2014, 12 AMEDT",0.08,0.09,15.71
+273,ABMD,"Abiomed, Inc.","Jan 30, 2014, 12 AMEST",0.05,0.11,144.44
+274,ABMD,"Abiomed, Inc.","Nov 06, 2013, 12 AMEST",,0.07,2900.0
+275,ABMD,"Abiomed, Inc.","Aug 01, 2013, 12 AMEDT",0.06,-0.04,-170.58
+276,ABMD,"Abiomed, Inc.","May 02, 2013, 12 AMEDT",0.07,0.09,22.22
+277,ABMD,"Abiomed, Inc.","Feb 06, 2013, 12 AMEST",0.07,0.07,2.94
+278,ABMD,"Abiomed, Inc.","Nov 01, 2012, 12 AMEDT",0.05,0.13,141.86
+279,ABMD,"Abiomed, Inc.","Aug 02, 2012, 12 AMEDT",0.03,0.08,166.67
+280,ABMD,"Abiomed, Inc.","May 16, 2012, 12 AMEDT",0.06,0.06,-2.33
+281,ABMD,"Abiomed, Inc.","Feb 03, 2012, 12 AMEST",-0.01,0.05,766.67
+282,ABMD,"Abiomed, Inc.","Nov 03, 2011, 12 AMEDT",-0.09,0.02,123.38
+283,ABMD,"Abiomed, Inc.","Aug 04, 2011, 12 AMEDT",-0.06,-0.12,-115.98
+284,ABMD,"Abiomed, Inc.","May 18, 2011, 12 AMEDT",-0.04,-0.05,-14.29
+285,ABMD,"Abiomed, Inc.","Feb 03, 2011, 12 AMEST",-0.09,-0.02,77.78
+286,ABMD,"Abiomed, Inc.","Nov 04, 2010, 12 AMEDT",-0.14,-0.09,36.36
+287,ABMD,"Abiomed, Inc.","Aug 04, 2010, 12 AMEDT",-0.14,-0.16,-14.29
+288,ABMD,"Abiomed, Inc.","May 19, 2010, 12 AMEDT",-0.12,-0.13,-8.33
+289,ABMD,"Abiomed, Inc.","Feb 04, 2010, 12 AMEST",-0.17,-0.12,31.43
+290,ABMD,"Abiomed, Inc.","Nov 05, 2009, 12 AMEST",-0.21,-0.21,-0.96
+291,ABMD,"Abiomed, Inc.","Aug 06, 2009, 12 AMEDT",-0.2,-0.21,-6.6
+292,ABMD,"Abiomed, Inc.","May 12, 2009, 12 AMEDT",-0.16,-0.23,-40.24
+293,ABMD,"Abiomed, Inc.","Feb 05, 2009, 12 AMEST",-0.16,-0.21,-28.57
+294,ABMD,"Abiomed, Inc.","Nov 10, 2008, 12 AMEST",-0.22,-0.18,17.1
+295,ABMD,"Abiomed, Inc.","Aug 07, 2008, 12 AMEDT",-0.21,-0.28,-35.92
+296,ABMD,"Abiomed, Inc.","May 21, 2008, 12 AMEDT",-0.19,-0.27,-43.37
+297,ABMD,"Abiomed, Inc.","Feb 07, 2008, 12 AMEST",-0.21,-0.26,-24.66
+298,ABMD,"Abiomed, Inc.","Nov 08, 2007, 12 AMEST",-0.21,-0.29,-37.01
+299,ABMD,"Abiomed, Inc.","Aug 09, 2007, 12 AMEDT",-0.21,-0.22,-3.94
+300,ABMD,"Abiomed, Inc.","May 17, 2007, 12 AMEDT",-0.24,-0.22,10.2
+301,ABMD,"Abiomed, Inc.","Feb 05, 2007, 12 AMEST",-0.26,-0.25,3.85
+302,ABMD,"Abiomed, Inc.","Nov 08, 2006, 12 AMEST",-0.22,-0.33,-52.31
+303,ABMD,"Abiomed, Inc.","Aug 08, 2006, 12 AMEDT",-0.19,-0.23,-23.21
+304,ABMD,"Abiomed, Inc.","May 08, 2006, 12 AMEDT",-0.14,-0.14,
+305,ABMD,"Abiomed, Inc.","Feb 02, 2006, 12 AMEST",-0.15,-0.17,-11.48
+306,ABMD,"Abiomed, Inc.","Nov 02, 2005, 12 AMEST",-0.16,-0.11,32.65
+307,ABMD,"Abiomed, Inc.","Aug 04, 2005, 12 AMEDT",-0.15,-0.22,-46.67
+308,ABMD,"Abiomed, Inc.","May 31, 2005, 12 AMEDT",,-0.01,
+309,ABMD,"Abiomed, Inc.","Jan 31, 2005, 12 AMEST",-0.01,-0.01,
+310,ABMD,"Abiomed, Inc.","Nov 01, 2004, 12 AMEST",-0.03,0.02,166.67
+311,ABMD,"Abiomed, Inc.","Aug 11, 2003, 12 AMEDT",-0.24,-0.15,37.5
+312,ABMD,"Abiomed, Inc.","Jun 06, 2003, 12 AMEDT",-0.22,-0.15,31.82
+313,ABMD,"Abiomed, Inc.","Feb 13, 2003, 12 AMEST",-0.32,-0.21,35.38
+314,ABMD,"Abiomed, Inc.","Nov 14, 2002, 12 AMEST",-0.37,-0.25,33.33
+315,ABMD,"Abiomed, Inc.","Aug 15, 2002, 12 AMEDT",-0.35,-0.26,26.24
+316,ABMD,"Abiomed, Inc.","May 16, 2002, 12 AMEDT",-0.33,-0.32,4.19
+317,ABMD,"Abiomed, Inc.","Jan 24, 2002, 12 AMEST",-0.32,-0.31,3.88
+318,ABMD,"Abiomed, Inc.","Oct 25, 2001, 12 AMEDT",-0.31,-0.34,-9.68
+319,ABMD,"Abiomed, Inc.","Jul 26, 2001, 12 AMEDT",-0.23,-0.3,-28.57
+320,ABMD,"Abiomed, Inc.","May 17, 2001, 12 AMEDT",-0.2,-0.2,1.64
+321,ABMD,"Abiomed, Inc.","Jan 25, 2001, 12 AMEST",-0.17,-0.18,-5.88
+322,ABMD,"Abiomed, Inc.","Oct 26, 2000, 12 AMEDT",-0.12,-0.07,41.67
+323,ABMD,"Abiomed, Inc.","Jul 27, 2000, 12 AMEDT",-0.09,-0.09,-2.7
+324,ABMD,"Abiomed, Inc.","May 11, 2000, 12 AMEDT",-0.18,-0.17,4.23
+325,ABMD,"Abiomed, Inc.","May 12, 1999, 12 AMEDT",-0.12,-0.08,36.0
+326,ABMD,"Abiomed, Inc.","Jan 21, 1999, 12 AMEST",-0.11,-0.13,-22.73
+327,ABMD,"Abiomed, Inc.","Oct 21, 1998, 12 AMEDT",-0.12,-0.14,-16.0
+328,ABMD,"Abiomed, Inc.","Jul 28, 1998, 12 AMEDT",-0.1,-0.03,71.43
+329,ABMD,"Abiomed, Inc.","May 28, 1998, 12 AMEDT",-0.08,-0.09,-9.09
+330,ABMD,"Abiomed, Inc.","Jan 28, 1998, 12 AMEST",-0.05,-0.07,-27.27
+331,ABMD,"Abiomed, Inc.","May 16, 1995, 12 AMEDT",-0.01,,100.0
+332,ABMD,"Abiomed, Inc.","Jan 24, 1995, 12 AMEST",-0.01,,100.0
+333,ABMD,"Abiomed, Inc.","Oct 26, 1994, 12 AMEDT",-0.01,,66.67
+334,MMM,3M Company,"Jul 26, 2022, 2 AMEDT",2.42,2.48,2.65
+335,MMM,3M Company,"Apr 26, 2022, 2 AMEDT",2.31,2.65,14.72
+336,MMM,3M Company,"Jan 25, 2022, 1 AMEST",2.01,2.31,14.87
+337,MMM,3M Company,"Oct 26, 2021, 2 AMEDT",2.21,2.45,11.11
+338,MMM,3M Company,"Jul 27, 2021, 2 AMEDT",2.28,2.59,13.6
+339,MMM,3M Company,"Apr 27, 2021, 2 AMEDT",2.29,2.77,20.8
+340,MMM,3M Company,"Jan 26, 2021, 1 AMEST",2.15,2.38,10.59
+341,MMM,3M Company,"Oct 27, 2020, 2 AMEDT",2.26,2.43,7.38
+342,MMM,3M Company,"Jul 28, 2020, 2 AMEDT",1.8,1.78,-1.17
+343,MMM,3M Company,"Apr 28, 2020, 2 AMEDT",2.03,2.16,6.3
+344,MMM,3M Company,"Jan 28, 2020, 1 AMEST",2.1,2.15,2.38
+345,MMM,3M Company,"Oct 24, 2019, 2 AMEDT",2.49,2.58,3.53
+346,MMM,3M Company,"Jul 25, 2019, 2 AMEDT",2.05,2.13,3.7
+347,MMM,3M Company,"Apr 25, 2019, 2 AMEDT",2.49,2.23,-10.41
+348,MMM,3M Company,"Jan 29, 2019, 1 AMEST",2.28,2.31,1.32
+349,MMM,3M Company,"Oct 23, 2018, 3 AMEDT",2.7,2.58,-4.52
+350,MMM,3M Company,"Jul 24, 2018, 3 AMEDT",2.58,2.59,0.27
+351,MMM,3M Company,"Apr 24, 2018, 3 AMEDT",2.5,2.5,-0.12
+352,MMM,3M Company,"Jan 25, 2018, 2 AMEST",2.01,2.1,4.53
+353,MMM,3M Company,"Oct 24, 2017, 3 AMEDT",2.21,2.33,5.53
+354,MMM,3M Company,"Jul 25, 2017, 3 AMEDT",2.54,2.58,1.45
+355,MMM,3M Company,"Apr 25, 2017, 3 AMEDT",2.06,2.16,4.65
+356,MMM,3M Company,"Jan 24, 2017, 2 AMEST",1.87,1.88,0.43
+357,MMM,3M Company,"Oct 25, 2016, 3 AMEDT",2.14,2.15,0.51
+358,MMM,3M Company,"Jul 26, 2016, 3 AMEDT",2.07,2.08,0.63
+359,MMM,3M Company,"Apr 26, 2016, 3 AMEDT",1.92,2.05,6.55
+360,MMM,3M Company,"Jan 26, 2016, 2 AMEST",1.63,1.66,2.15
+361,MMM,3M Company,"Oct 22, 2015, 3 AMEDT",2.0,2.05,2.4
+362,MMM,3M Company,"Jul 23, 2015, 3 AMEDT",2.0,2.02,1.2
+363,MMM,3M Company,"Apr 23, 2015, 3 AMEDT",1.93,1.85,-3.9
+364,MMM,3M Company,"Jan 27, 2015, 2 AMEST",1.8,1.81,0.84
+365,MMM,3M Company,"Oct 23, 2014, 3 AMEDT",1.96,1.98,0.81
+366,MMM,3M Company,"Jul 24, 2014, 12 AMEDT",1.91,1.91,0.11
+367,MMM,3M Company,"Apr 24, 2014, 12 AMEDT",1.8,1.79,-0.29
+368,MMM,3M Company,"Jan 30, 2014, 12 AMEST",1.62,1.62,0.27
+369,MMM,3M Company,"Oct 24, 2013, 12 AMEDT",1.75,1.78,1.47
+370,MMM,3M Company,"Jul 25, 2013, 12 AMEDT",1.7,1.71,0.31
+371,MMM,3M Company,"Apr 25, 2013, 12 AMEDT",1.65,1.61,-2.54
+372,MMM,3M Company,"Jan 24, 2013, 12 AMEST",1.41,1.41,0.1
+373,MMM,3M Company,"Oct 23, 2012, 12 AMEDT",1.65,1.65,
+374,MMM,3M Company,"Jul 26, 2012, 12 AMEDT",1.65,1.66,0.44
+375,MMM,3M Company,"Apr 24, 2012, 12 AMEDT",1.49,1.63,9.72
+376,MMM,3M Company,"Jan 26, 2012, 12 AMEST",1.31,1.35,3.4
+377,MMM,3M Company,"Oct 25, 2011, 12 AMEDT",1.61,1.52,-5.37
+378,MMM,3M Company,"Jul 26, 2011, 12 AMEDT",1.6,1.6,0.27
+379,MMM,3M Company,"Apr 26, 2011, 12 AMEDT",1.44,1.49,3.81
+380,MMM,3M Company,"Jan 25, 2011, 12 AMEST",1.27,1.28,0.95
+381,MMM,3M Company,"Oct 28, 2010, 12 AMEDT",1.51,1.53,1.09
+382,MMM,3M Company,"Jul 22, 2010, 12 AMEDT",1.48,1.54,4.33
+383,MMM,3M Company,"Apr 27, 2010, 12 AMEDT",1.21,1.4,15.7
+384,MMM,3M Company,"Jan 28, 2010, 12 AMEST",1.21,1.3,7.31
+385,MMM,3M Company,"Oct 22, 2009, 12 AMEDT",1.17,1.37,16.94
+386,MMM,3M Company,"Jul 23, 2009, 12 AMEDT",0.94,1.2,27.21
+387,MMM,3M Company,"Apr 24, 2009, 12 AMEDT",0.86,0.81,-5.36
+388,MMM,3M Company,"Jan 29, 2009, 12 AMEST",0.93,0.97,3.85
+389,MMM,3M Company,"Oct 21, 2008, 12 AMEDT",1.38,1.42,3.07
+390,MMM,3M Company,"Jul 24, 2008, 12 AMEDT",1.35,1.39,2.9
+391,MMM,3M Company,"Apr 24, 2008, 12 AMEDT",1.35,1.38,2.22
+392,MMM,3M Company,"Jan 29, 2008, 12 AMEST",1.17,1.19,1.64
+393,MMM,3M Company,"Oct 19, 2007, 12 AMEDT",1.28,1.29,0.52
+394,MMM,3M Company,"Jul 26, 2007, 12 AMEDT",1.18,1.23,4.1
+395,MMM,3M Company,"Apr 26, 2007, 12 AMEDT",1.12,1.28,14.65
+396,MMM,3M Company,"Jan 30, 2007, 12 AMEST",1.14,1.1,-3.87
+397,MMM,3M Company,"Oct 20, 2006, 12 AMEDT",1.12,1.17,4.2
+398,MMM,3M Company,"Jul 25, 2006, 12 AMEDT",1.07,1.05,-2.02
+399,MMM,3M Company,"Apr 21, 2006, 12 AMEDT",1.14,1.17,2.29
+400,MMM,3M Company,"Jan 24, 2006, 12 AMEST",1.03,1.04,0.62
+401,MMM,3M Company,"Oct 18, 2005, 12 AMEDT",1.08,1.1,2.03
+402,MMM,3M Company,"Jul 18, 2005, 12 AMEDT",1.09,1.09,0.13
+403,MMM,3M Company,"Apr 18, 2005, 12 AMEDT",1.01,1.03,1.91
+404,MMM,3M Company,"Jan 18, 2005, 12 AMEST",0.91,0.91,0.47
+405,MMM,3M Company,"Oct 18, 2004, 12 AMEDT",0.98,0.97,-0.59
+406,MMM,3M Company,"Jul 19, 2004, 12 AMEDT",0.96,0.97,0.74
+407,MMM,3M Company,"Apr 19, 2004, 12 AMEDT",0.87,0.9,3.08
+408,MMM,3M Company,"Jan 20, 2004, 12 AMEST",0.76,0.77,1.49
+409,MMM,3M Company,"Oct 20, 2003, 12 AMEDT",0.79,0.83,4.53
+410,MMM,3M Company,"Jul 21, 2003, 12 AMEDT",0.75,0.78,3.57
+411,MMM,3M Company,"Apr 21, 2003, 12 AMEDT",0.7,0.71,1.33
+412,MMM,3M Company,"Jan 21, 2003, 12 AMEST",0.64,0.65,0.78
+413,MMM,3M Company,"Oct 21, 2002, 12 AMEDT",0.69,0.69,0.26
+414,MMM,3M Company,"Jul 22, 2002, 12 AMEDT",0.67,0.68,1.75
+415,MMM,3M Company,"Apr 22, 2002, 12 AMEDT",0.59,0.62,3.68
+416,MMM,3M Company,"Jan 18, 2002, 12 AMEST",0.49,0.49,0.82
+417,MMM,3M Company,"Oct 22, 2001, 12 AMEDT",0.55,0.55,0.76
+418,MMM,3M Company,"Jul 23, 2001, 12 AMEDT",0.56,0.56,0.49
+419,MMM,3M Company,"Apr 23, 2001, 12 AMEDT",0.58,0.58,
+420,MMM,3M Company,"Jan 24, 2001, 12 AMEST",0.6,0.56,-6.8
+421,MMM,3M Company,"Oct 23, 2000, 12 AMEDT",0.61,0.63,2.04
+422,MMM,3M Company,"Jul 26, 2000, 12 AMEDT",0.58,0.59,1.98
+423,MMM,3M Company,"Apr 25, 2000, 12 AMEDT",0.54,0.56,4.74
+424,MMM,3M Company,"Jan 26, 2000, 12 AMEST",0.51,0.55,8.82
+425,MMM,3M Company,"Oct 25, 1999, 12 AMEDT",0.53,0.57,7.92
+426,MMM,3M Company,"Jul 29, 1999, 12 AMEDT",0.5,0.52,2.9
+427,MMM,3M Company,"Apr 30, 1999, 12 AMEDT",0.46,0.48,3.71
+428,MMM,3M Company,"Jan 25, 1999, 12 AMEST",0.4,0.43,7.37
+429,MMM,3M Company,"Oct 22, 1998, 12 AMEDT",0.49,0.49,-1.11
+430,MMM,3M Company,"Jul 23, 1998, 12 AMEDT",0.46,0.48,3.6
+431,MMM,3M Company,"Apr 28, 1998, 12 AMEDT",0.5,0.49,-1.37
+432,MMM,3M Company,"Jan 27, 1998, 12 AMEST",0.46,0.45,-3.74
+433,MMM,3M Company,"Oct 22, 1997, 12 AMEDT",0.52,0.53,0.77
+434,AAPL,Apple Inc.,"Jul 28, 2022, 12 PMEDT",1.16,1.2,3.27
+435,AAPL,Apple Inc.,"Apr 28, 2022, 12 PMEDT",1.43,1.52,6.44
+436,AAPL,Apple Inc.,"Jan 27, 2022, 11 AMEST",1.89,2.1,11.17
+437,AAPL,Apple Inc.,"Oct 28, 2021, 12 PMEDT",1.24,1.24,0.32
+438,AAPL,Apple Inc.,"Jul 27, 2021, 12 PMEDT",1.01,1.3,29.1
+439,AAPL,Apple Inc.,"Apr 28, 2021, 12 PMEDT",0.99,1.4,41.84
+440,AAPL,Apple Inc.,"Jan 27, 2021, 11 AMEST",1.41,1.68,18.98
+441,AAPL,Apple Inc.,"Oct 29, 2020, 12 PMEDT",0.7,0.73,4.29
+442,AAPL,Apple Inc.,"Jul 30, 2020, 12 PMEDT",0.51,0.65,26.22
+443,AAPL,Apple Inc.,"Apr 30, 2020, 12 PMEDT",0.56,0.64,12.92
+444,AAPL,Apple Inc.,"Jan 28, 2020, 11 AMEST",1.14,1.25,9.76
+445,AAPL,Apple Inc.,"Oct 30, 2019, 12 PMEDT",0.71,0.76,6.76
+446,AAPL,Apple Inc.,"Jul 30, 2019, 12 PMEDT",0.53,0.55,3.81
+447,AAPL,Apple Inc.,"Apr 30, 2019, 12 PMEDT",0.59,0.62,4.24
+448,AAPL,Apple Inc.,"Jan 29, 2019, 11 AMEST",1.04,1.05,0.29
+449,AAPL,Apple Inc.,"Nov 01, 2018, 12 PMEDT",0.7,0.73,4.6
+450,AAPL,Apple Inc.,"Jul 31, 2018, 12 PMEDT",2.18,2.34,7.29
+451,AAPL,Apple Inc.,"May 01, 2018, 12 PMEDT",2.67,2.73,2.13
+452,AAPL,Apple Inc.,"Feb 01, 2018, 11 AMEST",3.86,3.89,0.86
+453,AAPL,Apple Inc.,"Nov 02, 2017, 12 PMEDT",1.87,2.07,10.87
+454,AAPL,Apple Inc.,"Aug 01, 2017, 12 PMEDT",1.57,1.67,6.23
+455,AAPL,Apple Inc.,"May 02, 2017, 12 PMEDT",2.02,2.1,3.96
+456,AAPL,Apple Inc.,"Jan 31, 2017, 11 AMEST",3.21,3.36,4.54
+457,AAPL,Apple Inc.,"Oct 25, 2016, 12 PMEDT",1.66,1.67,0.85
+458,AAPL,Apple Inc.,"Jul 26, 2016, 12 PMEDT",1.38,1.42,2.6
+459,AAPL,Apple Inc.,"Apr 26, 2016, 12 PMEDT",2.0,1.9,-4.9
+460,AAPL,Apple Inc.,"Jan 26, 2016, 11 AMEST",3.23,3.28,1.64
+461,AAPL,Apple Inc.,"Oct 27, 2015, 12 PMEDT",1.88,1.96,4.26
+462,AAPL,Apple Inc.,"Jul 21, 2015, 12 PMEDT",1.81,1.85,2.15
+463,AAPL,Apple Inc.,"Apr 27, 2015, 12 PMEDT",2.16,2.33,7.92
+464,AAPL,Apple Inc.,"Jan 27, 2015, 11 AMEST",2.6,3.06,17.51
+465,AAPL,Apple Inc.,"Oct 20, 2014, 12 PMEDT",1.31,1.42,8.81
+466,AAPL,Apple Inc.,"Jul 22, 2014, 12 AMEDT",1.23,1.28,3.98
+467,AAPL,Apple Inc.,"Apr 23, 2014, 12 AMEDT",1.46,1.66,13.99
+468,AAPL,Apple Inc.,"Jan 27, 2014, 12 AMEST",2.01,2.07,3.08
+469,AAPL,Apple Inc.,"Oct 28, 2013, 12 AMEDT",1.14,1.18,3.82
+470,AAPL,Apple Inc.,"Jul 23, 2013, 12 AMEDT",1.05,1.07,2.05
+471,AAPL,Apple Inc.,"Apr 23, 2013, 12 AMEDT",1.43,1.44,0.88
+472,AAPL,Apple Inc.,"Jan 23, 2013, 12 AMEST",1.92,1.97,2.52
+473,AAPL,Apple Inc.,"Oct 25, 2012, 12 AMEDT",1.25,1.24,-0.91
+474,AAPL,Apple Inc.,"Jul 24, 2012, 12 AMEDT",1.48,1.33,-10.12
+475,AAPL,Apple Inc.,"Apr 24, 2012, 12 AMEDT",1.43,1.76,22.55
+476,AAPL,Apple Inc.,"Jan 24, 2012, 12 AMEST",1.45,1.98,36.46
+477,AAPL,Apple Inc.,"Oct 18, 2011, 12 AMEDT",1.06,1.01,-4.54
+478,AAPL,Apple Inc.,"Jul 19, 2011, 12 AMEDT",0.83,1.11,33.58
+479,AAPL,Apple Inc.,"Apr 20, 2011, 12 AMEDT",0.77,0.91,19.09
+480,AAPL,Apple Inc.,"Jan 18, 2011, 12 AMEST",0.77,0.92,19.03
+481,AAPL,Apple Inc.,"Oct 18, 2010, 12 AMEDT",0.58,0.66,13.65
+482,AAPL,Apple Inc.,"Jul 20, 2010, 12 AMEDT",0.44,0.5,12.68
+483,AAPL,Apple Inc.,"Apr 20, 2010, 12 AMEDT",0.35,0.48,36.1
+484,AAPL,Apple Inc.,"Jan 25, 2010, 12 AMEST",0.3,0.52,76.0
+485,AAPL,Apple Inc.,"Oct 19, 2009, 12 AMEDT",0.2,0.26,27.8
+486,AAPL,Apple Inc.,"Jul 21, 2009, 12 AMEDT",0.17,0.19,15.05
+487,AAPL,Apple Inc.,"Apr 22, 2009, 12 AMEDT",0.16,0.19,22.05
+488,AAPL,Apple Inc.,"Jan 21, 2009, 12 AMEST",0.2,0.25,28.26
+489,AAPL,Apple Inc.,"Oct 21, 2008, 12 AMEDT",0.16,0.18,13.3
+490,AAPL,Apple Inc.,"Jul 21, 2008, 12 AMEDT",0.15,0.17,10.4
+491,AAPL,Apple Inc.,"Apr 23, 2008, 12 AMEDT",0.15,0.17,8.1
+492,AAPL,Apple Inc.,"Jan 22, 2008, 12 AMEST",0.23,0.25,8.86
+493,AAPL,Apple Inc.,"Oct 22, 2007, 12 AMEDT",0.12,0.14,17.88
+494,AAPL,Apple Inc.,"Jul 25, 2007, 12 AMEDT",0.1,0.13,27.07
+495,AAPL,Apple Inc.,"Apr 25, 2007, 12 AMEDT",0.09,0.12,35.94
+496,AAPL,Apple Inc.,"Jan 17, 2007, 12 AMEST",0.11,0.16,45.38
+497,AAPL,Apple Inc.,"Oct 18, 2006, 12 AMEDT",0.07,0.09,22.55
+498,AAPL,Apple Inc.,"Jul 19, 2006, 12 AMEDT",0.06,0.08,22.85
+499,AAPL,Apple Inc.,"Apr 19, 2006, 12 AMEDT",0.06,0.07,8.22
+500,AAPL,Apple Inc.,"Jan 18, 2006, 12 AMEST",0.09,0.09,7.09
+501,AAPL,Apple Inc.,"Oct 11, 2005, 12 AMEDT",0.05,0.05,2.16
+502,AAPL,Apple Inc.,"Jul 13, 2005, 12 AMEDT",0.04,0.05,17.96
+503,AAPL,Apple Inc.,"Apr 13, 2005, 12 AMEDT",0.03,0.05,39.69
+504,AAPL,Apple Inc.,"Jan 12, 2005, 12 AMEST",0.03,0.05,43.93
+505,AAPL,Apple Inc.,"Oct 13, 2004, 12 AMEDT",0.01,0.02,47.7
+506,AAPL,Apple Inc.,"Jul 14, 2004, 12 AMEDT",0.01,0.01,14.96
+507,AAPL,Apple Inc.,"Apr 14, 2004, 12 AMEDT",0.01,0.01,46.41
+508,AAPL,Apple Inc.,"Jan 14, 2004, 12 AMEST",0.01,0.01,9.38
+509,AAPL,Apple Inc.,"Oct 15, 2003, 12 AMEDT",,0.01,20.46
+510,AAPL,Apple Inc.,"Jul 16, 2003, 12 AMEDT",,,63.01
+511,AAPL,Apple Inc.,"Apr 16, 2003, 12 AMEDT",,,100.0
+512,AAPL,Apple Inc.,"Jan 15, 2003, 12 AMEST",,,-47.8
+513,AAPL,Apple Inc.,"Oct 16, 2002, 12 AMEDT",,,-66.9
+514,AAPL,Apple Inc.,"Jul 16, 2002, 12 AMEDT",0.01,0.01,3.04
+515,AAPL,Apple Inc.,"Jan 16, 2002, 12 AMEST",0.01,0.01,2.21
+516,AAPL,Apple Inc.,"Apr 18, 2001, 12 AMEDT",,0.01,920.78
+517,AAPL,Apple Inc.,"Oct 18, 2000, 12 AMEDT",0.01,0.01,-3.94
+518,AAPL,Apple Inc.,"Jul 18, 2000, 12 AMEDT",0.03,0.03,3.01
+519,AAPL,Apple Inc.,"Apr 19, 2000, 12 AMEDT",0.03,0.03,9.59
+520,AAPL,Apple Inc.,"Jan 19, 2000, 12 AMEST",0.03,0.04,11.14
+521,AAPL,Apple Inc.,"Oct 13, 1999, 12 AMEDT",0.02,0.02,12.69
+522,AAPL,Apple Inc.,"Jul 14, 1999, 12 AMEDT",0.02,0.02,7.69
+523,AAPL,Apple Inc.,"Apr 14, 1999, 12 AMEDT",0.02,0.02,19.24
+524,AAPL,Apple Inc.,"Jan 13, 1999, 12 AMEST",0.02,0.03,12.79
+525,AAPL,Apple Inc.,"Oct 14, 1998, 12 AMEDT",0.02,0.02,39.92
+526,AAPL,Apple Inc.,"Jul 15, 1998, 12 AMEDT",0.01,0.02,68.49
+527,AAPL,Apple Inc.,"Apr 15, 1998, 12 AMEDT",0.01,0.01,156.52
+528,AAPL,Apple Inc.,"Jan 14, 1998, 12 AMEST",0.01,0.01,22.3
+529,AAPL,Apple Inc.,"Oct 15, 1997, 12 AMEDT",,,-50.44
+530,AAPL,Apple Inc.,"Jul 16, 1997, 12 AMEDT",-0.02,-0.02,26.79
+531,AAPL,Apple Inc.,"Apr 16, 1997, 12 AMEDT",-0.04,-0.05,-18.29
+532,AAPL,Apple Inc.,"Jan 15, 1997, 12 AMEST",-0.02,-0.03,-48.31
+533,AAPL,Apple Inc.,"Oct 16, 1996, 12 AMEDT",-0.01,,118.29
+534,MSFT,Microsoft Corporation,"Jul 26, 2022, 12 PMEDT",2.29,2.23,-2.75
+535,MSFT,Microsoft Corporation,"Apr 26, 2022, 12 PMEDT",2.19,2.22,1.6
+536,MSFT,Microsoft Corporation,"Jan 25, 2022, 11 AMEST",2.31,2.48,7.27
+537,MSFT,Microsoft Corporation,"Oct 26, 2021, 12 PMEDT",2.08,2.27,9.4
+538,MSFT,Microsoft Corporation,"Jul 27, 2021, 12 PMEDT",1.92,2.17,13.26
+539,MSFT,Microsoft Corporation,"Apr 27, 2021, 12 PMEDT",1.78,2.03,14.11
+540,MSFT,Microsoft Corporation,"Jan 26, 2021, 11 AMEST",1.64,2.03,23.63
+541,MSFT,Microsoft Corporation,"Oct 27, 2020, 12 PMEDT",1.54,1.82,17.88
+542,MSFT,Microsoft Corporation,"Jul 22, 2020, 12 PMEDT",1.34,1.46,8.71
+543,MSFT,Microsoft Corporation,"Apr 29, 2020, 12 PMEDT",1.26,1.4,10.67
+544,MSFT,Microsoft Corporation,"Jan 29, 2020, 11 AMEST",1.32,1.51,14.48
+545,MSFT,Microsoft Corporation,"Oct 23, 2019, 12 PMEDT",1.25,1.38,10.84
+546,MSFT,Microsoft Corporation,"Jul 18, 2019, 12 PMEDT",1.21,1.37,12.94
+547,MSFT,Microsoft Corporation,"Apr 24, 2019, 12 PMEDT",1.0,1.14,14.11
+548,MSFT,Microsoft Corporation,"Jan 30, 2019, 11 AMEST",1.09,1.1,0.73
+549,MSFT,Microsoft Corporation,"Oct 24, 2018, 12 PMEDT",0.96,1.14,18.38
+550,MSFT,Microsoft Corporation,"Jul 19, 2018, 12 PMEDT",1.08,1.13,5.02
+551,MSFT,Microsoft Corporation,"Apr 26, 2018, 12 PMEDT",0.85,0.95,11.9
+552,MSFT,Microsoft Corporation,"Jan 31, 2018, 11 AMEST",0.87,0.96,10.98
+553,MSFT,Microsoft Corporation,"Oct 26, 2017, 12 PMEDT",0.72,0.84,16.5
+554,MSFT,Microsoft Corporation,"Jul 20, 2017, 12 PMEDT",0.71,0.98,39.01
+555,MSFT,Microsoft Corporation,"Apr 27, 2017, 12 PMEDT",0.7,0.73,4.73
+556,MSFT,Microsoft Corporation,"Jan 26, 2017, 11 AMEST",0.79,0.83,4.93
+557,MSFT,Microsoft Corporation,"Oct 20, 2016, 12 PMEDT",0.68,0.76,11.27
+558,MSFT,Microsoft Corporation,"Jul 19, 2016, 12 PMEDT",0.58,0.69,18.76
+559,MSFT,Microsoft Corporation,"Apr 21, 2016, 12 PMEDT",0.64,0.62,-2.67
+560,MSFT,Microsoft Corporation,"Jan 28, 2016, 11 AMEST",0.71,0.78,9.4
+561,MSFT,Microsoft Corporation,"Oct 22, 2015, 12 PMEDT",0.59,0.67,14.33
+562,MSFT,Microsoft Corporation,"Jul 21, 2015, 12 PMEDT",0.56,0.6,6.57
+563,MSFT,Microsoft Corporation,"Apr 23, 2015, 12 PMEDT",0.51,0.61,20.55
+564,MSFT,Microsoft Corporation,"Jan 26, 2015, 11 AMEST",0.71,0.71,-0.42
+565,MSFT,Microsoft Corporation,"Oct 23, 2014, 12 PMEDT",0.49,0.54,11.11
+566,MSFT,Microsoft Corporation,"Jul 22, 2014, 12 AMEDT",0.6,0.55,-8.65
+567,MSFT,Microsoft Corporation,"Apr 24, 2014, 12 AMEDT",0.63,0.68,8.02
+568,MSFT,Microsoft Corporation,"Jan 23, 2014, 12 AMEST",0.68,0.78,14.83
+569,MSFT,Microsoft Corporation,"Oct 24, 2013, 12 AMEDT",0.54,0.62,15.1
+570,MSFT,Microsoft Corporation,"Jul 18, 2013, 12 AMEDT",0.75,0.66,-11.96
+571,MSFT,Microsoft Corporation,"Apr 18, 2013, 12 AMEDT",0.68,0.72,5.97
+572,MSFT,Microsoft Corporation,"Jan 24, 2013, 12 AMEST",0.75,0.76,1.93
+573,MSFT,Microsoft Corporation,"Oct 18, 2012, 12 AMEDT",0.56,0.53,-5.47
+574,MSFT,Microsoft Corporation,"Jul 19, 2012, 12 AMEDT",0.62,0.67,8.48
+575,MSFT,Microsoft Corporation,"Apr 19, 2012, 12 AMEDT",0.57,0.6,4.38
+576,MSFT,Microsoft Corporation,"Jan 19, 2012, 12 AMEST",0.76,0.78,2.93
+577,MSFT,Microsoft Corporation,"Oct 20, 2011, 12 AMEDT",0.68,0.68,0.38
+578,MSFT,Microsoft Corporation,"Jul 21, 2011, 12 AMEDT",0.58,0.69,19.88
+579,MSFT,Microsoft Corporation,"Apr 28, 2011, 12 AMEDT",0.56,0.61,9.74
+580,MSFT,Microsoft Corporation,"Jan 27, 2011, 12 AMEST",0.68,0.77,12.57
+581,MSFT,Microsoft Corporation,"Oct 28, 2010, 12 AMEDT",0.55,0.62,12.98
+582,MSFT,Microsoft Corporation,"Jul 22, 2010, 12 AMEDT",0.46,0.51,9.82
+583,MSFT,Microsoft Corporation,"Apr 22, 2010, 12 AMEDT",0.42,0.45,6.95
+584,MSFT,Microsoft Corporation,"Jan 28, 2010, 12 AMEST",0.59,0.74,24.79
+585,MSFT,Microsoft Corporation,"Oct 23, 2009, 12 AMEDT",0.32,0.4,25.76
+586,MSFT,Microsoft Corporation,"Jul 23, 2009, 12 AMEDT",0.36,0.36,0.22
+587,MSFT,Microsoft Corporation,"Apr 23, 2009, 12 AMEDT",0.39,0.39,0.26
+588,MSFT,Microsoft Corporation,"Jan 22, 2009, 12 AMEST",0.49,0.47,-4.84
+589,MSFT,Microsoft Corporation,"Oct 23, 2008, 12 AMEDT",0.47,0.48,1.84
+590,MSFT,Microsoft Corporation,"Jul 17, 2008, 12 AMEDT",0.47,0.46,-2.13
+591,MSFT,Microsoft Corporation,"Apr 24, 2008, 12 AMEDT",0.44,0.47,6.74
+592,MSFT,Microsoft Corporation,"Jan 24, 2008, 12 AMEST",0.46,0.5,9.33
+593,MSFT,Microsoft Corporation,"Oct 25, 2007, 12 AMEDT",0.39,0.45,15.38
+594,MSFT,Microsoft Corporation,"Jul 19, 2007, 12 AMEDT",0.39,0.39,0.3
+595,MSFT,Microsoft Corporation,"Apr 26, 2007, 12 AMEDT",0.46,0.49,6.86
+596,MSFT,Microsoft Corporation,"Jan 25, 2007, 12 AMEST",0.23,0.26,11.48
+597,MSFT,Microsoft Corporation,"Oct 26, 2006, 12 AMEDT",0.31,0.35,13.02
+598,MSFT,Microsoft Corporation,"Jul 20, 2006, 12 AMEDT",0.3,0.31,2.63
+599,MSFT,Microsoft Corporation,"Apr 27, 2006, 12 AMEDT",0.33,0.32,-2.93
+600,MSFT,Microsoft Corporation,"Jan 26, 2006, 12 AMEST",0.33,0.33,-0.08
+601,MSFT,Microsoft Corporation,"Oct 27, 2005, 12 AMEDT",0.3,0.31,4.14
+602,MSFT,Microsoft Corporation,"Jul 21, 2005, 12 AMEDT",0.31,0.32,2.4
+603,MSFT,Microsoft Corporation,"Apr 28, 2005, 12 AMEDT",0.32,0.32,0.93
+604,MSFT,Microsoft Corporation,"Jan 27, 2005, 12 AMEST",0.33,0.35,6.81
+605,MSFT,Microsoft Corporation,"Oct 21, 2004, 12 AMEDT",0.3,0.31,2.89
+606,MSFT,Microsoft Corporation,"Jul 22, 2004, 12 AMEDT",0.29,0.28,-1.87
+607,MSFT,Microsoft Corporation,"Apr 22, 2004, 12 AMEDT",0.29,0.34,19.1
+608,MSFT,Microsoft Corporation,"Jan 22, 2004, 12 AMEST",0.3,0.34,13.46
+609,MSFT,Microsoft Corporation,"Oct 23, 2003, 12 AMEDT",0.29,0.3,3.56
+610,MSFT,Microsoft Corporation,"Jul 17, 2003, 12 AMEDT",0.24,0.23,-2.84
+611,MSFT,Microsoft Corporation,"Apr 15, 2003, 12 AMEDT",0.24,0.27,13.16
+612,MSFT,Microsoft Corporation,"Jan 16, 2003, 12 AMEST",0.23,0.27,14.22
+613,MSFT,Microsoft Corporation,"Oct 17, 2002, 12 AMEDT",0.21,0.28,29.06
+614,MSFT,Microsoft Corporation,"Jul 18, 2002, 12 AMEDT",0.21,0.21,0.8
+615,MSFT,Microsoft Corporation,"Apr 18, 2002, 12 AMEDT",0.25,0.25,-3.56
+616,MSFT,Microsoft Corporation,"Jan 17, 2002, 12 AMEST",0.21,0.25,15.25
+617,MSFT,Microsoft Corporation,"Oct 18, 2001, 12 AMEDT",0.2,0.22,9.5
+618,MSFT,Microsoft Corporation,"Jul 19, 2001, 12 AMEDT",0.21,0.22,0.75
+619,MSFT,Microsoft Corporation,"Apr 19, 2001, 12 AMEDT",0.21,0.22,5.33
+620,MSFT,Microsoft Corporation,"Jan 18, 2001, 12 AMEST",0.23,0.24,1.44
+621,MSFT,Microsoft Corporation,"Oct 18, 2000, 12 AMEDT",0.21,0.23,11.48
+622,MSFT,Microsoft Corporation,"Jul 18, 2000, 12 AMEDT",0.21,0.22,5.81
+623,MSFT,Microsoft Corporation,"Apr 20, 2000, 12 AMEDT",0.2,0.22,5.27
+624,MSFT,Microsoft Corporation,"Jan 18, 2000, 12 AMEST",0.21,0.24,11.27
+625,MSFT,Microsoft Corporation,"Oct 19, 1999, 12 AMEDT",0.17,0.19,10.38
+626,MSFT,Microsoft Corporation,"Jul 19, 1999, 12 AMEDT",0.18,0.2,12.03
+627,MSFT,Microsoft Corporation,"Apr 20, 1999, 12 AMEDT",0.16,0.19,21.78
+628,MSFT,Microsoft Corporation,"Jan 19, 1999, 12 AMEST",0.15,0.18,23.47
+629,MSFT,Microsoft Corporation,"Oct 20, 1998, 12 AMEDT",0.12,0.14,13.84
+630,MSFT,Microsoft Corporation,"Jul 16, 1998, 12 AMEDT",0.12,0.13,4.99
+631,MSFT,Microsoft Corporation,"Apr 22, 1998, 12 AMEDT",0.12,0.13,5.72
+632,MSFT,Microsoft Corporation,"Jan 21, 1998, 12 AMEST",0.1,0.11,3.85
+633,MSFT,Microsoft Corporation,"Oct 20, 1997, 12 AMEDT",0.09,0.09,2.53

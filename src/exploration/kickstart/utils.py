@@ -1,3 +1,4 @@
+from multiprocessing.resource_sharer import DupFd
 from datapackage import Package
 import pandas as pd
 import numpy as np
@@ -23,13 +24,13 @@ def _scrap_sp_500_constituants() -> pd.DataFrame:
     print("[INFO]: Resource is empty. Consider fixing the get_sp_500_constituents() scrapping function.")
     return pd.DataFrame()
 
-def load_sp_500_constituents(reload=False) -> pd.DataFrame:
+def load_sp_500_constituents(*, reload=False) -> pd.DataFrame:
     """ Load or scrap the S&P500 constituents. """
     filename = "s&p500_constituents.csv"
     if not reload:
         return pd.read_csv(DATA_PATH + filename, header=0)
     constituents = _scrap_sp_500_constituants()
-    constituents.to_csv(DATA_PATH + filename)
+    constituents.to_csv(DATA_PATH + filename, index_label="index")
     return constituents
 
 def _scrap_previous_earnings(symbol) -> pd.DataFrame:
@@ -50,33 +51,27 @@ def _scrap_previous_earnings(symbol) -> pd.DataFrame:
         print(f"[INFO]: No available earnings data for {symbol}")
     return df
 
-def load_ticker_earnings_history(symbols: list, reload: bool=False) -> pd.DataFrame:
+def load_ticker_earnings_history(symbols: list, *, reload: bool=False) -> pd.DataFrame:
     """ Load or scrap the tickers earning history. """
     filename = "tickers_earning_histiry.csv"
     columns = ["symbol", "company", "earning_dates", "eps_estimates", "eps_reported", "surprise_percent"]
 
     df = pd.DataFrame(columns=columns)
-    df_size = 0
-
-    # try to Load the existing csv
-    # for each symbols, find them in the csv
-        # if symbol is too old or does not exist
-        # scrap + merge
-        # add to subset
-    # if changes, write new csv
-    # return subset
 
     try:
-        df = pd.read_csv(DATA_PATH + filename)
-        df_size = df.size
+        df = pd.read_csv(DATA_PATH + filename, index_col="index")
     except Exception as e:
         print(f"[INFO]: The dataset is empty. Loading the requested symbols")
     
     for symbol in symbols:
         subset = df[df.symbol == symbol]
         
-        if subset.size == 0: # or if data too old ?
-            subset = _scrap_previous_earnings(symbol)
-            df = pd.concat([df, subset], axis=0)
+        if subset.size == 0 or reload:
+            print(f"[INFO]: Fetching new earnings dates for {symbol}.")
+            new_subset = _scrap_previous_earnings(symbol)
+            df = df[df.symbol != symbol]
+            df = pd.concat([df, new_subset], axis="index", ignore_index=True) # type: ignore
 
-    return df
+    df.to_csv(DATA_PATH + filename, index_label="index")
+
+    return df[df.symbol.isin(symbols)] # type: ignore
