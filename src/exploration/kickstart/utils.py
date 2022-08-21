@@ -5,6 +5,13 @@ import numpy as np
 import requests
 
 DATA_PATH = "data/"
+# Add others if needed
+US_STOCK_OPENING_HOURS = {
+    "EST": {
+        "start": "09:30 AM",
+        "END": "4:00 PM"
+    }
+}
 
 user_agent_headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -34,8 +41,10 @@ def load_sp_500_constituents(*, reload=False) -> pd.DataFrame:
     return constituents
 
 def _scrap_previous_earnings(symbol) -> pd.DataFrame:
+    # TODO: Improve the scrapping by loading the second page (data are paginated)
+    # For now, only works after 1998 (might be enough though)
     url = f"https://finance.yahoo.com/calendar/earnings?symbol={symbol}"
-    columns = ["symbol", "company", "earning_dates", "eps_estimates", "eps_reported", "surprise_percent"]
+    columns = ["symbol", "company", "earnings_date", "eps_estimates", "eps_reported", "surprise_percent"]
 
     data = requests.get(url, headers=user_agent_headers).text
 
@@ -44,8 +53,15 @@ def _scrap_previous_earnings(symbol) -> pd.DataFrame:
     try:
         df = pd.read_html(data)[0]
         df.replace("-", np.nan, inplace=True)
+
+        # Consider adding the timezone if needed.
+        # PS: opening hour can be infered by min hour of history share prices for a specific day
         df['EPS Estimate'] = pd.to_numeric(df['EPS Estimate'])
         df['Reported EPS'] = pd.to_numeric(df['Reported EPS'])
+        df['Earnings Date'] = pd.to_datetime(
+        df['Earnings Date'].apply(lambda x: x[:-3]), 
+        format="%b %d, %Y, %I %p"
+    )
         df.columns = columns
     except ValueError:
         print(f"[INFO]: No available earnings data for {symbol}")
@@ -53,8 +69,8 @@ def _scrap_previous_earnings(symbol) -> pd.DataFrame:
 
 def load_ticker_earnings_history(symbols: list, *, reload: bool=False) -> pd.DataFrame:
     """ Load or scrap the tickers earning history. """
-    filename = "tickers_earning_histiry.csv"
-    columns = ["symbol", "company", "earning_dates", "eps_estimates", "eps_reported", "surprise_percent"]
+    filename = "tickers_earning_history.csv"
+    columns = ["symbol", "company", "earnings_date", "eps_estimates", "eps_reported", "surprise_percent"]
 
     df = pd.DataFrame(columns=columns)
 
