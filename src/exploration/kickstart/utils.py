@@ -1,5 +1,7 @@
-from datapackage import Package, Resource
+from datapackage import Package
 import pandas as pd
+import numpy as np
+import requests
 
 DATA_PATH = "data/"
 
@@ -29,3 +31,21 @@ def load_sp_500_constituents(reload=False) -> pd.DataFrame:
     constituents = _scrap_sp_500_constituants()
     constituents.to_csv(DATA_PATH + filename)
     return constituents
+
+def _scrap_previous_earnings(symbol) -> pd.DataFrame:
+    url = f"https://finance.yahoo.com/calendar/earnings?symbol={symbol}"
+    columns = ["symbol", "company", "earning_dates", "eps_estimates", "eps_reported", "surprise_percent"]
+
+    data = requests.get(url, headers=user_agent_headers).text
+
+    df = pd.DataFrame(columns=columns)
+
+    try:
+        df = pd.read_html(data)[0]
+        df.replace("-", np.nan, inplace=True)
+        df['EPS Estimate'] = pd.to_numeric(df['EPS Estimate'])
+        df['Reported EPS'] = pd.to_numeric(df['Reported EPS'])
+        df.columns = columns
+    except ValueError:
+        print(f"[INFO]: No available earnings data for {symbol}")
+    return df
