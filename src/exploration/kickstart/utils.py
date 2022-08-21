@@ -1,8 +1,10 @@
 from datapackage import Package, Resource
 import pandas as pd
 
-def get_sp_500_constituents() -> pd.DataFrame :
-    """ Get the S&P 500 constituents. """
+DATA_PATH = "data/"
+
+def _scrap_sp_500_constituants() -> pd.DataFrame:
+    """ Scrap the S&P 500 constituents. """
     url = 'https://datahub.io/core/s-and-p-500-companies/datapackage.json'
 
     resource_name = "constituents_csv"
@@ -15,3 +17,12 @@ def get_sp_500_constituents() -> pd.DataFrame :
         return pd.DataFrame(table, columns=columns)
     print("[INFO]: Resource is empty. Consider fixing the get_sp_500_constituents() scrapping function.")
     return pd.DataFrame()
+
+def load_sp_500_constituents(reload=False) -> pd.DataFrame:
+    """ Load or crap the S&P500 constituents. """
+    filename = "s&p500_constituents.csv"
+    if not reload:
+        return pd.read_csv(DATA_PATH + filename, header=0)
+    constituents = _scrap_sp_500_constituants()
+    constituents.to_csv(DATA_PATH + filename)
+    return constituents
