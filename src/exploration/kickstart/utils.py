@@ -3,6 +3,9 @@ import pandas as pd
 
 DATA_PATH = "data/"
 
+user_agent_headers = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
 def _scrap_sp_500_constituants() -> pd.DataFrame:
     """ Scrap the S&P 500 constituents. """
     url = 'https://datahub.io/core/s-and-p-500-companies/datapackage.json'
