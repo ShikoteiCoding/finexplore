@@ -64,15 +64,14 @@ def load_sp_500_constituents(*, reload:bool = False, metadata:dict = CSV_METADAT
     constituents.to_csv(file, index_label=metadata["index_label"])
     return constituents
 
-def _scrap_previous_earnings(symbol) -> pd.DataFrame:
+def _scrap_previous_earnings(symbol:str, *, metadata:dict = CSV_METADATA["earnings_history"]) -> pd.DataFrame:
+    """ Scrap the earnings report data from yfinance. """
+
     # TODO: Improve the scrapping by loading the second page (data are paginated)
     # For now, only works after 1998 (might be enough though)
     url = f"https://finance.yahoo.com/calendar/earnings?symbol={symbol}"
-    columns = ["symbol", "company", "earnings_date", "eps_estimates", "eps_reported", "surprise_percent"]
-
     data = requests.get(url, headers=USER_AGENT_HEADER).text
-
-    df = pd.DataFrame(columns=columns)
+    df = pd.DataFrame(columns=metadata["columns"])
 
     try:
         df = pd.read_html(data)[0]
@@ -83,23 +82,21 @@ def _scrap_previous_earnings(symbol) -> pd.DataFrame:
         df['EPS Estimate'] = pd.to_numeric(df['EPS Estimate'])
         df['Reported EPS'] = pd.to_numeric(df['Reported EPS'])
         df['Earnings Date'] = pd.to_datetime(
-        df['Earnings Date'].apply(lambda x: x[:-3]), 
-        format="%b %d, %Y, %I %p"
-    )
-        df.columns = columns
+            df['Earnings Date'].apply(lambda x: x[:-3]), 
+            format="%b %d, %Y, %I %p"
+        )
+        df.columns = metadata["columns"]
     except ValueError:
         print(f"[INFO]: No available earnings data for {symbol}")
     return df
 
-def load_ticker_earnings_history(symbols: list, *, reload: bool=False) -> pd.DataFrame:
+def load_ticker_earnings_history(symbols:list, *, reload:bool = False, metadata:dict = CSV_METADATA["earnings_history"]) -> pd.DataFrame:
     """ Load or scrap the tickers earning history. """
-    filename = "tickers_earning_history.csv"
-    columns = ["symbol", "company", "earnings_date", "eps_estimates", "eps_reported", "surprise_percent"]
-
-    df = pd.DataFrame(columns=columns)
+    file = DATA_PATH + metadata["filename"]
+    df = pd.DataFrame(columns=metadata["columns"])
 
     try:
-        df = pd.read_csv(DATA_PATH + filename, index_col="index")
+        df = pd.read_csv(file, index_col=metadata["index_label"])
     except Exception as e:
         print(f"[INFO]: The dataset is empty. Loading the requested symbols")
     
@@ -112,6 +109,6 @@ def load_ticker_earnings_history(symbols: list, *, reload: bool=False) -> pd.Dat
             df = df[df.symbol != symbol]
             df = pd.concat([df, new_subset], axis="index", ignore_index=True) # type: ignore
 
-    df.to_csv(DATA_PATH + filename, index_label="index")
+    df.to_csv(file, index_label=metadata["index_label"])
 
     return df[df.symbol.isin(symbols)] # type: ignore

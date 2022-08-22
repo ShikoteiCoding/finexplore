@@ -12,4 +12,6 @@ if __name__ == "__main__":
     #
     #data = mmm.history(start="2022-07-28", end="2022-07-29", interval="1m")
     res = utils.load_sp_500_constituents(reload=False)
-    print(res)
+    top_5_symbols = [row.symbol for _, row in res[:5].iterrows()]
+    quaterly_releases = utils.load_ticker_earnings_history(top_5_symbols, reload=False)
+    print(quaterly_releases)
