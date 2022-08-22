@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import requests
 import datetime
+from yfinance import Ticker
 
 #--------------------------
 
@@ -116,3 +117,42 @@ def load_ticker_earnings_history(symbols:list, *, reload:bool = False, metadata:
     df.to_csv(file, index_label=metadata["index_label"])
 
     return df[df.symbol.isin(symbols)] # type: ignore
+
+#--------------------------
+
+def enrich_tickers_earnings_history(df: pd.DataFrame, n_last_release:int = 15) -> pd.DataFrame:
+    """ Encapsulate the transformations needed for the dataframe to perform analysis. """
+
+    # Get distinct tickers
+    distinct_tickers = df["symbol"].unique()
+
+    # Remove where no estimate
+    filtered_earnings = df[df["eps_reported"].notnull()]
+
+    # Get the n most recent release per ticker
+    last_n_release_per_ticker = filtered_earnings.sort_values(by=["symbol", "earnings_date"], ascending=False).groupby("symbol").head(n_last_release)
+    # Compute a field to know if next opening is today or following market opening day
+    last_n_release_per_ticker["day_following_report"] = last_n_release_per_ticker["earnings_date"].apply(
+        lambda x: 
+        "current_day"
+        if (
+            datetime.time(x.hour) >= str_to_hour(OPENING_HOURS["EST"]["start"])
+            and datetime.time(x.hour) < str_to_hour(OPENING_HOURS["EST"]["end"])
+        )
+        else "next_day"
+    )
+    # Compute min /max earnings date per symbol
+    min_max_dates_per_symbol = filtered_earnings.groupby("symbol").agg({"earnings_date": ["min", "max", "count"]}).droplevel(axis=1, level=0)
+    # Grep monthly data for all symbol from min_date - 1 year to max earnings_date
+    stock_prices = pd.DataFrame()
+    for symbol in distinct_tickers:
+        ticker = Ticker(symbol)
+        start_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["min"][0]
+        end_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["max"][0]
+        monhtly_prices = ticker.history(start=start_date, end=end_date, interval="1mo")
+        print(monhtly_prices)
+        # For each symbol / earnings_date, compute the periodic tendencies + max
+    # Add the all time high previous the report
+    # Get all the first 30 minutes (1 min interval) after the report in a separate dataframe.
+
+    return last_n_release_per_ticker
