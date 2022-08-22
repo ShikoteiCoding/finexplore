@@ -39,31 +39,29 @@ CSV_METADATA = {
     }
 }
 
-
 #--------------------------
 
-def _scrap_sp_500_constituants() -> pd.DataFrame:
+def _scrap_sp_500_constituents(*, metadata:dict = CSV_METADATA["s&p500"]) -> pd.DataFrame:
     """ Scrap the S&P 500 constituents. """
-    url = 'https://datahub.io/core/s-and-p-500-companies/datapackage.json'
 
+    url = "https://datahub.io/core/s-and-p-500-companies/datapackage.json"
     resource_name = "constituents_csv"
-    columns = ["symbol", "company", "sector"]
-
     package = Package(url)
     resource = package.get_resource(resource_name)
     if resource:
         table = resource.read()
-        return pd.DataFrame(table, columns=columns)
+        return pd.DataFrame(table, columns=metadata["columns"])
     print("[INFO]: Resource is empty. Consider fixing the get_sp_500_constituents() scrapping function.")
     return pd.DataFrame()
 
-def load_sp_500_constituents(*, reload=False) -> pd.DataFrame:
+def load_sp_500_constituents(*, reload:bool = False, metadata:dict = CSV_METADATA["s&p500"]) -> pd.DataFrame:
     """ Load or scrap the S&P500 constituents. """
-    filename = "s&p500_constituents.csv"
+
+    file = DATA_PATH + metadata["filename"]
     if not reload:
-        return pd.read_csv(DATA_PATH + filename, header=0)
-    constituents = _scrap_sp_500_constituants()
-    constituents.to_csv(DATA_PATH + filename, index_label="index")
+        return pd.read_csv(file, header=0, index_col=metadata["index_label"])
+    constituents = _scrap_sp_500_constituents()
+    constituents.to_csv(file, index_label=metadata["index_label"])
     return constituents
 
 def _scrap_previous_earnings(symbol) -> pd.DataFrame:
