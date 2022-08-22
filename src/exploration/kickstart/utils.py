@@ -1,28 +1,28 @@
-from multiprocessing.resource_sharer import DupFd
 from datapackage import Package
 import pandas as pd
 import numpy as np
 import requests
+import datetime
 
 #--------------------------
 
 DATA_PATH = "data/"
-US_STOCK_OPENING_HOURS = {
+OPENING_HOURS = {
     "EST": {
-        "start": "09:30 AM",
-        "END": "04:00 PM"
+        "start": "09:30",
+        "end": "16:00"
     },
     "CST": {
-        "start": "08:30 AM",
-        "END": "03:00 PM"
+        "start": "08:30",
+        "end": "15:00"
     },
     "MST": {
-        "start": "07:30 AM",
-        "END": "02:00 PM"
+        "start": "07:30",
+        "end": "14:00"
     },
     "PST": {
-        "start": "06:30 AM",
-        "END": "1:00 PM"
+        "start": "06:30",
+        "end": "13:00"
     }
 }
 USER_AGENT_HEADER = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -38,6 +38,10 @@ CSV_METADATA = {
         "index_label": "index"
     }
 }
+#--------------------------
+
+def str_to_hour(hour:str, format:str = "%H:%M") -> datetime.time:
+    return datetime.datetime.strptime(hour, format).time()
 
 #--------------------------
 
@@ -96,7 +100,7 @@ def load_ticker_earnings_history(symbols:list, *, reload:bool = False, metadata:
     df = pd.DataFrame(columns=metadata["columns"])
 
     try:
-        df = pd.read_csv(file, index_col=metadata["index_label"])
+        df = pd.read_csv(file, index_col=metadata["index_label"], parse_dates=['earnings_date'])
     except Exception as e:
         print(f"[INFO]: The dataset is empty. Loading the requested symbols")
     
