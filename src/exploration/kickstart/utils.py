@@ -4,17 +4,43 @@ import pandas as pd
 import numpy as np
 import requests
 
+#--------------------------
+
 DATA_PATH = "data/"
-# Add others if needed
 US_STOCK_OPENING_HOURS = {
     "EST": {
         "start": "09:30 AM",
-        "END": "4:00 PM"
+        "END": "04:00 PM"
+    },
+    "CST": {
+        "start": "08:30 AM",
+        "END": "03:00 PM"
+    },
+    "MST": {
+        "start": "07:30 AM",
+        "END": "02:00 PM"
+    },
+    "PST": {
+        "start": "06:30 AM",
+        "END": "1:00 PM"
+    }
+}
+USER_AGENT_HEADER = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+CSV_METADATA = {
+    "s&p500": {
+        "filename": "s&p500_constituents.csv",
+        "columns": ["symbol","company","sector"],
+        "index_label": "index"
+    },
+    "earnings_history": {
+        "filename": "tickers_earnings_history.csv",
+        "columns": ["symbol", "company", "earnings_date", "eps_estimates", "eps_reported", "surprise_percent"],
+        "index_label": "index"
     }
 }
 
-user_agent_headers = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+#--------------------------
 
 def _scrap_sp_500_constituants() -> pd.DataFrame:
     """ Scrap the S&P 500 constituents. """
@@ -46,7 +72,7 @@ def _scrap_previous_earnings(symbol) -> pd.DataFrame:
     url = f"https://finance.yahoo.com/calendar/earnings?symbol={symbol}"
     columns = ["symbol", "company", "earnings_date", "eps_estimates", "eps_reported", "surprise_percent"]
 
-    data = requests.get(url, headers=user_agent_headers).text
+    data = requests.get(url, headers=USER_AGENT_HEADER).text
 
     df = pd.DataFrame(columns=columns)
 
