@@ -131,6 +131,7 @@ def enrich_tickers_earnings_history(df: pd.DataFrame, n_last_release:int = 15) -
 
     # Get the n most recent release per ticker
     last_n_release_per_ticker = filtered_earnings.sort_values(by=["symbol", "earnings_date"], ascending=False).groupby("symbol").head(n_last_release)
+
     # Compute a field to know if next opening is today or following market opening day
     last_n_release_per_ticker["day_following_report"] = last_n_release_per_ticker["earnings_date"].apply(
         lambda x: 
@@ -141,17 +142,28 @@ def enrich_tickers_earnings_history(df: pd.DataFrame, n_last_release:int = 15) -
         )
         else "next_day"
     )
+
     # Compute min /max earnings date per symbol
     min_max_dates_per_symbol = filtered_earnings.groupby("symbol").agg({"earnings_date": ["min", "max", "count"]}).droplevel(axis=1, level=0)
+    
     # Grep monthly data for all symbol from min_date - 1 year to max earnings_date
     stock_prices = pd.DataFrame()
+
     for symbol in distinct_tickers:
         ticker = Ticker(symbol)
-        start_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["min"][0]
+        start_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["min"][0] - pd.DateOffset(years=1)
         end_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["max"][0]
-        monhtly_prices = ticker.history(start=start_date, end=end_date, interval="1mo")
-        print(monhtly_prices)
-        # For each symbol / earnings_date, compute the periodic tendencies + max
+        monthly_prices = ticker.history(start=start_date, end=end_date, interval="1mo")
+        monthly_prices = monthly_prices[monthly_prices["Open"].notnull()]
+        monthly_prices["symbol"] = symbol
+        stock_prices = pd.concat([stock_prices, monthly_prices])
+
+    print(stock_prices)
+
+    # For each symbol / earnings_date, compute the periodic tendencies + max
+    test = pd.concat([last_n_release_per_ticker, stock_prices])
+    print(test)
+
     # Add the all time high previous the report
     # Get all the first 30 minutes (1 min interval) after the report in a separate dataframe.
 
