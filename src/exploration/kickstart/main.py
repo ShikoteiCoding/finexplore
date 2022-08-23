@@ -25,6 +25,10 @@ if __name__ == "__main__":
     
     #ticker = yf.Ticker("ABBV")
     #monhtly_prices = ticker.history(start="1998-01-28", end="2022-08-04", interval="1mo")
-    #monthly_prices = monhtly_prices[monhtly_prices["Open"].notnull()]
+    #print(monhtly_prices)
     
-    utils.enrich_tickers_earnings_history(earnings)
+    #utils.enrich_tickers_earnings_history(earnings)
+    utils.load_monthly_prices(top_5_symbols[:1], reload=False)
+    #t = ['a', 'b']
+    #t1 = ['a1', 'b2']
+    #print(dict(zip(t, t1)))

@@ -38,7 +38,12 @@ CSV_METADATA = {
         "filename": "tickers_earnings_history.csv",
         "columns": ["symbol", "company", "earnings_date", "eps_estimates", "eps_reported", "surprise_percent"],
         "index_label": "index"
-    }
+    },
+    "monthly_prices": {
+        "filename": "monthly_share_prices.csv",
+        "columns": ["open", "high", "low", "close", "volume", "dividends", "stock_splits", "symbol"],
+        "index_label": "date"
+    },
 }
 #--------------------------
 
@@ -104,7 +109,7 @@ def load_ticker_earnings_history(symbols:list, *, reload:bool = False, metadata:
     try:
         df = pd.read_csv(file, index_col=metadata["index_label"], parse_dates=['earnings_date'])
     except Exception as e:
-        print(f"[INFO]: The dataset is empty. Loading the requested symbols")
+        print(f"[INFO]: The dataset is empty. Loading the requested symbols earnings history.")
     
     for symbol in symbols:
         subset = df[df.symbol == symbol]
@@ -118,6 +123,40 @@ def load_ticker_earnings_history(symbols:list, *, reload:bool = False, metadata:
     df.to_csv(file, index_label=metadata["index_label"])
 
     return df[df.symbol.isin(symbols)] # type: ignore
+
+def load_monthly_prices(symbols:list, *, reload:bool = False, metadata:dict = CSV_METADATA["monthly_prices"]) -> pd.DataFrame:
+    """ Load or scrap the tickers monthly prices. """
+    file = DATA_PATH + metadata["filename"]
+    df = pd.DataFrame(columns=metadata["columns"])
+
+    try:
+        df = pd.read_csv(file, index_col=metadata["index_label"])
+    except Exception as e:
+        print(f"[INFO]: The dataset is empty. Loading the requested symbols share prices.")
+    
+    for symbol in symbols:
+        subset = df[df.symbol == symbol]
+        
+        if subset.size == 0 or reload:
+            print(f"[INFO]: Fetching new monthly share prices for {symbol}.")
+            ticker = Ticker(symbol)
+            new_subset:pd.DataFrame = ticker.history(start="1998-01-28", end="2022-08-04", interval="1mo", auto_adjust=False, back_adjust=False)
+            new_subset = new_subset.drop('Adj Close', axis=1)
+            # Remove already existing elements
+            df = df[df.symbol != symbol]
+
+            # Renaming as the scrapping is not self made
+            new_subset = new_subset.rename(columns=dict(zip(list(new_subset.columns), metadata["columns"][:-1])))
+            new_subset.index.name = metadata["index_label"]
+
+            new_subset["symbol"] = symbol
+
+            df = pd.concat([df, new_subset], axis="index", ignore_index=False) # type: ignore
+
+    df.to_csv(file, index_label=metadata["index_label"])
+
+    return df[df.symbol.isin(symbols)] # type: ignore
+
 
 #--------------------------
 
@@ -143,6 +182,7 @@ def enrich_tickers_earnings_history(df: pd.DataFrame, n_last_release:int = 15) -
         )
         else "next_day"
     )
+    last_n_release_per_ticker["earnings_month"] = last_n_release_per_ticker["earnings_date"] + pd.offsets.MonthBegin(-1) # type: ignore
 
     # Compute min /max earnings date per symbol
     min_max_dates_per_symbol = filtered_earnings.groupby("symbol").agg({"earnings_date": ["min", "max", "count"]}).droplevel(axis=1, level=0)
@@ -159,16 +199,16 @@ def enrich_tickers_earnings_history(df: pd.DataFrame, n_last_release:int = 15) -
         monthly_prices["symbol"] = symbol
         monthly_prices["previous_max"] = monthly_prices["High"].cummax()
         # TODO: Might be possible to miss months ? In this case, lagging by absolute number might not work
-        monthly_prices["open_trend_one_year"] = (monthly_prices["Open"] - monthly_prices["Open"].shift(12)) / monthly_prices["Open"]
-        monthly_prices["open_trend_six_months"] = (monthly_prices["Open"] - monthly_prices["Open"].shift(6)) / monthly_prices["Open"]
-        monthly_prices["open_trend_three_months"] = (monthly_prices["Open"] - monthly_prices["Open"].shift(3)) / monthly_prices["Open"]
+        monthly_prices["open_trend_one_year"] = 100 * (monthly_prices["Open"] - monthly_prices["Open"].shift(12)) / monthly_prices["Open"]
+        monthly_prices["open_trend_six_months"] = 100 * (monthly_prices["Open"] - monthly_prices["Open"].shift(6)) / monthly_prices["Open"]
+        monthly_prices["open_trend_three_months"] = 100 * (monthly_prices["Open"] - monthly_prices["Open"].shift(3)) / monthly_prices["Open"]
 
-        print(monthly_prices)
+        #print(monthly_prices)
         #stock_prices = pd.concat([stock_prices, monthly_prices]) 
 
-        symbol_earnings = last_n_release_per_ticker[last_n_release_per_ticker["symbol"] == symbol]
+        #symbol_earnings = last_n_release_per_ticker[last_n_release_per_ticker["symbol"] == symbol]
 
-    #print(stock_prices)
+    print(last_n_release_per_ticker)
 
     # Add the all time high previous the report
     # Get all the first 30 minutes (1 min interval) after the report in a separate dataframe.
