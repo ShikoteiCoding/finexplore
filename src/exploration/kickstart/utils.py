@@ -158,6 +158,7 @@ def enrich_tickers_earnings_history(df: pd.DataFrame, n_last_release:int = 15) -
         monthly_prices = monthly_prices[monthly_prices["Open"].notnull()]
         monthly_prices["symbol"] = symbol
         monthly_prices["previous_max"] = monthly_prices["High"].cummax()
+        # TODO: Might be possible to miss months ? In this case, lagging by absolute number might not work
         monthly_prices["open_trend_one_year"] = (monthly_prices["Open"] - monthly_prices["Open"].shift(12)) / monthly_prices["Open"]
         monthly_prices["open_trend_six_months"] = (monthly_prices["Open"] - monthly_prices["Open"].shift(6)) / monthly_prices["Open"]
         monthly_prices["open_trend_three_months"] = (monthly_prices["Open"] - monthly_prices["Open"].shift(3)) / monthly_prices["Open"]
