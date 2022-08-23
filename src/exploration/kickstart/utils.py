@@ -1,3 +1,4 @@
+from calendar import month
 from datapackage import Package
 import pandas as pd
 import numpy as np
@@ -156,13 +157,17 @@ def enrich_tickers_earnings_history(df: pd.DataFrame, n_last_release:int = 15) -
         monthly_prices = ticker.history(start=start_date, end=end_date, interval="1mo")
         monthly_prices = monthly_prices[monthly_prices["Open"].notnull()]
         monthly_prices["symbol"] = symbol
-        stock_prices = pd.concat([stock_prices, monthly_prices])
+        monthly_prices["previous_max"] = monthly_prices["High"].cummax()
+        monthly_prices["open_trend_one_year"] = (monthly_prices["Open"] - monthly_prices["Open"].shift(12)) / monthly_prices["Open"]
+        monthly_prices["open_trend_six_months"] = (monthly_prices["Open"] - monthly_prices["Open"].shift(6)) / monthly_prices["Open"]
+        monthly_prices["open_trend_three_months"] = (monthly_prices["Open"] - monthly_prices["Open"].shift(3)) / monthly_prices["Open"]
 
-    print(stock_prices)
+        print(monthly_prices)
+        #stock_prices = pd.concat([stock_prices, monthly_prices]) 
 
-    # For each symbol / earnings_date, compute the periodic tendencies + max
-    test = pd.concat([last_n_release_per_ticker, stock_prices])
-    print(test)
+        symbol_earnings = last_n_release_per_ticker[last_n_release_per_ticker["symbol"] == symbol]
+
+    #print(stock_prices)
 
     # Add the all time high previous the report
     # Get all the first 30 minutes (1 min interval) after the report in a separate dataframe.
