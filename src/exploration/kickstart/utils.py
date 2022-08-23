@@ -124,7 +124,7 @@ def load_ticker_earnings_history(symbols:list, *, reload:bool = False, metadata:
 
     return df[df.symbol.isin(symbols)] # type: ignore
 
-def load_monthly_prices(symbols:list, *, reload:bool = False, metadata:dict = CSV_METADATA["monthly_prices"]) -> pd.DataFrame:
+def load_monthly_prices(symbols:list, start_date:datetime.datetime, end_date:datetime.datetime, *, reload:bool = False, metadata:dict = CSV_METADATA["monthly_prices"]) -> pd.DataFrame:
     """ Load or scrap the tickers monthly prices. """
     file = DATA_PATH + metadata["filename"]
     df = pd.DataFrame(columns=metadata["columns"])
@@ -137,11 +137,13 @@ def load_monthly_prices(symbols:list, *, reload:bool = False, metadata:dict = CS
     for symbol in symbols:
         subset = df[df.symbol == symbol]
         
+        # TODO: add missing dates to force download (if window bigger than start to end dates)
         if subset.size == 0 or reload:
             print(f"[INFO]: Fetching new monthly share prices for {symbol}.")
             ticker = Ticker(symbol)
-            new_subset:pd.DataFrame = ticker.history(start="1998-01-28", end="2022-08-04", interval="1mo", auto_adjust=False, back_adjust=False)
+            new_subset:pd.DataFrame = ticker.history(start=start_date, end=end_date, interval="1mo", auto_adjust=False, back_adjust=False)
             new_subset = new_subset.drop('Adj Close', axis=1)
+
             # Remove already existing elements
             df = df[df.symbol != symbol]
 
@@ -149,6 +151,7 @@ def load_monthly_prices(symbols:list, *, reload:bool = False, metadata:dict = CS
             new_subset = new_subset.rename(columns=dict(zip(list(new_subset.columns), metadata["columns"][:-1])))
             new_subset.index.name = metadata["index_label"]
 
+            new_subset = new_subset[new_subset["open"].notnull()]
             new_subset["symbol"] = symbol
 
             df = pd.concat([df, new_subset], axis="index", ignore_index=False) # type: ignore
@@ -156,7 +159,6 @@ def load_monthly_prices(symbols:list, *, reload:bool = False, metadata:dict = CS
     df.to_csv(file, index_label=metadata["index_label"])
 
     return df[df.symbol.isin(symbols)] # type: ignore
-
 
 #--------------------------
 
@@ -191,17 +193,15 @@ def enrich_tickers_earnings_history(df: pd.DataFrame, n_last_release:int = 15) -
     stock_prices = pd.DataFrame()
 
     for symbol in distinct_tickers:
-        ticker = Ticker(symbol)
         start_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["min"][0] - pd.DateOffset(years=1)
         end_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["max"][0]
-        monthly_prices = ticker.history(start=start_date, end=end_date, interval="1mo")
-        monthly_prices = monthly_prices[monthly_prices["Open"].notnull()]
-        monthly_prices["symbol"] = symbol
-        monthly_prices["previous_max"] = monthly_prices["High"].cummax()
+        monthly_prices = load_monthly_prices([symbol], start_date=start_date, end_date=end_date)
+        monthly_prices["previous_max"] = monthly_prices["high"].cummax()
+        
         # TODO: Might be possible to miss months ? In this case, lagging by absolute number might not work
-        monthly_prices["open_trend_one_year"] = 100 * (monthly_prices["Open"] - monthly_prices["Open"].shift(12)) / monthly_prices["Open"]
-        monthly_prices["open_trend_six_months"] = 100 * (monthly_prices["Open"] - monthly_prices["Open"].shift(6)) / monthly_prices["Open"]
-        monthly_prices["open_trend_three_months"] = 100 * (monthly_prices["Open"] - monthly_prices["Open"].shift(3)) / monthly_prices["Open"]
+        monthly_prices["open_trend_one_year"] = 100 * (monthly_prices["open"] - monthly_prices["open"].shift(12)) / monthly_prices["open"]
+        monthly_prices["open_trend_six_months"] = 100 * (monthly_prices["open"] - monthly_prices["open"].shift(6)) / monthly_prices["open"]
+        monthly_prices["open_trend_three_months"] = 100 * (monthly_prices["open"] - monthly_prices["open"].shift(3)) / monthly_prices["open"]
 
         #print(monthly_prices)
         #stock_prices = pd.concat([stock_prices, monthly_prices]) 

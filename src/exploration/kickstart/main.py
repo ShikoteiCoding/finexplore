@@ -27,8 +27,5 @@ if __name__ == "__main__":
     #monhtly_prices = ticker.history(start="1998-01-28", end="2022-08-04", interval="1mo")
     #print(monhtly_prices)
     
-    #utils.enrich_tickers_earnings_history(earnings)
-    utils.load_monthly_prices(top_5_symbols[:1], reload=False)
-    #t = ['a', 'b']
-    #t1 = ['a1', 'b2']
-    #print(dict(zip(t, t1)))
+    print(utils.enrich_tickers_earnings_history(earnings))
+    #print(utils.load_monthly_prices(top_5_symbols[:1], reload=True))
