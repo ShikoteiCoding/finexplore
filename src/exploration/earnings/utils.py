@@ -7,7 +7,7 @@ import datetime
 from yfinance import Ticker
 
 #--------------------------
-
+ENV_FILE = "setup.env"
 DATA_PATH = "data/"
 OPENING_HOURS = {
     "EST": {
