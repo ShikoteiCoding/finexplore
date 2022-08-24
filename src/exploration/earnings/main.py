@@ -19,22 +19,8 @@ if __name__ == "__main__":
     #earnings = utils.load_ticker_earnings_history(top_5_symbols, reload=False)
     #
     #print(utils.enrich_tickers_earnings_history(earnings))
-    try:
-        connection = psycopg2.connect(
-            database=config.db_name,
-            user=config.db_username,
-            password=config.db_password,
-            host=config.db_host,
-            port=config.db_port
-        )
-    except Exception as e:
-        raise Exception("Error: Please verify the connection provided")
+    connection = utils.db_connect(config)
+    
+    result = utils.db_get_result("SELECT * FROM monthly_share_prices", connection)
 
-    cursor = connection.cursor("test_query")
-    query = "SELECT * FROM monthly_share_prices"
-    cursor.execute(query=query)
-
-    data = cursor.fetchall()
-    cursor.close()
-
-    print(pd.DataFrame(data))
+    print(result)

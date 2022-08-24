@@ -1,10 +1,12 @@
-from calendar import month
 from datapackage import Package
 import pandas as pd
 import numpy as np
 import requests
 import datetime
 from yfinance import Ticker
+import psycopg2
+from psycopg2._psycopg import connection
+from config import Config
 
 #--------------------------
 ENV_FILE = "setup.env"
@@ -49,6 +51,35 @@ CSV_METADATA = {
 
 def str_to_hour(hour:str, format:str = "%H:%M") -> datetime.time:
     return datetime.datetime.strptime(hour, format).time()
+
+#--------------------------
+
+class DBConnectionError(Exception):
+    ...
+
+def db_connect(config: Config) -> connection:
+    try:
+        connection = psycopg2.connect(
+            database=config.db_name,
+            user=config.db_username,
+            password=config.db_password,
+            host=config.db_host,
+            port=config.db_port
+        )
+    except Exception as e:
+        raise DBConnectionError(f"Error: Please verify the connection provided, {e}")
+    return connection
+
+def db_get_result(query:str, connection:connection) -> pd.DataFrame:
+
+    cursor = connection.cursor()
+    query = query
+    cursor.execute(query=query)
+
+    data = cursor.fetchall()
+    cursor.close()
+
+    return pd.DataFrame(data)
 
 #--------------------------
 
