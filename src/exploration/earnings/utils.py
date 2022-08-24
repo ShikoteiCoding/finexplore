@@ -1,3 +1,4 @@
+from typing import Callable, Optional
 from datapackage import Package
 import pandas as pd
 import numpy as np
@@ -5,8 +6,7 @@ import requests
 import datetime
 from yfinance import Ticker
 import psycopg2
-from psycopg2._psycopg import connection
-from config import Config
+
 
 #--------------------------
 ENV_FILE = "setup.env"
@@ -53,6 +53,9 @@ def str_to_hour(hour:str, format:str = "%H:%M") -> datetime.time:
     return datetime.datetime.strptime(hour, format).time()
 
 #--------------------------
+from psycopg2._psycopg import connection
+from psycopg2 import sql
+from config import Config
 
 class DBConnectionError(Exception):
     ...
@@ -80,6 +83,78 @@ def db_get_result(query:str, connection:connection) -> pd.DataFrame:
     cursor.close()
 
     return pd.DataFrame(data)
+
+# Define Function Signature
+UpdateClauseFunction = Callable[[list[str]], sql.Composed]
+
+def default_update_clause(update_columns: list[str]) -> sql.Composed:
+    update_clause = sql.SQL(",").join(
+        [
+            sql.Composed(
+                [
+                    sql.Identifier(c),
+                    sql.SQL("= EXCLUDED."),
+                    sql.Identifier(c),
+                ]
+            )
+            for c in update_columns
+        ]
+    )
+    return update_clause
+
+
+def psql_upsert_factory(
+        db_host: str, db_name: str, db_username: str, db_password: str, db_port: str,
+        *,
+        table: str, schema: Optional[str] = "public", all_columns: list[str], unique_columns: list[str], 
+        update_clause_func: UpdateClauseFunction = default_update_clause
+    ):
+    
+    def upsert(partition):
+        connection = None
+        cursor = None
+        try:
+            connection = psycopg2.connect(
+                host=db_host, database=db_name, user=db_username, password=db_password, port=db_port
+            )
+            cursor = connection.cursor()
+            update_columns = [
+                col_name for col_name in all_columns if col_name not in unique_columns
+            ]
+
+            query = sql.SQL(
+                """
+                INSERT INTO {schema}.{table} AS t ({columns}) VALUES ({placeholder}) ON CONFLICT ({uniq_columns}) DO UPDATE SET {update_clause}
+                """
+            ).format(
+                table=sql.Identifier(table),
+                schema=sql.Identifier(schema),
+                columns=sql.SQL(",").join([sql.Identifier(c) for c in all_columns]),
+                placeholder=sql.SQL(",").join(
+                    [sql.Placeholder(c) for c in all_columns]
+                ),
+                uniq_columns=sql.SQL(",").join(
+                    [sql.Identifier(c) for c in unique_columns]
+                ),
+                update_clause=update_clause_func(update_columns),
+            )
+
+            for item in partition:
+                data = {}
+                for col_name in all_columns:
+                    data[col_name] = item[col_name]
+                cursor.execute(query, data)
+            connection.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("UPSERT ERROR:", error)
+            if connection is not None:
+                connection.rollback()
+            raise error
+        finally:
+            if cursor is not None: cursor.close()
+            if connection is not None: connection.close()
+
+    return upsert
 
 #--------------------------
 
