@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  
+  finance-db:
+    container_name: finance-db
+    hostname: finance-db
+    image: postgres:12
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - finance-db:/var/lib/postgresql/data
+
+volumes:
+  finance-db:
