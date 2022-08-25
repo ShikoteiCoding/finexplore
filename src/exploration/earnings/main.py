@@ -14,6 +14,6 @@ if __name__ == "__main__":
     dotenv.load_dotenv(utils.ENV_FILE)
     config = load(load_db_opts)
 
-    connection = utils.db_connect(config)
+    connection = utils.psql_connect(config)
 
     utils.load_monthly_prices(config, ["MMM"])

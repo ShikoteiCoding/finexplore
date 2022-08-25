@@ -1,3 +1,4 @@
+from enum import unique
 from typing import Callable, Optional
 from datapackage import Package
 import pandas as pd
@@ -60,7 +61,9 @@ from config import Config
 class DBConnectionError(Exception):
     ...
 
-def db_connect(config: Config) -> connection:
+def psql_connect(config: Config) -> connection:
+    """ Establish a connection with psycopg2 and the database. """
+
     try:
         connection = psycopg2.connect(
             database=config.db_name,
@@ -73,7 +76,8 @@ def db_connect(config: Config) -> connection:
         raise DBConnectionError(f"Error: Please verify the connection provided, {e}")
     return connection
 
-def db_get_result(query:str, connection:connection) -> pd.DataFrame:
+def psql_get_result(query:str, connection:connection) -> pd.DataFrame:
+    """ Execute a query and return a dataframe with expected data. """
 
     cursor = connection.cursor()
     query = query
@@ -81,6 +85,7 @@ def db_get_result(query:str, connection:connection) -> pd.DataFrame:
 
     data = cursor.fetchall()
     cursor.close()
+    # TODO: add the columns to the dataframe
 
     return pd.DataFrame(data)
 
@@ -104,19 +109,15 @@ def default_update_clause(update_columns: list[str]) -> sql.Composed:
 
 
 def psql_upsert_factory(
-        db_host: str, db_name: str, db_username: str, db_password: str, db_port: str,
+        connection: connection, #db_host: str, db_name: str, db_username: str, db_password: str, db_port: str,
         *,
-        table: str, schema: Optional[str] = "public", all_columns: list[str], unique_columns: list[str], 
+        table: str, all_columns: list[str], unique_columns: list[str], 
         update_clause_func: UpdateClauseFunction = default_update_clause
     ):
     
-    def upsert(partition):
-        connection = None
+    def upsert(df:pd.DataFrame):
         cursor = None
         try:
-            connection = psycopg2.connect(
-                host=db_host, database=db_name, user=db_username, password=db_password, port=db_port
-            )
             cursor = connection.cursor()
             update_columns = [
                 col_name for col_name in all_columns if col_name not in unique_columns
@@ -124,11 +125,10 @@ def psql_upsert_factory(
 
             query = sql.SQL(
                 """
-                INSERT INTO {schema}.{table} AS t ({columns}) VALUES ({placeholder}) ON CONFLICT ({uniq_columns}) DO UPDATE SET {update_clause}
+                INSERT INTO {table} AS t ({columns}) VALUES ({placeholder}) ON CONFLICT ({uniq_columns}) DO UPDATE SET {update_clause}
                 """
             ).format(
                 table=sql.Identifier(table),
-                schema=sql.Identifier(schema),
                 columns=sql.SQL(",").join([sql.Identifier(c) for c in all_columns]),
                 placeholder=sql.SQL(",").join(
                     [sql.Placeholder(c) for c in all_columns]
@@ -139,11 +139,11 @@ def psql_upsert_factory(
                 update_clause=update_clause_func(update_columns),
             )
 
-            for item in partition:
-                data = {}
-                for col_name in all_columns:
-                    data[col_name] = item[col_name]
-                cursor.execute(query, data)
+            #for item in partition:
+            #    data = {}
+            #for col_name in all_columns:
+            #    data[col_name] = item[col_name]
+            cursor.execute(query, df.to_dict())
             connection.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             print("UPSERT ERROR:", error)
@@ -157,7 +157,6 @@ def psql_upsert_factory(
     return upsert
 
 #--------------------------
-
 def _scrap_sp_500_constituents(*, metadata:dict = CSV_METADATA["s&p500"]) -> pd.DataFrame:
     """ Scrap the S&P 500 constituents. """
 
@@ -235,10 +234,10 @@ def load_monthly_prices(config:Config, symbols:list,
     *, reload:bool = False, metadata:dict = CSV_METADATA["monthly_prices"]) -> pd.DataFrame:
     """ Load or scrap the tickers monthly prices. """
 
-    connection = db_connect(config)
+    connection = psql_connect(config)
     
     for symbol in symbols:
-        data = db_get_result(f"SELECT * FROM monthly_share_prices WHERE symbol='{symbol}'", connection)
+        data = psql_get_result(f"SELECT * FROM monthly_share_prices WHERE symbol='{symbol}'", connection)
         print(data)
         
         # TODO: add missing dates to force download (if window bigger than start to end dates)
@@ -254,8 +253,13 @@ def load_monthly_prices(config:Config, symbols:list,
 
             new_subset = new_subset[new_subset["open"].notnull()]
             new_subset["symbol"] = symbol
-            
-    return db_get_result(f"SELECT * FROM monthly_share_prices", connection) # type: ignore
+            new_subset = new_subset.reset_index()
+
+            upsert = psql_upsert_factory(connection, table="monthly_share_prices", all_columns=list(new_subset.columns) + ["date"], unique_columns=["date", "symbol"])
+            print(new_subset, type(new_subset))
+            upsert(new_subset)
+
+    return psql_get_result(f"SELECT * FROM monthly_share_prices", connection) # type: ignore
 
 #--------------------------
 
