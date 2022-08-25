@@ -16,4 +16,4 @@ if __name__ == "__main__":
 
     connection = utils.psql_connect(config)
 
-    utils.load_monthly_prices(config, ["MMM"])
+    #utils.load_monthly_prices(config, ["MMM"])
