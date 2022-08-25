@@ -1,4 +1,5 @@
 from enum import unique
+from logging.config import dictConfig
 from typing import Callable, Optional
 from datapackage import Package
 import pandas as pd
@@ -52,6 +53,13 @@ CSV_METADATA = {
 
 def str_to_hour(hour:str, format:str = "%H:%M") -> datetime.time:
     return datetime.datetime.strptime(hour, format).time()
+
+def dataframe_to_column_dict(df:pd.DataFrame) -> list[dict]:
+    """ Utility function to build a list of rows with column name as key. """
+    data = []
+    for _, row in df.iterrows():
+        data.append(row.to_dict())
+    return data
 
 #--------------------------
 from psycopg2._psycopg import connection
@@ -115,7 +123,7 @@ def psql_upsert_factory(
         update_clause_func: UpdateClauseFunction = default_update_clause
     ):
     
-    def upsert(df:pd.DataFrame):
+    def upsert(data:list[dict]):
         cursor = None
         try:
             cursor = connection.cursor()
@@ -139,12 +147,10 @@ def psql_upsert_factory(
                 update_clause=update_clause_func(update_columns),
             )
 
-            #for item in partition:
-            #    data = {}
-            #for col_name in all_columns:
-            #    data[col_name] = item[col_name]
-            cursor.execute(query, df.to_dict())
+            for row in data:
+                cursor.execute(query, row)
             connection.commit()
+            
         except (Exception, psycopg2.DatabaseError) as error:
             print("UPSERT ERROR:", error)
             if connection is not None:
@@ -152,7 +158,6 @@ def psql_upsert_factory(
             raise error
         finally:
             if cursor is not None: cursor.close()
-            if connection is not None: connection.close()
 
     return upsert
 
@@ -255,9 +260,9 @@ def load_monthly_prices(config:Config, symbols:list,
             new_subset["symbol"] = symbol
             new_subset = new_subset.reset_index()
 
-            upsert = psql_upsert_factory(connection, table="monthly_share_prices", all_columns=list(new_subset.columns) + ["date"], unique_columns=["date", "symbol"])
-            print(new_subset, type(new_subset))
-            upsert(new_subset)
+            upsert = psql_upsert_factory(connection, table="monthly_share_prices", all_columns=list(new_subset.columns), unique_columns=["date", "symbol"])
+            print(dataframe_to_column_dict(new_subset))
+            upsert(dataframe_to_column_dict(new_subset))
 
     return psql_get_result(f"SELECT * FROM monthly_share_prices", connection) # type: ignore
 

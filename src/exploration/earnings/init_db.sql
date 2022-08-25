@@ -1,7 +1,7 @@
 -- Init tables required.
 
 CREATE TABLE monthly_share_prices (
-    date date,
+    date timestamp without time zone,
     symbol text,
     open double precision,
     high double precision,
