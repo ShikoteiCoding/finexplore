@@ -11,3 +11,5 @@ CREATE TABLE monthly_share_prices (
     dividends double precision,
     stock_splits double precision
 );
+
+CREATE UNIQUE INDEX unique_monthly_share_prices ON monthly_share_prices (date, symbol);
