@@ -54,11 +54,15 @@ METADATA = {
 def str_to_hour(hour:str, format:str = "%H:%M") -> datetime.time:
     return datetime.datetime.strptime(hour, format).time()
 
-def dataframe_to_column_dict(df:pd.DataFrame) -> list[dict]:
+def dataframe_to_column_dict(df:pd.DataFrame, replace_nan:bool = False) -> list[dict]:
     """ Utility function to build a list of rows with column name as key. """
     data = []
     for _, row in df.iterrows():
-        data.append(row.to_dict())
+        if not replace_nan:
+            data.append(row.to_dict())
+        else:
+            data.append(row.replace({np.nan: None}).to_dict())
+
     return data
 
 #--------------------------
@@ -209,8 +213,8 @@ def _scrap_previous_earnings(symbol:str, *, metadata:dict = METADATA["earnings_h
         print(f"[INFO]: No available earnings data for {symbol}")
     return df
 
-def ingest_ticker_earnings_history(connection:connection, symbols:list, *, reload:bool = False, metadata:dict = METADATA["earnings_history"]) -> None:
-    """ Load or scrap the tickers earning history. """
+def ingest_tickers_earnings_history(connection:connection, symbols:list, *, reload:bool = False, metadata:dict = METADATA["earnings_history"]) -> None:
+    """ Scrap the tickers earning history. """
 
     for symbol in symbols:
         data = psql_get_result(f"SELECT * FROM tickers_earnings_history", connection)
@@ -220,13 +224,13 @@ def ingest_ticker_earnings_history(connection:connection, symbols:list, *, reloa
             new_data = _scrap_previous_earnings(symbol)
 
             upsert = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(new_data.columns), unique_columns=["earnings_date", "symbol"])
-            upsert(dataframe_to_column_dict(new_data))
+            upsert(dataframe_to_column_dict(new_data, replace_nan=True))
 
     return
 
-def ingest_monthly_prices(connection:connection, symbols:list, start_date:datetime.datetime, end_date:datetime.datetime,  
+def ingest_tickers_monthly_prices(connection:connection, symbols:list, start_date:datetime.datetime, end_date:datetime.datetime,  
     *, reload:bool = False, metadata:dict = METADATA["monthly_prices"]) -> None:
-    """ Load or scrap the tickers monthly prices. """
+    """ Scrap the tickers monthly prices. """
     
     for symbol in symbols:
         data = psql_get_result(f"SELECT * FROM tickers_monthly_share_prices WHERE symbol='{symbol}'", connection)
@@ -287,7 +291,7 @@ def enrich_tickers_earnings_history(df: pd.DataFrame, connection:connection, n_l
     for symbol in distinct_tickers:
         start_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["min"][0] - pd.DateOffset(years=1)
         end_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["max"][0]
-        ingest_monthly_prices(connection, [symbol], start_date=start_date, end_date=end_date)
+        ingest_tickers_monthly_prices(connection, [symbol], start_date=start_date, end_date=end_date)
 
     print(last_n_release_per_ticker)
 
