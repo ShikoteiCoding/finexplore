@@ -230,93 +230,84 @@ def load_ticker_earnings_history(symbols:list, *, reload:bool = False, metadata:
 
     return df[df.symbol.isin(symbols)] # type: ignore
 
-def load_monthly_prices(symbols:list, start_date:datetime.datetime, end_date:datetime.datetime, *, reload:bool = False, metadata:dict = CSV_METADATA["monthly_prices"]) -> pd.DataFrame:
+def load_monthly_prices(config:Config, symbols:list, 
+    #start_date:datetime.datetime, end_date:datetime.datetime,  
+    *, reload:bool = False, metadata:dict = CSV_METADATA["monthly_prices"]) -> pd.DataFrame:
     """ Load or scrap the tickers monthly prices. """
-    file = DATA_PATH + metadata["filename"]
-    df = pd.DataFrame(columns=metadata["columns"])
 
-    try:
-        df = pd.read_csv(file, index_col=metadata["index_label"])
-    except Exception as e:
-        print(f"[INFO]: The dataset is empty. Loading the requested symbols share prices.")
+    connection = db_connect(config)
     
     for symbol in symbols:
-        subset = df[df.symbol == symbol]
+        data = db_get_result(f"SELECT * FROM monthly_share_prices WHERE symbol='{symbol}'", connection)
+        print(data)
         
         # TODO: add missing dates to force download (if window bigger than start to end dates)
-        if subset.size == 0 or reload:
+        if data.size == 0 or reload:
             print(f"[INFO]: Fetching new monthly share prices for {symbol}.")
             ticker = Ticker(symbol)
-            new_subset:pd.DataFrame = ticker.history(start=start_date, end=end_date, interval="1mo", auto_adjust=False, back_adjust=False)
+            new_subset:pd.DataFrame = ticker.history(start="1998-01-01", end="2022-01-01", interval="1mo", auto_adjust=False, back_adjust=False)
+
             new_subset = new_subset.drop('Adj Close', axis=1)
-
-            # Remove already existing elements
-            df = df[df.symbol != symbol]
-
             # Renaming as the scrapping is not self made
             new_subset = new_subset.rename(columns=dict(zip(list(new_subset.columns), metadata["columns"][:-1])))
             new_subset.index.name = metadata["index_label"]
 
             new_subset = new_subset[new_subset["open"].notnull()]
             new_subset["symbol"] = symbol
-
-            df = pd.concat([df, new_subset], axis="index", ignore_index=False) # type: ignore
-
-    df.to_csv(file, index_label=metadata["index_label"])
-
-    return df[df.symbol.isin(symbols)] # type: ignore
+            
+    return db_get_result(f"SELECT * FROM monthly_share_prices", connection) # type: ignore
 
 #--------------------------
 
-def enrich_tickers_earnings_history(df: pd.DataFrame, n_last_release:int = 15) -> pd.DataFrame:
-    """ Encapsulate the transformations needed for the dataframe to perform analysis. """
-
-    # Get distinct tickers
-    distinct_tickers = df["symbol"].unique()
-
-    # Remove where no estimate
-    filtered_earnings = df[df["eps_reported"].notnull()]
-
-    # Get the n most recent release per ticker
-    last_n_release_per_ticker = filtered_earnings.sort_values(by=["symbol", "earnings_date"], ascending=False).groupby("symbol").head(n_last_release)
-
-    # Compute a field to know if next opening is today or following market opening day
-    last_n_release_per_ticker["day_following_report"] = last_n_release_per_ticker["earnings_date"].apply(
-        lambda x: 
-        "current_day"
-        if (
-            datetime.time(x.hour) >= str_to_hour(OPENING_HOURS["EST"]["start"])
-            and datetime.time(x.hour) < str_to_hour(OPENING_HOURS["EST"]["end"])
-        )
-        else "next_day"
-    )
-    last_n_release_per_ticker["earnings_month"] = last_n_release_per_ticker["earnings_date"] + pd.offsets.MonthBegin(-1) # type: ignore
-
-    # Compute min /max earnings date per symbol
-    min_max_dates_per_symbol = filtered_earnings.groupby("symbol").agg({"earnings_date": ["min", "max", "count"]}).droplevel(axis=1, level=0)
-    
-    # Grep monthly data for all symbol from min_date - 1 year to max earnings_date
-    stock_prices = pd.DataFrame()
-
-    for symbol in distinct_tickers:
-        start_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["min"][0] - pd.DateOffset(years=1)
-        end_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["max"][0]
-        monthly_prices = load_monthly_prices([symbol], start_date=start_date, end_date=end_date)
-        monthly_prices["previous_max"] = monthly_prices["high"].cummax()
-        
-        # TODO: Might be possible to miss months ? In this case, lagging by absolute number might not work
-        monthly_prices["open_trend_one_year"] = 100 * (monthly_prices["open"] - monthly_prices["open"].shift(12)) / monthly_prices["open"]
-        monthly_prices["open_trend_six_months"] = 100 * (monthly_prices["open"] - monthly_prices["open"].shift(6)) / monthly_prices["open"]
-        monthly_prices["open_trend_three_months"] = 100 * (monthly_prices["open"] - monthly_prices["open"].shift(3)) / monthly_prices["open"]
-
-        #print(monthly_prices)
-        #stock_prices = pd.concat([stock_prices, monthly_prices]) 
-
-        #symbol_earnings = last_n_release_per_ticker[last_n_release_per_ticker["symbol"] == symbol]
-
-    print(last_n_release_per_ticker)
-
-    # Add the all time high previous the report
-    # Get all the first 30 minutes (1 min interval) after the report in a separate dataframe.
-
-    return last_n_release_per_ticker
+#def enrich_tickers_earnings_history(df: pd.DataFrame, n_last_release:int = 15) -> pd.DataFrame:
+#    """ Encapsulate the transformations needed for the dataframe to perform analysis. """
+#
+#    # Get distinct tickers
+#    distinct_tickers = df["symbol"].unique()
+#
+#    # Remove where no estimate
+#    filtered_earnings = df[df["eps_reported"].notnull()]
+#
+#    # Get the n most recent release per ticker
+#    last_n_release_per_ticker = filtered_earnings.sort_values(by=["symbol", "earnings_date"], ascending=False).groupby("symbol").head(n_last_release)
+#
+#    # Compute a field to know if next opening is today or following market opening day
+#    last_n_release_per_ticker["day_following_report"] = last_n_release_per_ticker["earnings_date"].apply(
+#        lambda x: 
+#        "current_day"
+#        if (
+#            datetime.time(x.hour) >= str_to_hour(OPENING_HOURS["EST"]["start"])
+#            and datetime.time(x.hour) < str_to_hour(OPENING_HOURS["EST"]["end"])
+#        )
+#        else "next_day"
+#    )
+#    last_n_release_per_ticker["earnings_month"] = last_n_release_per_ticker["earnings_date"] + pd.offsets.MonthBegin(-1) # type: ignore
+#
+#    # Compute min /max earnings date per symbol
+#    min_max_dates_per_symbol = filtered_earnings.groupby("symbol").agg({"earnings_date": ["min", "max", "count"]}).droplevel(axis=1, level=0)
+#    
+#    # Grep monthly data for all symbol from min_date - 1 year to max earnings_date
+#    stock_prices = pd.DataFrame()
+#
+#    for symbol in distinct_tickers:
+#        start_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["min"][0] - pd.DateOffset(years=1)
+#        end_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["max"][0]
+#        monthly_prices = load_monthly_prices([symbol], start_date=start_date, end_date=end_date)
+#        monthly_prices["previous_max"] = monthly_prices["high"].cummax()
+#        
+#        # TODO: Might be possible to miss months ? In this case, lagging by absolute number might not work
+#        monthly_prices["open_trend_one_year"] = 100 * (monthly_prices["open"] - monthly_prices["open"].shift(12)) / monthly_prices["open"]
+#        monthly_prices["open_trend_six_months"] = 100 * (monthly_prices["open"] - monthly_prices["open"].shift(6)) / monthly_prices["open"]
+#        monthly_prices["open_trend_three_months"] = 100 * (monthly_prices["open"] - monthly_prices["open"].shift(3)) / monthly_prices["open"]
+#
+#        #print(monthly_prices)
+#        #stock_prices = pd.concat([stock_prices, monthly_prices]) 
+#
+#        #symbol_earnings = last_n_release_per_ticker[last_n_release_per_ticker["symbol"] == symbol]
+#
+#    print(last_n_release_per_ticker)
+#
+#    # Add the all time high previous the report
+#    # Get all the first 30 minutes (1 min interval) after the report in a separate dataframe.
+#
+#    return last_n_release_per_ticker
