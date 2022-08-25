@@ -92,10 +92,11 @@ def psql_get_result(query:str, connection:connection) -> pd.DataFrame:
     cursor.execute(query=query)
 
     data = cursor.fetchall()
+    columns = [desc[0] for desc in cursor.description]
     cursor.close()
     # TODO: add the columns to the dataframe
 
-    return pd.DataFrame(data)
+    return pd.DataFrame(data, columns=columns)
 
 # Define Function Signature
 UpdateClauseFunction = Callable[[list[str]], sql.Composed]
@@ -234,12 +235,9 @@ def load_ticker_earnings_history(symbols:list, *, reload:bool = False, metadata:
 
     return df[df.symbol.isin(symbols)] # type: ignore
 
-def load_monthly_prices(config:Config, symbols:list, 
-    start_date:datetime.datetime, end_date:datetime.datetime,  
+def load_monthly_prices(connection:connection, symbols:list, start_date:datetime.datetime, end_date:datetime.datetime,  
     *, reload:bool = False, metadata:dict = CSV_METADATA["monthly_prices"]) -> None:
     """ Load or scrap the tickers monthly prices. """
-
-    connection = psql_connect(config)
     
     for symbol in symbols:
         data = psql_get_result(f"SELECT * FROM monthly_share_prices WHERE symbol='{symbol}'", connection)
@@ -267,7 +265,7 @@ def load_monthly_prices(config:Config, symbols:list,
 
 #--------------------------
 
-def enrich_tickers_earnings_history(df: pd.DataFrame, config:Config, n_last_release:int = 15) -> pd.DataFrame:
+def enrich_tickers_earnings_history(df: pd.DataFrame, connection:connection, n_last_release:int = 15) -> pd.DataFrame:
     """ Encapsulate the transformations needed for the dataframe to perform analysis. """
 
     # Get distinct tickers
@@ -300,7 +298,7 @@ def enrich_tickers_earnings_history(df: pd.DataFrame, config:Config, n_last_rele
     for symbol in distinct_tickers:
         start_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["min"][0] - pd.DateOffset(years=1)
         end_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["max"][0]
-        load_monthly_prices(config, [symbol], start_date=start_date, end_date=end_date)
+        load_monthly_prices(connection, [symbol], start_date=start_date, end_date=end_date)
 
     print(last_n_release_per_ticker)
 

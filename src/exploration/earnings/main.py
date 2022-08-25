@@ -16,4 +16,9 @@ if __name__ == "__main__":
 
     connection = utils.psql_connect(config)
 
-    #utils.load_monthly_prices(config, ["MMM"])
+    #utils.load_monthly_prices(connection, ["MMM"], start_date=datetime.datetime(1998, 1, 1), end_date=datetime.datetime.now())
+
+    df = utils.psql_get_result("SELECT * FROM monthly_share_prices", connection)
+    print(df)
+
+    connection.close()
