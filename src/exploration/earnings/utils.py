@@ -32,7 +32,7 @@ OPENING_HOURS = {
     }
 }
 USER_AGENT_HEADER = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-CSV_METADATA = {
+METADATA = {
     "s&p500": {
         "filename": "s&p500_constituents.csv",
         "columns": ["symbol","company","sector"],
@@ -44,7 +44,7 @@ CSV_METADATA = {
         "index_label": "index"
     },
     "monthly_prices": {
-        "filename": "monthly_share_prices.csv",
+        "filename": "tickers_monthly_share_prices.csv",
         "columns": ["open", "high", "low", "close", "volume", "dividends", "stock_splits", "symbol"],
         "index_label": "date"
     },
@@ -163,7 +163,7 @@ def psql_upsert_factory(
     return upsert
 
 #--------------------------
-def _scrap_sp_500_constituents(*, metadata:dict = CSV_METADATA["s&p500"]) -> pd.DataFrame:
+def _scrap_sp_500_constituents(*, metadata:dict = METADATA["s&p500"]) -> pd.DataFrame:
     """ Scrap the S&P 500 constituents. """
 
     url = "https://datahub.io/core/s-and-p-500-companies/datapackage.json"
@@ -176,7 +176,7 @@ def _scrap_sp_500_constituents(*, metadata:dict = CSV_METADATA["s&p500"]) -> pd.
     print("[INFO]: Resource is empty. Consider fixing the get_sp_500_constituents() scrapping function.")
     return pd.DataFrame()
 
-def load_sp_500_constituents(*, reload:bool = False, metadata:dict = CSV_METADATA["s&p500"]) -> pd.DataFrame:
+def load_sp_500_constituents(*, reload:bool = False, metadata:dict = METADATA["s&p500"]) -> pd.DataFrame:
     """ Load or scrap the S&P500 constituents. """
 
     file = DATA_PATH + metadata["filename"]
@@ -186,11 +186,10 @@ def load_sp_500_constituents(*, reload:bool = False, metadata:dict = CSV_METADAT
     constituents.to_csv(file, index_label=metadata["index_label"])
     return constituents
 
-def _scrap_previous_earnings(symbol:str, *, metadata:dict = CSV_METADATA["earnings_history"]) -> pd.DataFrame:
+def _scrap_previous_earnings(symbol:str, *, metadata:dict = METADATA["earnings_history"]) -> pd.DataFrame:
     """ Scrap the earnings report data from yfinance. """
 
-    # TODO: Improve the scrapping by loading the second page (data are paginated)
-    # For now, only works after 1998 (might be enough though)
+    # TODO: Improve the scrapping by loading the other pages (data are paginated)
     url = f"https://finance.yahoo.com/calendar/earnings?symbol={symbol}"
     data = requests.get(url, headers=USER_AGENT_HEADER).text
     df = pd.DataFrame(columns=metadata["columns"])
@@ -199,8 +198,6 @@ def _scrap_previous_earnings(symbol:str, *, metadata:dict = CSV_METADATA["earnin
         df = pd.read_html(data)[0]
         df.replace("-", np.nan, inplace=True)
 
-        # Consider adding the timezone if needed.
-        # PS: opening hour can be infered by min hour of history share prices for a specific day
         df['EPS Estimate'] = pd.to_numeric(df['EPS Estimate'])
         df['Reported EPS'] = pd.to_numeric(df['Reported EPS'])
         df['Earnings Date'] = pd.to_datetime(
@@ -212,54 +209,46 @@ def _scrap_previous_earnings(symbol:str, *, metadata:dict = CSV_METADATA["earnin
         print(f"[INFO]: No available earnings data for {symbol}")
     return df
 
-def load_ticker_earnings_history(symbols:list, *, reload:bool = False, metadata:dict = CSV_METADATA["earnings_history"]) -> pd.DataFrame:
+def ingest_ticker_earnings_history(connection:connection, symbols:list, *, reload:bool = False, metadata:dict = METADATA["earnings_history"]) -> None:
     """ Load or scrap the tickers earning history. """
-    file = DATA_PATH + metadata["filename"]
-    df = pd.DataFrame(columns=metadata["columns"])
 
-    try:
-        df = pd.read_csv(file, index_col=metadata["index_label"], parse_dates=['earnings_date'])
-    except Exception as e:
-        print(f"[INFO]: The dataset is empty. Loading the requested symbols earnings history.")
-    
     for symbol in symbols:
-        subset = df[df.symbol == symbol]
+        data = psql_get_result(f"SELECT * FROM tickers_earnings_history", connection)
         
-        if subset.size == 0 or reload:
+        if data.size == 0 or reload:
             print(f"[INFO]: Fetching new earnings dates for {symbol}.")
-            new_subset = _scrap_previous_earnings(symbol)
-            df = df[df.symbol != symbol]
-            df = pd.concat([df, new_subset], axis="index", ignore_index=True) # type: ignore
+            new_data = _scrap_previous_earnings(symbol)
 
-    df.to_csv(file, index_label=metadata["index_label"])
+            upsert = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(new_data.columns), unique_columns=["earnings_date", "symbol"])
+            upsert(dataframe_to_column_dict(new_data))
 
-    return df[df.symbol.isin(symbols)] # type: ignore
+    return
 
-def load_monthly_prices(connection:connection, symbols:list, start_date:datetime.datetime, end_date:datetime.datetime,  
-    *, reload:bool = False, metadata:dict = CSV_METADATA["monthly_prices"]) -> None:
+def ingest_monthly_prices(connection:connection, symbols:list, start_date:datetime.datetime, end_date:datetime.datetime,  
+    *, reload:bool = False, metadata:dict = METADATA["monthly_prices"]) -> None:
     """ Load or scrap the tickers monthly prices. """
     
     for symbol in symbols:
-        data = psql_get_result(f"SELECT * FROM monthly_share_prices WHERE symbol='{symbol}'", connection)
+        data = psql_get_result(f"SELECT * FROM tickers_monthly_share_prices WHERE symbol='{symbol}'", connection)
 
         # TODO: add missing dates to force download (if window bigger than start to end dates)
         if data.size == 0 or reload:
             print(f"[INFO]: Fetching new monthly share prices for {symbol}.")
             ticker = Ticker(symbol)
-            new_subset:pd.DataFrame = ticker.history(start=start_date, end=end_date, interval="1mo", auto_adjust=False, back_adjust=False)
+            new_data:pd.DataFrame = ticker.history(start=start_date, end=end_date, interval="1mo", auto_adjust=False, back_adjust=False)
 
-            new_subset = new_subset.drop('Adj Close', axis=1)
+            new_data = new_data.drop('Adj Close', axis=1)
 
             # Renaming as the scrapping is not self made
-            new_subset = new_subset.rename(columns=dict(zip(list(new_subset.columns), metadata["columns"][:-1])))
-            new_subset.index.name = metadata["index_label"]
+            new_data = new_data.rename(columns=dict(zip(list(new_data.columns), metadata["columns"][:-1])))
+            new_data.index.name = metadata["index_label"]
 
-            new_subset = new_subset[new_subset["open"].notnull()]
-            new_subset["symbol"] = symbol
-            new_subset = new_subset.reset_index()
+            new_data = new_data[new_data["open"].notnull()]
+            new_data["symbol"] = symbol
+            new_data = new_data.reset_index()
 
-            upsert = psql_upsert_factory(connection, table="monthly_share_prices", all_columns=list(new_subset.columns), unique_columns=["date", "symbol"])
-            upsert(dataframe_to_column_dict(new_subset))
+            upsert = psql_upsert_factory(connection, table="tickers_monthly_share_prices", all_columns=list(new_data.columns), unique_columns=["date", "symbol"])
+            upsert(dataframe_to_column_dict(new_data))
     
     return
 
@@ -298,7 +287,7 @@ def enrich_tickers_earnings_history(df: pd.DataFrame, connection:connection, n_l
     for symbol in distinct_tickers:
         start_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["min"][0] - pd.DateOffset(years=1)
         end_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["max"][0]
-        load_monthly_prices(connection, [symbol], start_date=start_date, end_date=end_date)
+        ingest_monthly_prices(connection, [symbol], start_date=start_date, end_date=end_date)
 
     print(last_n_release_per_ticker)
 
