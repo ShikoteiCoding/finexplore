@@ -1,3 +1,8 @@
+# Earning Strategy
+
+Standalone root folder for exploration purposes. Once the protocol have been tested and results are obtained, this folder might be moved to a distinct repository (will need to finish the bot package grr...).
+If results are not considered good enough to continue, results will be added below.
+
 # Improvement points
 
 1. Switch to SQL storing
