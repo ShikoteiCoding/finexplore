@@ -1,0 +1,8 @@
+requests=2.28.1
+pandas=1.4.3
+datapackage=1.15.2
+wheel=0.37.1 # yfinance dependency
+yfinance=0.1.74
+psycopg2-binary=2.9.3
+matplotlib=3.5.3
+python-dotenv=0.20.0
