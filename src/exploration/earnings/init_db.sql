@@ -24,3 +24,9 @@ CREATE TABLE tickers_earnings_history (
 );
 
 CREATE UNIQUE INDEX unique_tickers_earnings_history ON tickers_earnings_history (earnings_date, symbol);
+
+CREATE TABLE snp_constituents (
+    symbol text,
+    company text,
+    sector text
+);
