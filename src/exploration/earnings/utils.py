@@ -205,26 +205,26 @@ def psql_upsert_factory(
 def _scrap_sp_500_constituents(*, metadata:dict = METADATA["s&p500"]) -> pd.DataFrame:
     """ Scrap the S&P 500 constituents. """
 
-    url = "https://datahub.io/core/s-and-p-500-companies/datapackage.json"
-    resource_name = "constituents_csv"
-    package = Package(url)
-    resource = package.get_resource(resource_name)
-    if resource:
-        table = resource.read()
-        return pd.DataFrame(table, columns=metadata["columns"])
-    print("[INFO]: Resource is empty. Consider fixing the get_sp_500_constituents() scrapping function.")
-    return pd.DataFrame()
+    package = Package("https://datahub.io/core/s-and-p-500-companies/datapackage.json")
+    resource = package.get_resource("constituents_csv")
 
-def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]) -> pd.DataFrame:
+    if not resource:
+        print("[INFO]: Resource is empty. Consider fixing the get_sp_500_constituents() scrapping function.")
+        return pd.DataFrame()
+
+    return pd.DataFrame(resource.read(), columns=metadata["columns"])
+    
+
+def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]) -> None:
     """ 
     Load or scrap the S&P500 constituents.
 
-    This load is in overwrite mode only as the s&p constituents evolve with time.
-    No public API with historic constituents were found yet.
+    This load overwrite the previously charged data as they are not historicized.
     """
     constituents = _scrap_sp_500_constituents()
     psql_insert("snp_constituents", metadata["columns"], dataframe_to_column_dict(constituents), connection, truncate=True)
-    return constituents
+
+    return
 
 def _scrap_previous_earnings(symbol:str, *, metadata:dict = METADATA["earnings_history"]) -> pd.DataFrame:
     """ Scrap the earnings report data from yfinance. """
@@ -241,12 +241,13 @@ def _scrap_previous_earnings(symbol:str, *, metadata:dict = METADATA["earnings_h
         df['EPS Estimate'] = pd.to_numeric(df['EPS Estimate'])
         df['Reported EPS'] = pd.to_numeric(df['Reported EPS'])
         df['Earnings Date'] = pd.to_datetime(
-            df['Earnings Date'].apply(lambda x: x[:-3]), 
+            df['Earnings Date'].apply(lambda x: x[:-3]),  # Remove the timezone for now
             format="%b %d, %Y, %I %p"
         )
         df.columns = metadata["columns"]
     except ValueError:
         print(f"[INFO]: No available earnings data for {symbol}")
+        
     return df
 
 def ingest_tickers_earnings_history(connection:connection, symbols:list, *, reload:bool = False, metadata:dict = METADATA["earnings_history"]) -> None:
