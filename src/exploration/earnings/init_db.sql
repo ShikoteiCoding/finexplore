@@ -30,3 +30,17 @@ CREATE TABLE snp_constituents (
     company text,
     sector text
 );
+
+CREATE TABLE tickers_daily_share_prices (
+    date timestamp without time zone,
+    symbol text,
+    open double precision,
+    high double precision,
+    low double precision,
+    close double precision,
+    volume double precision,
+    dividends double precision,
+    stock_splits double precision
+);
+
+CREATE UNIQUE INDEX unique_tickers_daily_share_prices ON tickers_daily_share_prices (date, symbol);
