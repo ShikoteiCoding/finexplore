@@ -1,5 +1,3 @@
-from enum import unique
-from logging.config import dictConfig
 from typing import Callable, Optional
 from datapackage import Package
 import pandas as pd
@@ -88,11 +86,11 @@ def psql_connect(config: Config) -> connection:
         raise DBConnectionError(f"Error: Please verify the connection provided, {e}")
     return connection
 
-def psql_fetch(query:str, connection:connection) -> pd.DataFrame:
+def psql_fetch(query:sql.Composed | sql.SQL, connection:connection) -> pd.DataFrame:
     """ Execute a select query and return a dataframe with expected data. """
 
     # Make it stronger later on through the use of po
-    assert "SELECT" in query, "The query is not a selection."
+    #assert "SELECT" in query, "The query is not a selection."
 
     cursor = connection.cursor()
     cursor.execute(query=query)
@@ -250,15 +248,45 @@ def _scrap_previous_earnings(symbol:str, *, metadata:dict = METADATA["earnings_h
 
     return df
 
+def _scrap_daily_prices_for_earnings(symbol:str, days:list[datetime.datetime], *, metadata:dict = METADATA["monthly_prices"]) -> pd.DataFrame:
+    """ Scrap the daily prices. Using yfinance library. """
+    ticker = Ticker(symbol)
+
+    df = pd.DataFrame(columns=metadata["columns"])
+
+    for day in days:
+        print(day)
+        data:pd.DataFrame = ticker.history(start=day, end=day, interval="1d", auto_adjust=False, back_adjust=False)
+
+        df = pd.concat([df, data])
+
+    df = df.drop('Adj Close', axis=1)
+
+    # Renaming as the scrapping is not self made
+    df = df.rename(columns=dict(zip(list(df.columns), metadata["columns"][:-1])))
+    df.index.name = metadata["index_label"]
+
+    df = df[df["open"].notnull()]
+    df["symbol"] = symbol
+    df = df.reset_index()
+
+    return df
+
 def ingest_tickers_earnings_history(connection:connection, symbols:list, *, reload:bool = False, metadata:dict = METADATA["earnings_history"]) -> None:
     """ Scrap the tickers earning history. """
 
     for symbol in symbols:
-        data = psql_fetch(f"SELECT * FROM tickers_earnings_history", connection)
+        data = psql_fetch(sql.SQL("SELECT * FROM tickers_earnings_history"), connection)
         
         if data.size == 0 or reload:
             print(f"[INFO]: Fetching new earnings dates for {symbol}.")
             new_data = _scrap_previous_earnings(symbol)
+            earnings_date = new_data["earnings_date"].unique()
+            start_date = earnings_date.max()
+            end_date = earnings_date.min()
+            print(start_date, end_date)
+            #daily_prices = _scrap_daily_prices_for_earnings(symbol, earnings_date_str) # type: ignore
+            #print(daily_prices)
 
             upsert = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(new_data.columns), unique_columns=["earnings_date", "symbol"])
             upsert(dataframe_to_column_dict(new_data, replace_nan=True))
@@ -292,7 +320,14 @@ def ingest_tickers_monthly_prices(
     """ Scrap the tickers monthly prices. """
     
     for symbol in symbols:
-        data = psql_fetch(f"SELECT * FROM tickers_monthly_share_prices WHERE symbol='{symbol}'", connection)
+        data = psql_fetch(
+            sql.SQL(
+                """
+                SELECT * FROM tickers_monthly_share_prices WHERE symbol={symbol};
+                """
+            ).format(symbol=sql.Literal(symbol)),
+            connection
+        )
 
         # TODO: add missing dates to force download (if window bigger than start to end dates)
         if data.size == 0 or reload:
@@ -306,44 +341,75 @@ def ingest_tickers_monthly_prices(
     return
 
 #--------------------------
-def enrich_tickers_earnings_history(df: pd.DataFrame, connection:connection, n_last_release:int = 15) -> pd.DataFrame:
+def first_protocol(symbols:list, connection:connection, n_last_releases=15, reload=False) -> pd.DataFrame:
     """ Encapsulate the transformations needed for the dataframe to perform analysis. """
 
-    # Get distinct tickers
-    distinct_tickers = df["symbol"].unique()
+    ingest_tickers_earnings_history(connection, symbols, reload=reload)
+    ingest_tickers_monthly_prices(connection, symbols, start_date=datetime.datetime(1998, 1, 1), end_date=datetime.datetime.now(), reload=reload)
 
-    # Remove where no estimate
-    filtered_earnings = df[df["eps_reported"].notnull()]
-
+    # Load data for each symbols
     # Get the n most recent release per ticker
-    last_n_release_per_ticker = filtered_earnings.sort_values(by=["symbol", "earnings_date"], ascending=False).groupby("symbol").head(n_last_release)
-
     # Compute a field to know if next opening is today or following market opening day
-    last_n_release_per_ticker["day_following_report"] = last_n_release_per_ticker["earnings_date"].apply(
-        lambda x: 
-        "current_day"
-        if (
-            datetime.time(x.hour) >= str_to_hour(OPENING_HOURS["EST"]["start"])
-            and datetime.time(x.hour) < str_to_hour(OPENING_HOURS["EST"]["end"])
-        )
-        else "next_day"
-    )
-    last_n_release_per_ticker["earnings_month"] = last_n_release_per_ticker["earnings_date"] + pd.offsets.MonthBegin(-1) # type: ignore
-
     # Compute min /max earnings date per symbol
-    min_max_dates_per_symbol = filtered_earnings.groupby("symbol").agg({"earnings_date": ["min", "max", "count"]}).droplevel(axis=1, level=0)
-    
     # Grep monthly data for all symbol from min_date - 1 year to max earnings_date
-    stock_prices = pd.DataFrame()
-
-    for symbol in distinct_tickers:
-        start_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["min"][0] - pd.DateOffset(years=1)
-        end_date = min_max_dates_per_symbol.filter(items=[symbol], axis=0)["max"][0]
-        ingest_tickers_monthly_prices(connection, [symbol], start_date=start_date, end_date=end_date)
-
-    print(last_n_release_per_ticker)
-
     # Add the all time high previous the report
     # Get all the first 30 minutes (1 min interval) after the report in a separate dataframe.
-
-    return last_n_release_per_ticker
+    query = sql.SQL(
+        """
+        WITH earnings AS (
+            SELECT
+                *
+            FROM tickers_earnings_history
+            WHERE symbol in ({tickers})
+        ),
+        prices AS (
+            SELECT * 
+            FROM tickers_monthly_share_prices
+            WHERE symbol IN ({tickers})
+        ),
+        trailing_prices AS (
+            SELECT
+                E.earnings_date,
+                E.symbol,
+                E.company,
+                E.eps_estimates,
+                E.eps_reported,
+                E.surprise_percent,
+                P.high,
+                P.open,
+                P.close,
+                CASE
+                    WHEN DATE_TRUNC('month', E.earnings_date) = P.date - '1 years'::interval THEN '1 year'
+                    WHEN DATE_TRUNC('month', E.earnings_date) = P.date - '6 months'::interval THEN '6 months'
+                    WHEN DATE_TRUNC('month', E.earnings_date) = P.date - '3 months'::interval THEN '3 months'
+                END AS trailing_period
+            FROM earnings AS E
+            LEFT JOIN prices AS P
+                ON E.symbol = P.symbol AND P.date BETWEEN E.earnings_date - '1 years'::interval AND E.earnings_date
+            WHERE E.eps_reported IS NOT NULL
+        )
+        SELECT
+            symbol,
+            company,
+            earnings_date,
+            company,
+            eps_estimates,
+            eps_reported,
+            surprise_percent,
+            MAX(high) AS trailing_max
+        FROM trailing_prices
+        GROUP BY
+            symbol,
+            company,
+            earnings_date,
+            company,
+            eps_estimates,
+            eps_reported,
+            surprise_percent
+        """
+    ).format(
+        tickers=sql.SQL(',').join(
+            [sql.Literal(ticker) for ticker in symbols]
+        )
+    )
+    return psql_fetch(query, connection)
