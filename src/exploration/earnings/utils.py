@@ -88,11 +88,13 @@ def psql_connect(config: Config) -> connection:
         raise DBConnectionError(f"Error: Please verify the connection provided, {e}")
     return connection
 
-def psql_get_result(query:str, connection:connection) -> pd.DataFrame:
-    """ Execute a query and return a dataframe with expected data. """
+def psql_fetch(query:str, connection:connection) -> pd.DataFrame:
+    """ Execute a select query and return a dataframe with expected data. """
+
+    # Make it stronger later on through the use of po
+    assert "SELECT" in query, "The query is not a selection."
 
     cursor = connection.cursor()
-    query = query
     cursor.execute(query=query)
 
     data = cursor.fetchall()
@@ -101,6 +103,34 @@ def psql_get_result(query:str, connection:connection) -> pd.DataFrame:
     # TODO: add the columns to the dataframe
 
     return pd.DataFrame(data, columns=columns)
+
+def psql_insert(table:str, columns, data:list, connection:connection) -> None:
+    """ Execute a query and return a dataframe with expected data. """
+
+    query = sql.SQL(
+        """
+        INSERT INTO {table} ({columns}) VALUES ({placeholder});
+        """
+    ).format(
+        table=sql.Identifier(table),
+        columns=sql.SQL(",").join([sql.Identifier(c) for c in columns]),
+        placeholder=sql.SQL(",").join(
+            [sql.Placeholder(c) for c in columns]
+        )
+    )
+
+    cursor = connection.cursor()
+
+    try:
+        for row in data:
+            cursor.execute(query, row)
+        connection.commit()
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+
+    return
 
 # Define Function Signature
 UpdateClauseFunction = Callable[[list[str]], sql.Composed]
@@ -180,14 +210,15 @@ def _scrap_sp_500_constituents(*, metadata:dict = METADATA["s&p500"]) -> pd.Data
     print("[INFO]: Resource is empty. Consider fixing the get_sp_500_constituents() scrapping function.")
     return pd.DataFrame()
 
-def load_sp_500_constituents(*, reload:bool = False, metadata:dict = METADATA["s&p500"]) -> pd.DataFrame:
-    """ Load or scrap the S&P500 constituents. """
+def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]) -> pd.DataFrame:
+    """ 
+    Load or scrap the S&P500 constituents.
 
-    file = DATA_PATH + metadata["filename"]
-    if not reload:
-        return pd.read_csv(file, header=0, index_col=metadata["index_label"])
+    This load is in overwrite mode only as the s&p constituents evolve with time.
+    No public API with historic constituents were found yet.
+    """
     constituents = _scrap_sp_500_constituents()
-    constituents.to_csv(file, index_label=metadata["index_label"])
+    psql_insert("snp_constituents", metadata["columns"], dataframe_to_column_dict(constituents), connection)
     return constituents
 
 def _scrap_previous_earnings(symbol:str, *, metadata:dict = METADATA["earnings_history"]) -> pd.DataFrame:
@@ -217,7 +248,7 @@ def ingest_tickers_earnings_history(connection:connection, symbols:list, *, relo
     """ Scrap the tickers earning history. """
 
     for symbol in symbols:
-        data = psql_get_result(f"SELECT * FROM tickers_earnings_history", connection)
+        data = psql_fetch(f"SELECT * FROM tickers_earnings_history", connection)
         
         if data.size == 0 or reload:
             print(f"[INFO]: Fetching new earnings dates for {symbol}.")
@@ -233,7 +264,7 @@ def ingest_tickers_monthly_prices(connection:connection, symbols:list, start_dat
     """ Scrap the tickers monthly prices. """
     
     for symbol in symbols:
-        data = psql_get_result(f"SELECT * FROM tickers_monthly_share_prices WHERE symbol='{symbol}'", connection)
+        data = psql_fetch(f"SELECT * FROM tickers_monthly_share_prices WHERE symbol='{symbol}'", connection)
 
         # TODO: add missing dates to force download (if window bigger than start to end dates)
         if data.size == 0 or reload:

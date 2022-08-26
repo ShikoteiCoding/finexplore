@@ -18,7 +18,9 @@ if __name__ == "__main__":
 
     tickers = ["MMM"]
 
-    utils.ingest_tickers_monthly_prices(connection, tickers, start_date=datetime.datetime(1998, 1, 1), end_date=datetime.datetime.now())
-    utils.ingest_tickers_earnings_history(connection, tickers, reload=True)
+    #utils.ingest_tickers_monthly_prices(connection, tickers, start_date=datetime.datetime(1998, 1, 1), end_date=datetime.datetime.now())
+    #utils.ingest_tickers_earnings_history(connection, tickers, reload=True)
+
+    utils.ingest_sp_500_constituents(connection)
 
     connection.close()
