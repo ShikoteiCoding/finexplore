@@ -104,9 +104,8 @@ def psql_fetch(query:str, connection:connection) -> pd.DataFrame:
 
     return pd.DataFrame(data, columns=columns)
 
-def psql_insert(table:str, columns, data:list, connection:connection) -> None:
+def psql_insert(table:str, columns, data:list, connection:connection, *, truncate=False) -> None:
     """ Execute a query and return a dataframe with expected data. """
-
     query = sql.SQL(
         """
         INSERT INTO {table} ({columns}) VALUES ({placeholder});
@@ -122,8 +121,14 @@ def psql_insert(table:str, columns, data:list, connection:connection) -> None:
     cursor = connection.cursor()
 
     try:
-        for row in data:
-            cursor.execute(query, row)
+
+        if truncate:
+            cursor.execute(sql.SQL("TRUNCATE {table}").format(table=sql.Identifier(table)))
+
+        if len(data) > 1:
+            cursor.executemany(query, data)
+        elif len(data) == 1:
+            cursor.execute(query, data[0])
         connection.commit()
     except Exception as e:
         print(e)
@@ -218,7 +223,7 @@ def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]
     No public API with historic constituents were found yet.
     """
     constituents = _scrap_sp_500_constituents()
-    psql_insert("snp_constituents", metadata["columns"], dataframe_to_column_dict(constituents), connection)
+    psql_insert("snp_constituents", metadata["columns"], dataframe_to_column_dict(constituents), connection, truncate=True)
     return constituents
 
 def _scrap_previous_earnings(symbol:str, *, metadata:dict = METADATA["earnings_history"]) -> pd.DataFrame:
