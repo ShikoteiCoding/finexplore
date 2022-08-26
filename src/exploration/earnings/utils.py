@@ -247,7 +247,7 @@ def _scrap_previous_earnings(symbol:str, *, metadata:dict = METADATA["earnings_h
         df.columns = metadata["columns"]
     except ValueError:
         print(f"[INFO]: No available earnings data for {symbol}")
-        
+
     return df
 
 def ingest_tickers_earnings_history(connection:connection, symbols:list, *, reload:bool = False, metadata:dict = METADATA["earnings_history"]) -> None:
@@ -265,8 +265,30 @@ def ingest_tickers_earnings_history(connection:connection, symbols:list, *, relo
 
     return
 
-def ingest_tickers_monthly_prices(connection:connection, symbols:list, start_date:datetime.datetime, end_date:datetime.datetime,  
-    *, reload:bool = False, metadata:dict = METADATA["monthly_prices"]) -> None:
+def _scrap_monthly_prices(symbol:str, start_date:datetime.datetime, end_date:datetime.datetime, metadata:dict = METADATA["monthly_prices"]) -> pd.DataFrame:
+    """ Scrap the monthly prices. Using yfinance library. """
+    ticker = Ticker(symbol)
+
+    data:pd.DataFrame = ticker.history(start=start_date, end=end_date, interval="1mo", auto_adjust=False, back_adjust=False)
+
+    data = data.drop('Adj Close', axis=1)
+
+    # Renaming as the scrapping is not self made
+    data = data.rename(columns=dict(zip(list(data.columns), metadata["columns"][:-1])))
+    data.index.name = metadata["index_label"]
+
+    data = data[data["open"].notnull()]
+    data["symbol"] = symbol
+    data = data.reset_index()
+
+    return data
+
+def ingest_tickers_monthly_prices(
+    connection:connection, symbols:list, 
+    start_date:datetime.datetime, end_date:datetime.datetime,  
+    *, 
+    reload:bool = False, 
+    metadata:dict = METADATA["monthly_prices"]) -> None:
     """ Scrap the tickers monthly prices. """
     
     for symbol in symbols:
@@ -275,18 +297,8 @@ def ingest_tickers_monthly_prices(connection:connection, symbols:list, start_dat
         # TODO: add missing dates to force download (if window bigger than start to end dates)
         if data.size == 0 or reload:
             print(f"[INFO]: Fetching new monthly share prices for {symbol}.")
-            ticker = Ticker(symbol)
-            new_data:pd.DataFrame = ticker.history(start=start_date, end=end_date, interval="1mo", auto_adjust=False, back_adjust=False)
 
-            new_data = new_data.drop('Adj Close', axis=1)
-
-            # Renaming as the scrapping is not self made
-            new_data = new_data.rename(columns=dict(zip(list(new_data.columns), metadata["columns"][:-1])))
-            new_data.index.name = metadata["index_label"]
-
-            new_data = new_data[new_data["open"].notnull()]
-            new_data["symbol"] = symbol
-            new_data = new_data.reset_index()
+            new_data = _scrap_monthly_prices(symbol, start_date, end_date, metadata)
 
             upsert = psql_upsert_factory(connection, table="tickers_monthly_share_prices", all_columns=list(new_data.columns), unique_columns=["date", "symbol"])
             upsert(dataframe_to_column_dict(new_data))
@@ -294,7 +306,6 @@ def ingest_tickers_monthly_prices(connection:connection, symbols:list, start_dat
     return
 
 #--------------------------
-
 def enrich_tickers_earnings_history(df: pd.DataFrame, connection:connection, n_last_release:int = 15) -> pd.DataFrame:
     """ Encapsulate the transformations needed for the dataframe to perform analysis. """
 
