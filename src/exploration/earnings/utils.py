@@ -374,11 +374,25 @@ def first_protocol(symbols:list, connection:connection, n_last_releases=15, relo
     # Get all the first 30 minutes (1 min interval) after the report in a separate dataframe.
     query = sql.SQL(
         """
-        WITH earnings AS (
+        WITH enriched_earnings AS (
             SELECT
-                *
-            FROM tickers_earnings_history
-            WHERE symbol in ({tickers})
+                T.earnings_date,
+                to_char(earnings_date, 'Day')   AS earnings_weekday,
+                T.symbol,
+                T.company,
+                T.eps_estimates,
+                T.eps_reported,
+                T.surprise_percent,
+                P.open,
+                P.high,
+                P.low,
+                P.close
+            FROM tickers_earnings_history AS T
+            LEFT JOIN tickers_daily_share_prices AS P
+                ON T.symbol = P.symbol AND DATE_TRUNC('day', T.earnings_date) = DATE_TRUNC('day', P.date)
+            WHERE TRUE
+                AND T.symbol in ({tickers})
+                AND T.eps_reported IS NOT NULL
         ),
         prices AS (
             SELECT * 
@@ -393,6 +407,7 @@ def first_protocol(symbols:list, connection:connection, n_last_releases=15, relo
                 E.eps_estimates,
                 E.eps_reported,
                 E.surprise_percent,
+                E.open  AS open_day_earnings,
                 P.high,
                 P.open,
                 P.close,
@@ -401,29 +416,33 @@ def first_protocol(symbols:list, connection:connection, n_last_releases=15, relo
                     WHEN DATE_TRUNC('month', E.earnings_date) = P.date - '6 months'::interval THEN '6 months'
                     WHEN DATE_TRUNC('month', E.earnings_date) = P.date - '3 months'::interval THEN '3 months'
                 END AS trailing_period
-            FROM earnings AS E
+            FROM enriched_earnings AS E
             LEFT JOIN prices AS P
-                ON E.symbol = P.symbol AND P.date BETWEEN E.earnings_date - '1 years'::interval AND E.earnings_date
+                ON E.symbol = P.symbol AND DATE_TRUNC('day', P.date) <= DATE_TRUNC('day', E.earnings_date) --BETWEEN E.earnings_date - '1 years'::interval AND E.earnings_date
             WHERE E.eps_reported IS NOT NULL
+        ),
+        grouped AS (
+            SELECT
+                symbol,
+                earnings_date,
+                to_char(earnings_date, 'Day')   AS earnings_weekday,
+                open_day_earnings,
+                eps_estimates,
+                eps_reported,
+                surprise_percent,
+                MAX(high) AS all_time_trailing_max
+            FROM trailing_prices
+            GROUP BY
+                symbol,
+                earnings_date,
+                open_day_earnings,
+                eps_estimates,
+                eps_reported,
+                surprise_percent
+            ORDER BY earnings_date DESC
         )
-        SELECT
-            symbol,
-            company,
-            earnings_date,
-            company,
-            eps_estimates,
-            eps_reported,
-            surprise_percent,
-            MAX(high) AS trailing_max
-        FROM trailing_prices
-        GROUP BY
-            symbol,
-            company,
-            earnings_date,
-            company,
-            eps_estimates,
-            eps_reported,
-            surprise_percent
+        SELECT *
+        FROM grouped
         """
     ).format(
         tickers=sql.SQL(',').join(
