@@ -248,17 +248,11 @@ def _scrap_previous_earnings(symbol:str, *, metadata:dict = METADATA["earnings_h
 
     return df
 
-def _scrap_daily_prices_for_earnings(symbol:str, days:list[datetime.datetime], *, metadata:dict = METADATA["monthly_prices"]) -> pd.DataFrame:
+def _scrap_daily_prices_for_earnings(symbol:str, start_day:datetime.datetime, end_day:datetime.datetime, *, metadata:dict = METADATA["monthly_prices"]) -> pd.DataFrame:
     """ Scrap the daily prices. Using yfinance library. """
     ticker = Ticker(symbol)
 
-    df = pd.DataFrame(columns=metadata["columns"])
-
-    for day in days:
-        print(day)
-        data:pd.DataFrame = ticker.history(start=day, end=day, interval="1d", auto_adjust=False, back_adjust=False)
-
-        df = pd.concat([df, data])
+    df:pd.DataFrame = ticker.history(start=start_day, end=end_day, interval="1d", auto_adjust=False, back_adjust=False)
 
     df = df.drop('Adj Close', axis=1)
 
@@ -272,24 +266,26 @@ def _scrap_daily_prices_for_earnings(symbol:str, days:list[datetime.datetime], *
 
     return df
 
-def ingest_tickers_earnings_history(connection:connection, symbols:list, *, reload:bool = False, metadata:dict = METADATA["earnings_history"]) -> None:
+def ingest_tickers_earnings_history_and_daily_share_prices(connection:connection, symbols:list, *, reload:bool = False, metadata:dict = METADATA["earnings_history"]) -> None:
     """ Scrap the tickers earning history. """
 
     for symbol in symbols:
-        data = psql_fetch(sql.SQL("SELECT * FROM tickers_earnings_history"), connection)
+        current_earnings = psql_fetch(sql.SQL("SELECT * FROM tickers_earnings_history"), connection)
         
-        if data.size == 0 or reload:
+        if current_earnings.size == 0 or reload:
             print(f"[INFO]: Fetching new earnings dates for {symbol}.")
-            new_data = _scrap_previous_earnings(symbol)
-            earnings_date = new_data["earnings_date"].unique()
-            start_date = earnings_date.max()
-            end_date = earnings_date.min()
-            print(start_date, end_date)
-            #daily_prices = _scrap_daily_prices_for_earnings(symbol, earnings_date_str) # type: ignore
-            #print(daily_prices)
+            earnings_history = _scrap_previous_earnings(symbol)
+            earnings_date = earnings_history["earnings_date"].unique()
+            start_date = pd.to_datetime(earnings_date.min())
+            end_date = pd.to_datetime(earnings_date.max())
+            daily_prices = _scrap_daily_prices_for_earnings(symbol, start_date, end_date) # type: ignore
 
-            upsert = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(new_data.columns), unique_columns=["earnings_date", "symbol"])
-            upsert(dataframe_to_column_dict(new_data, replace_nan=True))
+            
+            upsert_monthly = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(earnings_history.columns), unique_columns=["earnings_date", "symbol"])
+            upsert_monthly(dataframe_to_column_dict(earnings_history, replace_nan=True))
+
+            upsert_daily = psql_upsert_factory(connection, table="tickers_daily_share_prices", all_columns=list(daily_prices.columns), unique_columns=["date", "symbol"])
+            upsert_daily(dataframe_to_column_dict(daily_prices, replace_nan=True))
 
     return
 
@@ -344,7 +340,7 @@ def ingest_tickers_monthly_prices(
 def first_protocol(symbols:list, connection:connection, n_last_releases=15, reload=False) -> pd.DataFrame:
     """ Encapsulate the transformations needed for the dataframe to perform analysis. """
 
-    ingest_tickers_earnings_history(connection, symbols, reload=reload)
+    ingest_tickers_earnings_history_and_daily_share_prices(connection, symbols, reload=reload)
     ingest_tickers_monthly_prices(connection, symbols, start_date=datetime.datetime(1998, 1, 1), end_date=datetime.datetime.now(), reload=reload)
 
     # Load data for each symbols

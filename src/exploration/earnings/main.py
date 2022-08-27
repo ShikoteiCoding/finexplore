@@ -20,6 +20,6 @@ if __name__ == "__main__":
 
     #data = utils.first_protocol(tickers, connection)
     #print(data)
-    utils.ingest_tickers_earnings_history(connection, tickers, reload=True)
+    utils.ingest_tickers_earnings_history_and_daily_share_prices(connection, tickers, reload=True)
 
     connection.close()
