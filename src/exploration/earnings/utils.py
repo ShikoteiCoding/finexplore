@@ -211,18 +211,6 @@ def _scrap_sp_500_constituents(*, metadata:dict = METADATA["s&p500"]) -> pd.Data
         return pd.DataFrame()
 
     return pd.DataFrame(resource.read(), columns=metadata["columns"])
-    
-
-def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]) -> None:
-    """ 
-    Load or scrap the S&P500 constituents.
-
-    This load overwrite the previously charged data as they are not historicized.
-    """
-    constituents = _scrap_sp_500_constituents()
-    psql_insert("snp_constituents", metadata["columns"], dataframe_to_column_dict(constituents), connection, truncate=True)
-
-    return
 
 def _scrap_previous_earnings(symbol:str, *, metadata:dict = METADATA["earnings_history"]) -> pd.DataFrame:
     """ Scrap the earnings report data from yfinance. """
@@ -265,29 +253,7 @@ def _scrap_daily_prices_for_earnings(symbol:str, start_day:datetime.datetime, en
     df = df.reset_index()
 
     return df
-
-def ingest_tickers_earnings_history_and_daily_share_prices(connection:connection, symbols:list, *, reload:bool = False, metadata:dict = METADATA["earnings_history"]) -> None:
-    """ Scrap the tickers earning history. """
-
-    for symbol in symbols:
-        current_earnings = psql_fetch(sql.SQL("SELECT * FROM tickers_earnings_history"), connection)
-        
-        if current_earnings.size == 0 or reload:
-            print(f"[INFO]: Fetching new earnings dates for {symbol}.")
-            earnings_history = _scrap_previous_earnings(symbol)
-            earnings_date = earnings_history["earnings_date"].unique()
-            start_date = pd.to_datetime(earnings_date.min())
-            end_date = pd.to_datetime(earnings_date.max())
-            daily_prices = _scrap_daily_prices_for_earnings(symbol, start_date, end_date) # type: ignore
-
-            
-            upsert_monthly = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(earnings_history.columns), unique_columns=["earnings_date", "symbol"])
-            upsert_monthly(dataframe_to_column_dict(earnings_history, replace_nan=True))
-
-            upsert_daily = psql_upsert_factory(connection, table="tickers_daily_share_prices", all_columns=list(daily_prices.columns), unique_columns=["date", "symbol"])
-            upsert_daily(dataframe_to_column_dict(daily_prices, replace_nan=True))
-
-    return
+    
 
 def _scrap_monthly_prices(symbol:str, start_date:datetime.datetime, end_date:datetime.datetime, metadata:dict = METADATA["monthly_prices"]) -> pd.DataFrame:
     """ Scrap the monthly prices. Using yfinance library. """
@@ -306,6 +272,62 @@ def _scrap_monthly_prices(symbol:str, start_date:datetime.datetime, end_date:dat
     data = data.reset_index()
 
     return data
+
+#--------------------------
+def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]) -> None:
+    """ 
+    Load or scrap the S&P500 constituents.
+
+    This load overwrite the previously charged data as they are not historicized.
+    """
+    constituents = _scrap_sp_500_constituents()
+    psql_insert("snp_constituents", metadata["columns"], dataframe_to_column_dict(constituents), connection, truncate=True)
+
+    return
+
+def ingest_tickers_earnings_history_and_daily_share_prices(connection:connection, symbols:list, *, reload:bool = False) -> None:
+    """ 
+    Scrap the tickers earning history.
+    Scrap daily share prices based on the earning history dates.
+    """
+
+    for symbol in symbols:
+        current_earnings = psql_fetch(
+            sql.SQL(
+                "SELECT * FROM tickers_earnings_history WHERE symbol={symbol}"
+            ).format(symbol=sql.Literal(symbol))
+            , connection
+        )
+        earnings_date =  current_earnings["earnings_date"].unique()
+        
+        if current_earnings.size == 0 or reload:
+            print(f"[INFO]: Fetching new earnings dates for {symbol}.")
+            earnings_history = _scrap_previous_earnings(symbol)
+            earnings_date = earnings_history["earnings_date"].unique()
+
+            upsert_earnings = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(earnings_history.columns), unique_columns=["earnings_date", "symbol"])
+            upsert_earnings(dataframe_to_column_dict(earnings_history, replace_nan=True))
+
+        current_daily_prices = psql_fetch(
+            sql.SQL(
+                "SELECT * FROM tickers_daily_share_prices WHERE symbol = {symbol}"
+            ).format(symbol=sql.Literal(symbol)), 
+            connection
+        )
+
+        # Reload if dates have changed
+        if current_daily_prices.size == 0 or reload:
+            print(f"[INFO]: Fetching new daily shares prices for {symbol}.")
+            
+            start_date = pd.to_datetime(earnings_date.min())
+            end_date = pd.to_datetime(earnings_date.max())
+
+            daily_prices = _scrap_daily_prices_for_earnings(symbol, start_date, end_date)
+
+            upsert_daily = psql_upsert_factory(connection, table="tickers_daily_share_prices", all_columns=list(daily_prices.columns), unique_columns=["date", "symbol"])
+            upsert_daily(dataframe_to_column_dict(daily_prices, replace_nan=True))
+
+    return
 
 def ingest_tickers_monthly_prices(
     connection:connection, symbols:list, 
