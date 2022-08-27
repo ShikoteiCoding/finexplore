@@ -25,21 +25,38 @@ if __name__ == "__main__":
 
     #print(utils.psql_fetch(sql.SQL(
     #    """
+    #    WITH daily_prices AS (
+    #        SELECT
+    #            symbol,
+    #            date,
+    #            open,
+    #            close,
+    #            high,
+    #            low,
+    #            LAG(date, 1) OVER (PARTITION BY symbol ORDER BY date DESC) AS next_date
+    #        FROM tickers_daily_share_prices
+    #    )
     #    SELECT
     #        T.earnings_date,
     #        to_char(earnings_date, 'Day')   AS earnings_weekday,
     #        T.symbol,
-    #        P.open,
-    #        P.high,
-    #        P.low,
-    #        P.close
+    #        P.open  AS open_current_day,
+    #        P.high  AS high_current_day,
+    #        P.low   AS low_current_day,
+    #        P.close AS close_current_day,
+    #        P1.open  AS open_previous_day,
+    #        P1.high  AS high_previous_day,
+    #        P1.low   AS low_previous_day,
+    #        P1.close AS close_previous_day 
     #    FROM tickers_earnings_history AS T
-    #    LEFT JOIN tickers_daily_share_prices AS P
+    #    LEFT JOIN daily_prices AS P
     #        ON T.symbol = P.symbol AND DATE_TRUNC('day', T.earnings_date) = DATE_TRUNC('day', P.date)
+    #    LEFT JOIN daily_prices AS P1
+    #        ON T.symbol = P1.symbol AND DATE_TRUNC('day', T.earnings_date) = DATE_TRUNC('day', P1.next_date)
     #    WHERE TRUE
     #        AND T.symbol in ({tickers})
     #        AND T.eps_reported IS NOT NULL
-    #    --ORDER BY T.earnings_date DESC
+    #    ORDER BY T.earnings_date DESC
     #    """
     #).format(tickers=sql.SQL(',').join([sql.Literal(ticker) for ticker in tickers])), connection))
 
