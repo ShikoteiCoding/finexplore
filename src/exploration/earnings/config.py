@@ -12,6 +12,7 @@ class Config:
     db_name:str = field(default="")
     db_host:str = field(default="")
     db_port:str = field(default="")
+    polygon_access_key:str = field(default="")
 
 def load_config(*opts:Callable) -> Config:
     c = Config()
@@ -27,3 +28,6 @@ def load_db_opts(config: Config) -> None:
     config.db_name = os.getenv("POSTGRES_DB_NAME", "")
     config.db_host = os.getenv("POSTGRES_DB_HOST", "")
     config.db_port = os.getenv("POSTGRES_DB_PORT", "")
+
+def load_polygon_opts(config: Config) -> None:
+    config.polygon_access_key = os.getenv("POLYGON_ACCESS_KEY", "")

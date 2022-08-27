@@ -9,7 +9,8 @@ import psycopg2
 
 
 #--------------------------
-ENV_FILE = "setup.env"
+ENV_DOCKER_FILE = "setup.env"
+ENV_SECRETS_FILE = "secrets.env"
 DATA_PATH = "data/"
 OPENING_HOURS = {
     "EST": {
