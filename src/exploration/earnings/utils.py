@@ -32,17 +32,22 @@ OPENING_HOURS = {
 USER_AGENT_HEADER = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 METADATA = {
     "s&p500": {
-        "filename": "s&p500_constituents.csv",
         "columns": ["symbol","company","sector"],
         "index_label": "index"
     },
     "earnings_history": {
-        "filename": "tickers_earnings_history.csv",
         "columns": ["symbol", "company", "earnings_date", "eps_estimates", "eps_reported", "surprise_percent"],
         "index_label": "index"
     },
     "monthly_prices": {
-        "filename": "tickers_monthly_share_prices.csv",
+        "columns": ["open", "high", "low", "close", "volume", "dividends", "stock_splits", "symbol"],
+        "index_label": "date"
+    },
+    "daily_prices": {
+        "columns": ["open", "high", "low", "close", "volume", "dividends", "stock_splits", "symbol"],
+        "index_label": "date"
+    },
+    "minute_prices": {
         "columns": ["open", "high", "low", "close", "volume", "dividends", "stock_splits", "symbol"],
         "index_label": "date"
     },
@@ -253,6 +258,15 @@ def _scrap_daily_prices_for_earnings(symbol:str, start_day:datetime.datetime, en
     df = df.reset_index()
 
     return df
+
+def _scrap_opening_minutes_earning_date(symbol: str, start:datetime.datetime, end:datetime.datetime, *, metadata:dict = METADATA["minute_prices"]) -> pd.DataFrame:
+    """ Scrap the first minutes following earningq. Using yfinance library. """
+    ticker = Ticker(symbol)
+
+    df:pd.DataFrame = ticker.history(start=start, end=end, interval="1m", auto_adjust=False, back_adjust=False)
+
+    return df
+    
     
 
 def _scrap_monthly_prices(symbol:str, start_date:datetime.datetime, end_date:datetime.datetime, metadata:dict = METADATA["monthly_prices"]) -> pd.DataFrame:
@@ -390,14 +404,14 @@ def first_protocol(symbols:list, connection:connection, n_last_releases=15, relo
                 T.earnings_date,
                 to_char(earnings_date, 'Day')   AS earnings_weekday,
                 T.symbol,
-                P.open      AS open_current_day,
-                P.high      AS high_current_day,
-                P.low       AS low_current_day,
-                P.close     AS close_current_day,
-                P1.open     AS open_previous_day,
-                P1.high     AS high_previous_day,
-                P1.low      AS low_previous_day,
-                P1.close    AS close_previous_day,
+                P.open              AS open_current_day,
+                P.high              AS high_current_day,
+                P.low               AS low_current_day,
+                P.close             AS close_current_day,
+                P1.open             AS open_previous_day,
+                P1.high             AS high_previous_day,
+                P1.low              AS low_previous_day,
+                P1.close            AS close_previous_day,
                 T.eps_estimates,
                 T.eps_reported,
                 T.surprise_percent
