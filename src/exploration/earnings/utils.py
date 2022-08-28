@@ -69,6 +69,26 @@ def dataframe_to_column_dict(df:pd.DataFrame, replace_nan:bool = False) -> list[
 
     return data
 
+def polygon_json_to_dataframe(json:dict) -> list[dict]:
+    formatted = []
+    results = json["results"]
+    symbol = json["ticker"]
+
+    for result in results:
+        formatted.append({
+            "date": datetime.datetime.fromtimestamp(result["t"] / 1000),
+            "open": result["c"],
+            "high": result["h"],
+            "low": result["l"],
+            "close": result["c"],
+            "volume": result["v"],
+            "dividends": 0,
+            "stock_splits": 0,
+            "symbol": symbol
+        })
+
+    return formatted
+
 #--------------------------
 from psycopg2._psycopg import connection
 from psycopg2 import sql

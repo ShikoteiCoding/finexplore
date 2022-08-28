@@ -28,6 +28,8 @@ if __name__ == "__main__":
     #    res = requests.get("https://api.polygon.io/v2/aggs/ticker/MMM/range/1/minute/2022-07-26/2022-07-26?adjusted=false&sort=asc&limit=120&apiKey=KFogwckHT4l3GcS4f7IZEjwbO6DRg_3a")
     #    json_object = json.dumps(res.json(), indent=4)
     #    f.write(json_object)
-    print(url)
+    with open(file, "r") as f:
+        data = json.load(f)
+        print(utils.polygon_json_to_dataframe(data))
 
     #connection.close()
