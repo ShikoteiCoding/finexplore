@@ -283,7 +283,10 @@ def _scrap_daily_prices_for_earnings(symbol:str, start_day:datetime.datetime, en
 def _scrap_opening_minutes_earning_date(symbol: str, start:datetime.datetime, end:datetime.datetime, *, config:Config, metadata:dict = METADATA["minute_prices"]) -> dict:
     """ Scrap the first minutes following earningq. Using yfinance library. """
 
-    url = f"https://api.polygon.io/v2/aggs/ticker/MMM/range/1/minute/2022-07-26/2022-07-26?adjusted=false&sort=asc&limit=120&apiKey={config.polygon_access_key}"
+    start_str = start.strftime("%Y-%m-%d")
+    end_str = end.strftime("%Y-%m-%d")
+
+    url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/minute/{start_str}/{end_str}?adjusted=false&sort=asc&limit=120&apiKey={config.polygon_access_key}"
 
     data = {}
 
