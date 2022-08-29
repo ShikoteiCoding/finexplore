@@ -319,7 +319,7 @@ def _scrap_monthly_prices(symbol:str, start_date:datetime.datetime, end_date:dat
 #--------------------------
 def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]) -> None:
     """ 
-    Load or scrap the S&P500 constituents.
+    Load or scrap the S&P500 constituents and push to the DB.
 
     This load overwrite the previously charged data as they are not historicized.
     """
@@ -332,6 +332,7 @@ def ingest_tickers_earnings_history_and_daily_share_prices(connection:connection
     """ 
     Scrap the tickers earning history.
     Scrap daily share prices based on the earning history dates.
+    Push in the DB.
     """
 
     for symbol in symbols:
@@ -378,7 +379,7 @@ def ingest_tickers_monthly_prices(
     *, 
     reload:bool = False, 
     metadata:dict = METADATA["monthly_prices"]) -> None:
-    """ Scrap the tickers monthly prices. """
+    """ Scrap the tickers monthly prices and push them to the DB. """
     
     for symbol in symbols:
         data = psql_fetch(
@@ -400,6 +401,16 @@ def ingest_tickers_monthly_prices(
             upsert(dataframe_to_column_dict(new_data))
     
     return
+
+def ingest_tickers_minute_prices(
+    connection:connection, symbols:list, 
+    start_date:datetime.datetime, end_date:datetime.datetime,  
+    *, 
+    reload:bool = False, 
+    metadata:dict = METADATA["monthly_prices"]) -> None:
+    """ 
+    Load minute data from polygon API and push to the DB.  
+    """
 
 #--------------------------
 def first_protocol(symbols:list, connection:connection, n_last_releases=15, reload=False) -> pd.DataFrame:
