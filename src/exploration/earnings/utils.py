@@ -425,14 +425,14 @@ def ingest_tickers_opening_minute_prices(
 
         # TODO: add missing dates to force download (if window bigger than start to end dates)
         if data.size == 0 or reload:
-            print(f"[INFO]: Fetching new monthly share prices for {symbol}.")
+            print(f"[INFO]: Fetching new minute share prices for {symbol} between {start_date} and {end_date}")
 
             new_data = _scrap_opening_minutes_prices(symbol, start_date, end_date, config=config)
-
+            new_data = polygon_json_to_dataframe(new_data)
             columns = [key for key in new_data[0].keys()]
 
             upsert = psql_upsert_factory(connection, table="tickers_minute_share_prices", all_columns=columns, unique_columns=["date", "symbol"])
-            upsert(polygon_json_to_dataframe(new_data))
+            upsert(new_data)
     return 
 
 #--------------------------

@@ -5,6 +5,7 @@ import dotenv
 import requests
 from psycopg2 import sql
 import json
+import datetime
 
 from config import load_config as load, load_db_opts, load_polygon_opts
 
@@ -14,22 +15,15 @@ if __name__ == "__main__":
     dotenv.load_dotenv(utils.ENV_SECRETS_FILE)
     config = load(load_db_opts, load_polygon_opts)
 
-    #connection = utils.psql_connect(config)
+    connection = utils.psql_connect(config)
 
     tickers = ["MMM"]
     #print(utils._scrap_opening_minutes_earning_date(tickers[0], datetime.datetime(2022, 7, 26), datetime.datetime(2022, 7, 26)))
-    print(config)
+    start = datetime.datetime(2022, 7, 26)
+    end = datetime.datetime(2022, 7, 26)
+    #data = utils._scrap_opening_minutes_earning_date(tickers[0], start, end, config=config)
+    #print(utils.polygon_json_to_dataframe(data))
 
-    url = f"https://api.polygon.io/v2/aggs/ticker/MMM/range/1/minute/2022-07-26/2022-07-26?adjusted=false&sort=asc&limit=120&apiKey={config.polygon_access_key}"
+    utils.ingest_tickers_opening_minute_prices(connection, tickers, start, end, config=config)
 
-    
-    file = "data/test.txt"
-    #with open(file, "w") as f:
-    #    res = requests.get("https://api.polygon.io/v2/aggs/ticker/MMM/range/1/minute/2022-07-26/2022-07-26?adjusted=false&sort=asc&limit=120&apiKey=KFogwckHT4l3GcS4f7IZEjwbO6DRg_3a")
-    #    json_object = json.dumps(res.json(), indent=4)
-    #    f.write(json_object)
-    with open(file, "r") as f:
-        data = json.load(f)
-        print(utils.polygon_json_to_dataframe(data))
-
-    #connection.close()
+    connection.close()
