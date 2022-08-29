@@ -280,7 +280,7 @@ def _scrap_daily_prices_for_earnings(symbol:str, start_day:datetime.datetime, en
 
     return df
 
-def _scrap_opening_minutes_earning_date(symbol: str, start:datetime.datetime, end:datetime.datetime, *, config:Config, metadata:dict = METADATA["minute_prices"]) -> dict:
+def _scrap_opening_minutes_prices(symbol: str, start:datetime.datetime, end:datetime.datetime, *, config:Config, metadata:dict = METADATA["minute_prices"]) -> dict:
     """ Scrap the first minutes following earningq. Using yfinance library. """
 
     start_str = start.strftime("%Y-%m-%d")
@@ -402,15 +402,38 @@ def ingest_tickers_monthly_prices(
     
     return
 
-def ingest_tickers_minute_prices(
+def ingest_tickers_opening_minute_prices(
     connection:connection, symbols:list, 
     start_date:datetime.datetime, end_date:datetime.datetime,  
     *, 
-    reload:bool = False, 
+    config:Config,
+    reload:bool = False,
     metadata:dict = METADATA["monthly_prices"]) -> None:
     """ 
     Load minute data from polygon API and push to the DB.  
     """
+    
+    for symbol in symbols:
+        data = psql_fetch(
+            sql.SQL(
+                """
+                SELECT * FROM tickers_minute_share_prices WHERE symbol={symbol};
+                """
+            ).format(symbol=sql.Literal(symbol)),
+            connection
+        )
+
+        # TODO: add missing dates to force download (if window bigger than start to end dates)
+        if data.size == 0 or reload:
+            print(f"[INFO]: Fetching new monthly share prices for {symbol}.")
+
+            new_data = _scrap_opening_minutes_prices(symbol, start_date, end_date, config=config)
+
+            columns = [key for key in new_data[0].keys()]
+
+            upsert = psql_upsert_factory(connection, table="tickers_minute_share_prices", all_columns=columns, unique_columns=["date", "symbol"])
+            upsert(polygon_json_to_dataframe(new_data))
+    return 
 
 #--------------------------
 def first_protocol(symbols:list, connection:connection, n_last_releases=15, reload=False) -> pd.DataFrame:
