@@ -337,15 +337,16 @@ def ingest_tickers_earnings_history(connection:connection, symbols:list, *, relo
             ).format(symbol=sql.Literal(symbol))
             , connection
         )
-        #earnings_date =  current_earnings["earnings_date"].unique()
+        current_earnings_date =  current_earnings["earnings_date"].unique()
         
         if current_earnings.size == 0 or reload:
             print(f"[INFO]: Fetching new earnings dates for {symbol}.")
-            earnings_history = _scrap_previous_earnings(symbol)
-            #earnings_date = earnings_history["earnings_date"].unique()
+            new_earnings = _scrap_previous_earnings(symbol)
+            new_earnings_date = new_earnings["earnings_date"].unique()
 
-            upsert_earnings = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(earnings_history.columns), unique_columns=["earnings_date", "symbol"])
-            upsert_earnings(dataframe_to_column_dict(earnings_history, replace_nan=True))
+            if current_earnings_date != new_earnings_date:
+                upsert_earnings = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(new_earnings.columns), unique_columns=["earnings_date", "symbol"])
+                upsert_earnings(dataframe_to_column_dict(new_earnings, replace_nan=True))
 
     return
 
