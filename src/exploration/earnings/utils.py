@@ -286,7 +286,7 @@ def _scrap_opening_minutes_prices(symbol: str, start:datetime.datetime, end:date
     start_str = start.strftime("%Y-%m-%d")
     end_str = end.strftime("%Y-%m-%d")
 
-    url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/minute/{start_str}/{end_str}?adjusted=false&sort=asc&limit=120&apiKey={config.polygon_access_key}"
+    url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/minute/{start_str}/{end_str}?adjusted=false&sort=desc&limit=120&apiKey={config.polygon_access_key}"
 
     data = {}
 
@@ -319,21 +319,16 @@ def _scrap_monthly_prices(symbol:str, start_date:datetime.datetime, end_date:dat
 #--------------------------
 def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]) -> None:
     """ 
-    Load or scrap the S&P500 constituents and push to the DB.
-
-    This load overwrite the previously charged data as they are not historicized.
+    Load or scrap the S&P500 constituents and push to the DB. 
+    Writing mode is truncating old existing data.
     """
     constituents = _scrap_sp_500_constituents()
     psql_insert("snp_constituents", metadata["columns"], dataframe_to_column_dict(constituents), connection, truncate=True)
 
     return
 
-def ingest_tickers_earnings_history_and_daily_share_prices(connection:connection, symbols:list, *, reload:bool = False) -> None:
-    """ 
-    Scrap the tickers earning history.
-    Scrap daily share prices based on the earning history dates.
-    Push in the DB.
-    """
+def ingest_tickers_earnings_history(connection:connection, symbols:list, *, reload:bool = False) -> None:
+    """ Scrap the tickers earning history. Upsert the data in the DB. """
 
     for symbol in symbols:
         current_earnings = psql_fetch(
@@ -342,15 +337,27 @@ def ingest_tickers_earnings_history_and_daily_share_prices(connection:connection
             ).format(symbol=sql.Literal(symbol))
             , connection
         )
-        earnings_date =  current_earnings["earnings_date"].unique()
+        #earnings_date =  current_earnings["earnings_date"].unique()
         
         if current_earnings.size == 0 or reload:
             print(f"[INFO]: Fetching new earnings dates for {symbol}.")
             earnings_history = _scrap_previous_earnings(symbol)
-            earnings_date = earnings_history["earnings_date"].unique()
+            #earnings_date = earnings_history["earnings_date"].unique()
 
             upsert_earnings = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(earnings_history.columns), unique_columns=["earnings_date", "symbol"])
             upsert_earnings(dataframe_to_column_dict(earnings_history, replace_nan=True))
+
+    return
+
+def ingest_tickers_daily_prices(
+    connection: connection, symbols:list,
+    start_date:datetime.datetime, end_date:datetime.datetime,
+    *,
+    reload:bool = False,
+    metadata:dict = METADATA["daily_prices"]) -> None:
+    """ Scrap the tickers daily prices and upsert them to the DB """
+
+    for symbol in symbols:
 
         current_daily_prices = psql_fetch(
             sql.SQL(
@@ -362,16 +369,12 @@ def ingest_tickers_earnings_history_and_daily_share_prices(connection:connection
         # Reload if dates have changed
         if current_daily_prices.size == 0 or reload:
             print(f"[INFO]: Fetching new daily shares prices for {symbol}.")
-            
-            start_date = pd.to_datetime(earnings_date.min())
-            end_date = pd.to_datetime(earnings_date.max())
 
             daily_prices = _scrap_daily_prices_for_earnings(symbol, start_date, end_date)
 
             upsert_daily = psql_upsert_factory(connection, table="tickers_daily_share_prices", all_columns=list(daily_prices.columns), unique_columns=["date", "symbol"])
             upsert_daily(dataframe_to_column_dict(daily_prices, replace_nan=True))
 
-    return
 
 def ingest_tickers_monthly_prices(
     connection:connection, symbols:list, 
@@ -379,7 +382,7 @@ def ingest_tickers_monthly_prices(
     *, 
     reload:bool = False, 
     metadata:dict = METADATA["monthly_prices"]) -> None:
-    """ Scrap the tickers monthly prices and push them to the DB. """
+    """ Scrap the tickers monthly prices and upsert them to the DB. """
     
     for symbol in symbols:
         data = psql_fetch(
@@ -439,7 +442,8 @@ def ingest_tickers_opening_minute_prices(
 def first_protocol(symbols:list, connection:connection, n_last_releases=15, reload=False) -> pd.DataFrame:
     """ Encapsulate the transformations needed for the dataframe to perform analysis. """
 
-    ingest_tickers_earnings_history_and_daily_share_prices(connection, symbols, reload=reload)
+    ingest_tickers_earnings_history(connection, symbols, reload=reload)
+    #ingest_tickers_daily_prices(connection, symbols, reload=reload)
     ingest_tickers_monthly_prices(connection, symbols, start_date=datetime.datetime(1998, 1, 1), end_date=datetime.datetime.now(), reload=reload)
 
     # Load data for each symbols
