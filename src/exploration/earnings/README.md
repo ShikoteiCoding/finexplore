@@ -19,3 +19,9 @@ Let's switch to a postgres database and add some SQL Mapper to make the translat
 **Protocol** - Select some companies and their previous earning dates. Compute the trailing tendency for each earnings. Take the few minutes of opening following the report (Can be next day, current day or after week end / off day. This one might be tricky to do properly). Confirm the upward trend following positive earnigns and the (either volatile or downward trend) following negative earnings.
 
 3. Scale up the protocol if hypothesis is confirmed.
+
+# TODO
+1. Add upsert metadata (no information)
+2. Link ingestions (need to find a solution - they have a DAG dependency)
+3. Deal with timezones for utc / market data. Find a market calendar datasource.
+4. Build views in protocol
