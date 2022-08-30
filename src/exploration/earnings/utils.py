@@ -181,7 +181,7 @@ def default_update_clause(update_columns: list[str]) -> sql.Composed:
 
 
 def psql_upsert_factory(
-        connection: connection, #db_host: str, db_name: str, db_username: str, db_password: str, db_port: str,
+        connection: connection,
         *,
         table: str, all_columns: list[str], unique_columns: list[str], 
         update_clause_func: UpdateClauseFunction = default_update_clause
@@ -444,11 +444,11 @@ def ingest_tickers_opening_minute_prices(
     return 
 
 #--------------------------
-def first_protocol(symbols:list, connection:connection, n_last_releases=15, reload=False) -> pd.DataFrame:
+def first_protocol(connection:connection, symbols:list, n_last_releases=15, reload=False) -> pd.DataFrame:
     """ Encapsulate the transformations needed for the dataframe to perform analysis. """
 
     ingest_tickers_earnings_history(connection, symbols, reload=reload)
-    #ingest_tickers_daily_prices(connection, symbols, reload=reload)
+    ingest_tickers_daily_prices(connection, symbols, start_date=datetime.datetime(1998, 1, 1), end_date=datetime.datetime.now(), reload=reload)
     ingest_tickers_monthly_prices(connection, symbols, start_date=datetime.datetime(1998, 1, 1), end_date=datetime.datetime.now(), reload=reload)
 
     # Load data for each symbols
@@ -470,6 +470,7 @@ def first_protocol(symbols:list, connection:connection, n_last_releases=15, relo
                 low,
                 LAG(date, 1) OVER (PARTITION BY symbol ORDER BY date DESC) AS next_date
             FROM tickers_daily_share_prices
+            WHERE symbol in ({tickers})
         ),
         enriched_earnings AS (
             SELECT

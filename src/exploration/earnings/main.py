@@ -18,12 +18,15 @@ if __name__ == "__main__":
     connection = utils.psql_connect(config)
 
     tickers = ["MMM"]
-    #print(utils._scrap_opening_minutes_earning_date(tickers[0], datetime.datetime(2022, 7, 26), datetime.datetime(2022, 7, 26)))
+
     start = datetime.datetime(2022, 7, 26)
     end = datetime.datetime(2022, 7, 26)
+
     #data = utils._scrap_opening_minutes_earning_date(tickers[0], start, end, config=config)
     #print(utils.polygon_json_to_dataframe(data))
 
-    utils.ingest_tickers_opening_minute_prices(connection, tickers, start, end, config=config)
+    data = utils.first_protocol(connection, tickers)
+    
+    print(data)
 
     connection.close()
