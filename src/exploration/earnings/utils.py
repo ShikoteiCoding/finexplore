@@ -212,7 +212,9 @@ def psql_upsert_factory(
             )
 
             for row in data:
-                cursor.execute(query, row)
+                res = cursor.execute(query, row)
+                print(res)
+            
             connection.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
@@ -344,7 +346,7 @@ def ingest_tickers_earnings_history(connection:connection, symbols:list, *, relo
             new_earnings = _scrap_previous_earnings(symbol)
             new_earnings_date = new_earnings["earnings_date"].unique()
 
-            if current_earnings_date != new_earnings_date:
+            if [pd.to_datetime(crd).strftime("%Y-%m-%d") for crd in current_earnings_date] != [pd.to_datetime(crd).strftime("%Y-%m-%d") for crd in new_earnings_date]:
                 # Let the upsert deal with the old vs new data. 
                 # TODO: if data is too big, consider filtering them instead of overloading the DB connection.
                 upsert_earnings = psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(new_earnings.columns), unique_columns=["earnings_date", "symbol"])

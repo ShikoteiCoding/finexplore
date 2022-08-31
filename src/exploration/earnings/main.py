@@ -25,8 +25,8 @@ if __name__ == "__main__":
     #data = utils._scrap_opening_minutes_earning_date(tickers[0], start, end, config=config)
     #print(utils.polygon_json_to_dataframe(data))
 
-    data = utils.first_protocol(connection, tickers)
+    data = utils.first_protocol(connection, tickers, reload=True)
     
-    print(data)
+    #print(data)
 
     connection.close()
