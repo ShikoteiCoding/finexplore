@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     connection = utils.psql_connect(config)
 
-    tickers = ["MMM"]
+    tickers = ["AAPL"]
 
     start = datetime.datetime(2022, 7, 26)
     end = datetime.datetime(2022, 7, 26)

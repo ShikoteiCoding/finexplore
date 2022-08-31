@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from typing import Callable, Optional
 from datapackage import Package
 import pandas as pd
@@ -89,10 +90,15 @@ def polygon_json_to_dataframe(json:dict) -> list[dict]:
 
     return formatted
 
+
+
+
 #--------------------------
 from psycopg2._psycopg import connection
 from psycopg2 import sql
 from config import Config
+
+
 
 class DBConnectionError(Exception):
     ...
@@ -197,7 +203,7 @@ def psql_upsert_factory(
 
             query = sql.SQL(
                 """
-                INSERT INTO {table} AS t ({columns}) VALUES ({placeholder}) ON CONFLICT ({uniq_columns}) DO UPDATE SET {update_clause}
+                INSERT INTO {table} AS t ({columns}) VALUES ({placeholder}) ON CONFLICT ({uniq_columns}) DO UPDATE SET {update_clause};
                 """
             ).format(
                 table=sql.Identifier(table),
@@ -211,10 +217,9 @@ def psql_upsert_factory(
                 update_clause=update_clause_func(update_columns),
             )
 
+            # Currently not much optimization available from psycopg2
             for row in data:
-                res = cursor.execute(query, row)
-                print(res)
-            
+                cursor.execute(query, row)
             connection.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
@@ -226,6 +231,25 @@ def psql_upsert_factory(
             if cursor is not None: cursor.close()
 
     return upsert
+
+@dataclass
+class TableStats:
+    conn: connection
+    table: str
+    _stats: list[int] = field(default_factory=list)
+    
+    def count_table(self):
+        res = psql_fetch(sql.SQL(
+            """
+            SELECT COUNT(*) 
+            FROM {table}
+            """
+        ).format(table=self.table), self.conn)
+        print(res)
+
+    @property
+    def stats(self):
+        return self._stats
 
 #--------------------------
 def _scrap_sp_500_constituents(*, metadata:dict = METADATA["s&p500"]) -> pd.DataFrame:
@@ -390,14 +414,18 @@ def ingest_tickers_monthly_prices(
     reload:bool = False, 
     metadata:dict = METADATA["monthly_prices"]) -> None:
     """ Scrap the tickers monthly prices and upsert them to the DB. """
+    table = "tickers_monthly_share_prices"
+    stats = TableStats(connection, table)
     
     for symbol in symbols:
         data = psql_fetch(
             sql.SQL(
                 """
-                SELECT * FROM tickers_monthly_share_prices WHERE symbol={symbol};
+                SELECT * 
+                FROM {table} 
+                WHERE symbol={symbol};
                 """
-            ).format(symbol=sql.Literal(symbol)),
+            ).format(table=table, symbol=sql.Literal(symbol)),
             connection
         )
 
