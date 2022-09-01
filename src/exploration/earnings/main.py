@@ -1,12 +1,11 @@
 import utils
-import utils
 import psycopg2
 import dotenv
 import requests
 from psycopg2 import sql
 import json
 import datetime
-
+import ingest
 from config import load_config as load, load_db_opts, load_polygon_opts
 
 if __name__ == "__main__":
@@ -25,7 +24,9 @@ if __name__ == "__main__":
     #data = utils._scrap_opening_minutes_earning_date(tickers[0], start, end, config=config)
     #print(utils.polygon_json_to_dataframe(data))
 
-    data = utils.first_protocol(connection, tickers, reload=True)
+    #data = utils.first_protocol(connection, tickers, reload=True)
+    
+    ingest.ingest_sp_500_constituents(connection, reload=True)
     
     #print(data)
 

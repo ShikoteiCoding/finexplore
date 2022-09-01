@@ -17,13 +17,26 @@ from scrap import (
 import utils
 
 #--------------------------
-def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]) -> None:
+def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"], reload:bool = False) -> None:
     """ 
     Load or scrap the S&P500 constituents and push to the DB. 
     Writing mode is truncating old existing data.
     """
-    constituents = _scrap_sp_500_constituents()
-    utils.psql_insert("snp_constituents", metadata["columns"], utils.dataframe_to_column_dict(constituents), connection, truncate=True)
+    table = "snp_constituents"
+
+    current_number_constituents = utils.psql_fetch(
+        sql.SQL(
+            """
+            SELECT COUNT(*) AS number
+            FROM {table}
+            """
+        ).format(table=sql.Identifier(table)), connection
+    )
+
+    if current_number_constituents["number"][0] == 0 or reload:
+    
+        constituents = _scrap_sp_500_constituents()
+        utils.psql_insert("snp_constituents", metadata["columns"], utils.dataframe_to_column_dict(constituents), connection, truncate=True)
 
     return
 
