@@ -215,20 +215,24 @@ def psql_upsert_factory(
 class TableStats:
     conn: connection
     table: str
-    _stats: list[int] = field(default_factory=list)
+    _stats: dict = field(default_factory=dict)
     
-    def count_table(self):
+    def track_table(self, label:str) -> None:
         res = psql_fetch(sql.SQL(
             """
-            SELECT COUNT(*) 
+            SELECT COUNT(*) AS count_
             FROM {table}
             """
-        ).format(table=self.table), self.conn)
-        print(res)
+        ).format(table=sql.Identifier(self.table)), self.conn)
+
+        self._stats[label] = res["count_"][0]
 
     @property
-    def stats(self):
+    def stats(self) -> dict:
         return self._stats
+
+    def __str__(self) -> str:
+        return str(self._stats)
 
 
 #--------------------------

@@ -23,6 +23,8 @@ def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]
     Writing mode is truncating old existing data.
     """
     table = "snp_constituents"
+    stats = utils.TableStats(connection, table)
+    stats.track_table("before_ingestion")
 
     current_number_constituents = utils.psql_fetch(
         sql.SQL(
@@ -38,16 +40,30 @@ def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]
         constituents = _scrap_sp_500_constituents()
         utils.psql_insert(table, metadata["columns"], utils.dataframe_to_column_dict(constituents), connection, truncate=True)
 
+        stats.track_table("after_ingestion")
+
+    print(f"[INFO]: Ingestion statistics are ... \n{stats}")
+
     return
 
 def ingest_tickers_earnings_history(connection:connection, symbols:list, *, reload:bool = False) -> None:
     """ Scrap the tickers earning history. Upsert the data in the DB. """
+    
+    table = "tickers_earnings_history"
+
+    stats = utils.TableStats(connection, table)
+
+    stats.track_table
 
     for symbol in symbols:
         current_earnings = utils.psql_fetch(
             sql.SQL(
-                "SELECT * FROM tickers_earnings_history WHERE symbol={symbol}"
-            ).format(symbol=sql.Literal(symbol))
+                """
+                SELECT * 
+                FROM tickers_earnings_history 
+                WHERE symbol={symbol}
+                """
+            ).format(symbol=sql.Literal(symbol), table=sql.Identifier(table))
             , connection
         )
         current_earnings_date =  current_earnings["earnings_date"].unique()
@@ -63,6 +79,10 @@ def ingest_tickers_earnings_history(connection:connection, symbols:list, *, relo
                 upsert_earnings = utils.psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(new_earnings.columns), unique_columns=["earnings_date", "symbol"])
                 upsert_earnings(utils.dataframe_to_column_dict(new_earnings, replace_nan=True))
 
+    stats.track_table
+
+    print(stats.table)
+
     return
 
 def ingest_tickers_daily_prices(
@@ -73,14 +93,17 @@ def ingest_tickers_daily_prices(
     metadata:dict = METADATA["daily_prices"]) -> None:
     """ Scrap the tickers daily prices and upsert them to the DB """
 
+    table = "tickers_daily_share_prices"
+    stats = utils.TableStats(connection, table)
+
     for symbol in symbols:
 
         current_daily_prices = utils.psql_fetch(
             sql.SQL(
                 """
-                SELECT * FROM tickers_daily_share_prices WHERE symbol = {symbol};
+                SELECT * FROM {table} WHERE symbol = {symbol};
                 """
-            ).format(symbol=sql.Literal(symbol)), 
+            ).format(symbol=sql.Literal(symbol), table=sql.Identifier(table)), 
             connection
         )
 

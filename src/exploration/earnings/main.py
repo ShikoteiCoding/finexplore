@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     #data = utils.first_protocol(connection, tickers, reload=True)
     
-    ingest.ingest_sp_500_constituents(connection, reload=True)
+    ingest.ingest_sp_500_constituents(connection, reload=False)
     
     #print(data)
 
