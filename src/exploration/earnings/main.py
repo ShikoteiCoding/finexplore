@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     connection = utils.psql_connect(config)
 
-    tickers = ["AAPL"]
+    tickers = ["MSFT"]
 
     start = datetime.datetime(2022, 7, 26)
     end = datetime.datetime(2022, 7, 26)
@@ -27,6 +27,7 @@ if __name__ == "__main__":
     #data = utils.first_protocol(connection, tickers, reload=True)
     
     ingest.ingest_sp_500_constituents(connection, reload=False)
+    ingest.ingest_tickers_earnings_history(connection, tickers, reload=True)
     
     #print(data)
 

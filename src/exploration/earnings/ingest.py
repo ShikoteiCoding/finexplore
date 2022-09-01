@@ -42,7 +42,7 @@ def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]
 
         stats.track_table("after_ingestion")
 
-    print(f"[INFO]: Ingestion statistics are ... \n{stats}")
+    print(f"\n[INFO]: Ingestion statistics are ... \n{stats}")
 
     return
 
@@ -53,7 +53,7 @@ def ingest_tickers_earnings_history(connection:connection, symbols:list, *, relo
 
     stats = utils.TableStats(connection, table)
 
-    stats.track_table
+    stats.track_table("before_ingestion")
 
     for symbol in symbols:
         current_earnings = utils.psql_fetch(
@@ -69,19 +69,19 @@ def ingest_tickers_earnings_history(connection:connection, symbols:list, *, relo
         current_earnings_date =  current_earnings["earnings_date"].unique()
         
         if current_earnings.size == 0 or reload:
-            print(f"[INFO]: Fetching new earnings dates for {symbol}.")
+            print(f"\n[INFO]: Fetching earnings dates for {symbol}.")
             new_earnings = _scrap_previous_earnings(symbol)
             new_earnings_date = new_earnings["earnings_date"].unique()
 
-            if [pd.to_datetime(crd).strftime("%Y-%m-%d") for crd in current_earnings_date] != [pd.to_datetime(crd).strftime("%Y-%m-%d") for crd in new_earnings_date]:
-                # Let the upsert deal with the old vs new data. 
+            if set([pd.to_datetime(crd).strftime("%Y-%m-%d") for crd in current_earnings_date]) != set([pd.to_datetime(crd).strftime("%Y-%m-%d") for crd in new_earnings_date]):
+                # Upsert insert only not existing data.
                 # TODO: if data is too big, consider filtering them instead of overloading the DB connection.
                 upsert_earnings = utils.psql_upsert_factory(connection, table="tickers_earnings_history", all_columns=list(new_earnings.columns), unique_columns=["earnings_date", "symbol"])
                 upsert_earnings(utils.dataframe_to_column_dict(new_earnings, replace_nan=True))
 
-    stats.track_table
+                stats.track_table(f"after_{symbol}_ingestion")
 
-    print(stats.table)
+    print(f"\n[INFO]: Ingestion statistics are ... \n{stats}")
 
     return
 
