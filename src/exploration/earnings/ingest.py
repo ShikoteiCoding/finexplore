@@ -36,7 +36,7 @@ def ingest_sp_500_constituents(connection, *, metadata:dict = METADATA["s&p500"]
     if current_number_constituents["number"][0] == 0 or reload:
     
         constituents = _scrap_sp_500_constituents()
-        utils.psql_insert("snp_constituents", metadata["columns"], utils.dataframe_to_column_dict(constituents), connection, truncate=True)
+        utils.psql_insert(table, metadata["columns"], utils.dataframe_to_column_dict(constituents), connection, truncate=True)
 
     return
 
