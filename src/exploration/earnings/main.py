@@ -25,9 +25,14 @@ if __name__ == "__main__":
     #print(utils.polygon_json_to_dataframe(data))
 
     #data = utils.first_protocol(connection, tickers, reload=True)
+
+    reload = False
     
-    ingest.ingest_sp_500_constituents(connection, reload=False)
-    ingest.ingest_tickers_earnings_history(connection, tickers, reload=True)
+    ingest.ingest_sp_500_constituents(connection, reload=reload)
+    ingest.ingest_tickers_earnings_history(connection, tickers, reload=reload)
+    ingest.ingest_tickers_daily_prices(connection, tickers, start, end, reload=reload)
+    ingest.ingest_tickers_monthly_prices(connection, tickers, start, end, reload=reload)
+    ingest.ingest_tickers_opening_minute_prices(connection, tickers, start, end, config=config, reload=reload)
     
     #print(data)
 
