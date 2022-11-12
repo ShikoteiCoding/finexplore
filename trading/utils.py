@@ -9,7 +9,7 @@ import pandas as pd
 ##
 #   Global variables
 ##
-DATA_PATH = "../../data/companies_stock/"
+DATA_PATH = "../datasources/companies_stock/"
 CSV_EXT = ".csv"
 
 ##
@@ -160,7 +160,7 @@ def read_stock(stock_name: str,  _from: str = "", _to: str = "", _field: str = "
     try:
         df = pd.read_csv(DATA_PATH + stock_name + CSV_EXT)
     except FileNotFoundError as error: 
-        raise DatasetNotFound(f"Dataset not found, please download your stock data: {stock_name}", error)
+        raise DatasetNotFound(f"Dataset not found in the path given {DATA_PATH}, please download your stock data: {stock_name}", error)
 
     df.index = df.Date #type: ignore , can't cast series to index ?
 
