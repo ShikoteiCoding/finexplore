@@ -162,7 +162,7 @@ def read_stock(stock_name: str,  _from: str = "", _to: str = "", _field: str = "
     except FileNotFoundError as error: 
         raise DatasetNotFound(f"Dataset not found, please download your stock data: {stock_name}", error)
 
-    df.index = df.Date
+    df.index = df.Date #type: ignore , can't cast series to index ?
 
     if not _from and not _to:
         return  Data(df)

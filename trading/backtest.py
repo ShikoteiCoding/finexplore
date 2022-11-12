@@ -2,7 +2,7 @@ from dataclasses import KW_ONLY, dataclass, field
 import datetime
 
 from strategy import Decision, StrategyCallable
-from _utils import DatasetReaderCallable, get_function_name, Data
+from utils import DatasetReaderCallable, get_function_name, Data
 from broker import Broker, Equity
 
 import pandas as pd

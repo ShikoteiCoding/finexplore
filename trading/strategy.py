@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable, TypeAlias, Optional
 
-from _utils import Data
+from utils import Data
 from broker import Broker
 
 import numpy as np

@@ -2,7 +2,7 @@ src/exploration/setup.env
 src/investing/setup.env
 src/trading/alpaca.env
 src/trading/alpaca-paper.env
-**/__pycache__/**
+**/__pycache__
 /typings
 **/.ipynb_checkpoints/**
 /venv/

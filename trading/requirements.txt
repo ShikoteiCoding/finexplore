@@ -1,0 +1,2 @@
+TA-Lib==0.4.25
+alpaca-trade-api==2.3.0

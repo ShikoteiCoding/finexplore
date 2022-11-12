@@ -5,10 +5,8 @@ from backtest import BackTest
 from broker import AlpacaBroker
 from strategy import simple_mobile_average, simple_bollinger_bands
 
-from _utils import MSFT, AAPL, IBM, wrapped_partial, get_function_name, Data
+from utils import MSFT, AAPL, IBM, wrapped_partial, get_function_name, Data
 from broker import Broker
-from plotting import backtest_dashboard, _temporal_reduce, Temporality
-import dash
 
 
 def alpaca_test() -> None:
@@ -48,23 +46,6 @@ def backtest_bbands():
     test.run()
 
     print(test.data.equity)
-
-def plot():
-    """ Testing the Plotting. """
-    broker = Broker(_cash_amount=1_000, _debug=False)
-    stock_data = wrapped_partial(AAPL, _from = "2021-01-01")
-    sbband_partial = wrapped_partial(simple_bollinger_bands, sma1_window_size=14, bband_window_size=21)
-
-    test = BackTest(broker, stock_data, sbband_partial, _commission_rate=0.001)
-    test.run()
-
-    data = test.data
-
-    app = dash.Dash()
-
-    app = backtest_dashboard(app, get_function_name(AAPL), data)
-    
-    app.run_server(debug=True)
     
 if __name__ == '__main__':
-    plot()
+    backtest_bbands()
