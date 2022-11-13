@@ -1,35 +1,20 @@
 # Finexplore
 
-**Goal**
+This is a mono **repository**.
+
+## Goal
 Understanding finance stock market through data. Better understand investment and dive into trading. Explore Machine Learning opportunities and different long-lasting strategy while trying some innovations.
 
-**Projects Overview**:
-- Trading
-    - Alerting and daily market recap system
-    - Automation buy / sell stocks with different style (day / swing)
+## Projects Overview
+- Backtesting
+    - Full backtesting framework
+    - Might be able to backtest live on day and simulating orders
 - Investing
-    - Identify Company with good forecast
-    - Browse API with analyst reviews
+    - Stock screening might be an end goal
+    - Get broader market insight and recaps
 - Exploration
-    - Build dashboard to visualize stock market data
-    - Make it interactive to switch between stocks
-    - Connect to the stocks from the alerting market recap
-    - Connect to the investing data
+    - Explore data and try to extract exploitable strategies
+    - Scrappe different datasources
 - General
     - Dockerise trading algorithm + API connectors to run separately
     - Check for kubernetes orchestration
-
-**TODO**:
-- Stock & Crypto
-    - Identify all macro stock strategies
-    - Inside those, find micro strategies (algorithms)
-- Exploration
-    - Build general-purpose library 
-
-**Dependencies**
-- Python3
-- Pandas
-- Plotly
-- Dash (To come)
-- Airflow
-- Yahoo Finance
