@@ -1,14 +1,45 @@
-# TODO
+# BackTesting Engine
 
-## Data classes to add for organisation
-- Order class as an API wrapper to communicate with the broker
+# Build
+
+It is best to encapsulate a dedicated virtual environment. See the documentation for virtualenv: https://virtualenv.pypa.io/en/latest/
+```shell
+virtualenv venv
+source venv/bin/activate
+```
+
+Install the dependencies
+```shell
+pip3 install -r requirements.txt
+```
+
+# Run
+
+## Default backtest
+```shell
+python3 main.py
+```
+
+## Custom backtest
+- Add your data in the data/companies_stock folder (Or create a crypto_symbol folder and put inside)
+- Ensure the columns are at least named after : Date, Close
+- Inside the _utils.py file, create a function named after the symbol:
+```
+    # Make sure the name of the function is the name of the stock / symbol.
+    def S&P500(_from: str = "", _to: str = "") -> pd.DataFrame:
+        return read_stock("S&P500", _from, _to)
+```
+- Load the file as in the main.py file
+- Run the main.py
+
+# TODO
 
 ## Refactor
 - Make protocols for Orders as it will depend on the API Broker
 - Change dates from str to datetime object (might need a class)
 - Responsability of Broker class is too big, find a way to delegate
 
-## Improvments
+## Improvements
 - Use slots for object performances.
 - Implement a full equity (enum ? class ?) instead of max long/short from the broker.
 - Implement commision rates
@@ -23,44 +54,8 @@
     - Should serve a web page
     - Add a "vis" mode and "RT" mode to the backtest class
 
-# Installation
-- Virtual Environment Setup
-    - Create a virtual env in a separate directory
-    ```
-    virtualenv finance-env
-    ```
 
-    - Activate the virtual env
-    ```
-    source finance-env/bin/activate
-    ```
 
-    - Go to the src repo
-    ```
-    cd src/trading
-    ```
-    
-- Dependencies Installation (Update python version)
-    ```
-    pip3 install pandas
-    pip3 install plotly
-    pip3 install apache-airflow
-    pip3 install python-dotenv
-    pip3 install yfinance
-    pip3 install alpaca_trade_api
-    pip3 install dash
-    ```
-
-# Run a backtest
-- Add your data in the data/companies_stock folder (Or create a crypto_symbol folder and put inside)
-- Ensure the columns are at least named after : Date, Close
-- Inside the _utils.py file, create a function named after the symbol:
-```
-    # Make sure the name of the function is the name of the stock / symbol.
-    def S&P500(_from: str = "", _to: str = "") -> pd.DataFrame:
-        return read_stock("S&P500", _from, _to)
-```
-- Load the file as in the main.py file
 
 # Conventions
 
