@@ -3,7 +3,8 @@ from types import MappingProxyType
 from http import HTTPStatus
 from typing import Mapping, NamedTuple, Generic, TypeVar, Any, Callable
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class HTTPError(Exception):
     status: HTTPStatus
@@ -12,6 +13,7 @@ class HTTPError(Exception):
     def __init__(self, status: int, text: str) -> None:
         self.status = HTTPStatus(status)
         self.text = text
+
 
 @dataclass
 class Request(Generic[T]):
