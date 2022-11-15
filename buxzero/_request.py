@@ -19,7 +19,7 @@ class HTTPError(Exception):
 @dataclass
 class Request(Generic[T]):
     _: KW_ONLY
-    
+
     url: str
     headers: Mapping
     method: str = "GET"

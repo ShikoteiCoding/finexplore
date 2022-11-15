@@ -1,16 +1,14 @@
 from dataclasses import dataclass
 from typing import NamedTuple
 
+import responses
 from _config import Config
 from _request import Request
 
-from . import responses
 
-
-@dataclass
 class UserAPI(NamedTuple):
     token: str
-    config: Config
+    config: Config = Config()
 
     @property
     def _headers(self) -> dict[str, str]:
