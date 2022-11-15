@@ -4,7 +4,7 @@ from typing import NamedTuple
 from _config import Config
 from _request import Request
 
-from . import types
+from . import responses
 
 
 @dataclass
@@ -20,9 +20,9 @@ class UserAPI(NamedTuple):
             **self.config.headers,
         }
 
-    def me(self) -> Request[types.Me]:
+    def me(self) -> Request[responses.Me]:
         return Request(
             url=f"{self.config.stocks_url}/portfolio-query/13/users/me",
             headers=self._headers,
-            on_json=types.Me,
+            on_json=responses.Me,
         )
