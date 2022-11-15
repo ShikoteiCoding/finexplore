@@ -1,7 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import KW_ONLY, dataclass
 from types import MappingProxyType
 from http import HTTPStatus
 from typing import Mapping, NamedTuple, Generic, TypeVar, Any, Callable
+
+import requests
 
 T = TypeVar("T")
 
@@ -17,12 +19,12 @@ class HTTPError(Exception):
 
 @dataclass
 class Request(Generic[T]):
+    _: KW_ONLY
+    
     url: str
     headers: Mapping
-
     method: str = "GET"
 
-    body: None | bytes = None
     body: None | bytes = None
     data: None | dict[str, Any] = None
     params: None | dict[str, Any] = None
@@ -30,8 +32,6 @@ class Request(Generic[T]):
     on_status: None | Callable[[int], T] = None
 
     def requests(self) -> T:
-        import requests
-
         response = requests.request(
             method=self.method,
             url=self.url,
