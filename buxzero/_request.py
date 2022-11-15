@@ -1,7 +1,6 @@
 from dataclasses import KW_ONLY, dataclass
-from types import MappingProxyType
 from http import HTTPStatus
-from typing import Mapping, NamedTuple, Generic, TypeVar, Any, Callable
+from typing import Mapping, Generic, TypeVar, Any, Callable
 
 import requests
 
