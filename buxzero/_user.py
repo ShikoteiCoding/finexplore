@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+import responses
+
 from typing import NamedTuple
 
-import responses
 from _config import Config
 from _request import Request
 
@@ -25,33 +25,34 @@ class UserAPI(NamedTuple):
             on_json=responses.Me,
         )
 
+
 class GuestAPI(NamedTuple):
     config: Config = Config()
 
     def request_link(self, email: str) -> Request[bool]:  # pragma: no cover
         return Request(
-            method='POST',
-            url=f'{self.config.auth_url}/magic-link',
+            method="POST",
+            url=f"{self.config.auth_url}/magic-link",
             headers={
-                'authorization': 'Basic ODQ3MzYyMzAxMDpaTUhaM1RZT1pIVUxFRlhMUDRRQ1BIV0k1RDNWQVpNNw==',
+                "authorization": "Basic ODQ3MzYyMzAxMDpaTUhaM1RZT1pIVUxFRlhMUDRRQ1BIV0k1RDNWQVpNNw==",
                 **self.config.headers,
             },
-            data={'email': email},
+            data={"email": email},
             on_status=lambda status: status == 202,
         )
 
     def get_token(self, magic_link: str) -> Request[str]:  # pragma: no cover
-        magic_link = magic_link.split('/')[-1]
+        magic_link = magic_link.split("/")[-1]
         return Request(
-            method='POST',
-            url=f'{self.config.auth_url}/authorize',
+            method="POST",
+            url=f"{self.config.auth_url}/authorize",
             headers={
-                'authorization': 'Basic ODQ3MzYyMzAxMzpHRFNTS1ozUU5RQ081QkNXN0RJRFhVWEE2RENSUUNNRQ==',
+                "authorization": "Basic ODQ3MzYyMzAxMzpHRFNTS1ozUU5RQ081QkNXN0RJRFhVWEE2RENSUUNNRQ==",
                 **self.config.headers,
             },
             data={
-                'credentials': {'token': magic_link},
-                'type': 'magiclink',
+                "credentials": {"token": magic_link},
+                "type": "magiclink",
             },
-            on_json=lambda data: data['access_token'],
+            on_json=lambda data: data["access_token"],
         )
