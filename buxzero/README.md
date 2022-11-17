@@ -23,8 +23,9 @@ pip3 install -r requirements.txt
 
 ## Run
 
+In order to successfully run the demo, please make sure to have a token.env file in your root folder with your bux token stored inside.
 ```shell
-python3 main.py
+python3 demo.py
 ```
 
 ## Test
