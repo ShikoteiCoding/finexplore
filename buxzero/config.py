@@ -31,6 +31,14 @@ def load_config(*opts) -> Config:
 
 def load_token_opts(c: Config) -> Config:
 
-    c.token = os.getenv("BUX_TOKEN", "")
+    c.token = get_required("BUX_TOKEN")
 
     return c
+
+def get_required(var: str) -> str:
+    env = os.getenv(var, "")
+
+    if not env:
+        raise Exception(f"Provide an environment variable for {env}")
+
+    return env

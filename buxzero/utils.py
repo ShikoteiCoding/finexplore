@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from _user import GuestAPI
 
-def get_or_create_token(env_path="token.env") -> None:
+def read_environment_file(env_path="token.env") -> None:
     """
     Get the token either in file or environment variables
     """
@@ -9,8 +9,6 @@ def get_or_create_token(env_path="token.env") -> None:
         load_dotenv("token.env")
     except Exception as e:
         print(f"No environment file found: {e}")
-        create_token_command()
-        print("Please create an environment file with the variable BUX_TOKEN.")
 
 def create_token_command() -> None:
     """

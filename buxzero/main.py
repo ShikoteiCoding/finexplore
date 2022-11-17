@@ -2,12 +2,12 @@ from config import load_config as load, load_token_opts
 
 from _user import UserAPI
 
-from utils import get_or_create_token
+import utils
 
 
 if __name__ == "__main__":
 
-    get_or_create_token()
+    utils.read_environment_file()
 
     c = load(load_token_opts)
 
