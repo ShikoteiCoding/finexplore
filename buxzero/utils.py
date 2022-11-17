@@ -12,7 +12,9 @@ def get_token(env_path="token.env") -> str:
         load_dotenv("token.env")
     except Exception as e:
         print(f"No environment file found: {e}")
+
     token = os.getenv("BUX_TOKEN")
+
     if not token:
         return get_token_command()
 

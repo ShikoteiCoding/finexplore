@@ -1,7 +1,7 @@
-from _config import Config
-from _user import UserAPI
+from config import Config
 
-from _utils import get_token
+from _user import UserAPI
+from utils import get_token
 
 if __name__ == "__main__":
 

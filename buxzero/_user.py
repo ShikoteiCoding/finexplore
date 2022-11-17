@@ -2,7 +2,8 @@ import responses
 
 from typing import NamedTuple
 
-from _config import Config
+from config import Config
+
 from _request import Request
 
 
