@@ -1,20 +1,18 @@
+from dataclasses import dataclass, field
+
+
 import responses
-
-from typing import NamedTuple
-
 from config import Config
-
 from _request import Request
 
-
-class UserAPI(NamedTuple):
-    token: str
-    config: Config = Config()
+@dataclass
+class UserAPI:
+    config: Config = field(default_factory=Config)
 
     @property
     def _headers(self) -> dict[str, str]:
         return {
-            "authorization": f"Bearer {self.token}",
+            "authorization": f"Bearer {self.config.token}",
             "pin-authorization": "Bearer null",
             **self.config.headers,
         }
@@ -27,8 +25,9 @@ class UserAPI(NamedTuple):
         )
 
 
-class GuestAPI(NamedTuple):
-    config: Config = Config()
+@dataclass
+class GuestAPI:
+    config: Config = field(default_factory=Config)
 
     def request_link(self, email: str) -> Request[bool]:  # pragma: no cover
         return Request(
