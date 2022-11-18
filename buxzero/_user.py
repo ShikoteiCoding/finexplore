@@ -5,6 +5,7 @@ import responses
 from config import Config
 from _request import Request
 
+
 @dataclass
 class UserAPI:
     config: Config = field(default_factory=Config)
