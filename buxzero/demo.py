@@ -11,6 +11,6 @@ if __name__ == "__main__":
 
     c = load(load_token_opts)
 
-    user = UserAPI(config=c)
+    api = UserAPI(config=c)
 
-    print(user.me().requests())
+    me = api.me().requests()

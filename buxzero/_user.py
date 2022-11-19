@@ -30,7 +30,7 @@ class UserAPI:
 class GuestAPI:
     config: Config = field(default_factory=Config)
 
-    def request_link(self, email: str) -> Request[bool]:  # pragma: no cover
+    def request_link(self, email: str) -> Request[bool]:
         return Request(
             method="POST",
             url=f"{self.config.auth_url}/magic-link",
@@ -42,7 +42,7 @@ class GuestAPI:
             on_status=lambda status: status == 202,
         )
 
-    def get_token(self, magic_link: str) -> Request[str]:  # pragma: no cover
+    def get_token(self, magic_link: str) -> Request[str]:
         magic_link = magic_link.split("/")[-1]
         return Request(
             method="POST",
