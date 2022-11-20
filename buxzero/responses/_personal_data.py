@@ -2,7 +2,7 @@ from ._response import Response
 
 class PersonalData(Response):
     """
-     Personal Data endpoint of bux. Storing private account login data.
+    Personal Data endpoint of bux. Storing private account login data.
     """
     @property
     def email(self) -> str:

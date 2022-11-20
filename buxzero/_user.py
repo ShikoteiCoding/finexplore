@@ -25,6 +25,13 @@ class UserAPI:
             on_json=responses.Me,
         )
 
+    def portfolio(self) -> Request[responses.Portfolio]:
+        return Request(
+            url=f'{self.config.stocks_url}/portfolio-query/13/users/me/portfolio',
+            headers=self._headers,
+            on_json=responses.Portfolio,
+        )
+
     def personal_data(self) -> Request[responses.PersonalData]:
         return Request(
             url=f'{self.config.stocks_url}/personal-data-service/13/user',

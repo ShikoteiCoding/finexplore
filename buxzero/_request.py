@@ -1,4 +1,4 @@
-from dataclasses import KW_ONLY, dataclass
+from dataclasses import KW_ONLY, dataclass, field
 from http import HTTPStatus
 from typing import Mapping, Generic, TypeVar, Any, Callable
 
@@ -22,13 +22,13 @@ class Request(Generic[T]):
 
     url: str
     headers: Mapping
-    method: str = "GET"
+    method: str = field(default="GET")
 
-    body: None | bytes = None
-    data: None | dict[str, Any] = None
-    params: None | dict[str, Any] = None
-    on_json: None | Callable[[Any], T] = None
-    on_status: None | Callable[[int], T] = None
+    body: None | bytes = field(default=None)
+    data: None | dict[str, Any] = field(default=None)
+    params: None | dict[str, Any] = field(default=None)
+    on_json: None | Callable[[Any], T] = field(default=None)
+    on_status: None | Callable[[int], T] = field(default=None)
 
     def requests(self) -> T:
         response = requests.request(
