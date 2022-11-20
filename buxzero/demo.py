@@ -4,8 +4,11 @@ from _user import UserAPI
 
 import utils
 
+from pprint import PrettyPrinter
 
 if __name__ == "__main__":
+
+    pp = PrettyPrinter(indent=2)
 
     utils.read_environment_file()
 
@@ -17,4 +20,6 @@ if __name__ == "__main__":
     #pd = api.personal_data().requests()
     portfolio = api.portfolio().requests()
 
-    print(portfolio)
+    positions = portfolio.positions
+
+    print([p.investment_amount for p in positions])
