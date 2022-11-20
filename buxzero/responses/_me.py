@@ -2,6 +2,9 @@ from ._response import Response
 
 
 class Me(Response):
+    """
+    Me endpoint of bux. Storing general account data.
+    """
     @property
     def account_type(self) -> str:
         return self["accountType"]

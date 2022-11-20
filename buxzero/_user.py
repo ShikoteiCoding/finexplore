@@ -25,6 +25,12 @@ class UserAPI:
             on_json=responses.Me,
         )
 
+    def personal_data(self) -> Request[responses.PersonalData]:
+        return Request(
+            url=f'{self.config.stocks_url}/personal-data-service/13/user',
+            headers=self._headers,
+            on_json=responses.PersonalData,
+        )
 
 @dataclass
 class GuestAPI:

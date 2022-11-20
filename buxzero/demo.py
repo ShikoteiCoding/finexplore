@@ -14,3 +14,6 @@ if __name__ == "__main__":
     api = UserAPI(config=c)
 
     me = api.me().requests()
+    pd = api.personal_data().requests()
+
+    print(pd)
