@@ -7,6 +7,9 @@ from itertools import chain
 from typing import Any
 
 class PortfolioPosition(Position):
+    """
+    Properties related to portfolio.
+    """
     @property
     def _pos(self) -> dict[str, Any]:
         return self['position']
