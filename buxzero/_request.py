@@ -30,6 +30,7 @@ class Request(Generic[T]):
     on_json: None | Callable[[Any], T] = field(default=None)
     on_status: None | Callable[[int], T] = field(default=None)
 
+    
     def requests(self) -> T:
         response = requests.request(
             method=self.method,

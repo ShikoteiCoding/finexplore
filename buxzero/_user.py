@@ -18,6 +18,7 @@ class UserAPI:
             **self.config.headers,
         }
 
+    @property
     def me(self) -> Request[responses.Me]:
         return Request(
             url=f"{self.config.stocks_url}/portfolio-query/13/users/me",
@@ -25,6 +26,7 @@ class UserAPI:
             on_json=responses.Me,
         )
 
+    @property
     def portfolio(self) -> Request[responses.Portfolio]:
         return Request(
             url=f'{self.config.stocks_url}/portfolio-query/13/users/me/portfolio',
@@ -32,6 +34,7 @@ class UserAPI:
             on_json=responses.Portfolio,
         )
 
+    @property
     def personal_data(self) -> Request[responses.PersonalData]:
         return Request(
             url=f'{self.config.stocks_url}/personal-data-service/13/user',
