@@ -22,4 +22,5 @@ if __name__ == "__main__":
 
     positions = portfolio.positions
 
-    print([p.investment_amount for p in positions])
+    df = positions.to_pandas()
+    print(df)

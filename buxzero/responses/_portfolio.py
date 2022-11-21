@@ -4,7 +4,13 @@ from ._price import Price
 
 from itertools import chain
 
-from typing import Any
+from typing import Any, Iterable
+import pandas as pd
+
+class Positions(list):
+
+    def to_pandas(self) -> pd.DataFrame:
+        return pd.DataFrame().from_records(pd.json_normalize(self))
 
 class PortfolioPosition(Position):
     """
@@ -89,9 +95,9 @@ class Portfolio(Response):
         return self['marketsOpen']
 
     @property
-    def positions(self) -> list[PortfolioPosition]:
+    def positions(self) -> Positions:
         poss = chain(
             self['positions']['EQTY'],
             self['positions']['ETF'],
         )
-        return [PortfolioPosition(p) for p in poss]
+        return Positions([PortfolioPosition(p) for p in poss])
