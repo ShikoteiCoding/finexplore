@@ -3,7 +3,8 @@ from bux.config import load_config as load, load_token_opts
 from bux import UserAPI
 
 from decimal import Decimal
-import bux.utils as utils
+
+import utils as utils
 import pandas as pd
 
 if __name__ == "__main__":

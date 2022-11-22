@@ -1,4 +1,4 @@
-from _user import GuestAPI
+from user import GuestAPI
 
 from ._commands import Command, register
 

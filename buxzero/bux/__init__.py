@@ -1,1 +1,1 @@
-from ._user import UserAPI
+from .user import UserAPI

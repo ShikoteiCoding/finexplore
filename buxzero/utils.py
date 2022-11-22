@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-from ._user import GuestAPI
 
 
 def read_environment_file(env_path="token.env") -> None:

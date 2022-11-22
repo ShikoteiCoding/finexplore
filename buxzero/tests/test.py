@@ -3,7 +3,7 @@ import unittest
 import os
 from types import MappingProxyType
 
-from config import (
+from bux.config import (
     Config,
     load_config as load,
     load_token_opts,

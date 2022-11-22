@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 from . import responses
 from .config import Config
-from ._request import Request
+from .request import Request
 
 
 @dataclass
