@@ -1,1 +1,2 @@
-from .user import UserAPI
+from .user import UserAPI, GuestAPI
+

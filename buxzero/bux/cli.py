@@ -1,11 +1,11 @@
 import sys
 from argparse import ArgumentParser
-from typing import List, NoReturn, TextIO
+from typing import NoReturn, TextIO
 
-from . import commands
+from .commands import commands
 
 
-def main(argv: List[str], stream: TextIO) -> int:
+def main(argv: list[str], stream: TextIO) -> int:
     parser = ArgumentParser("python3 -m commands")
     subparsers = parser.add_subparsers()
     parser.set_defaults(cmd=None)

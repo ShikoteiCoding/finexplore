@@ -26,7 +26,7 @@ pip3 install -r requirements.txt
 
 If you don't have a token yet:
 ```shell
-python3 -m commands get-token
+python3 -m bux get-token
 ```
 
 ### Demo
