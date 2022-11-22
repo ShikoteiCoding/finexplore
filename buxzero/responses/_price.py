@@ -19,7 +19,7 @@ class Price(Response):
 
     def to_dict(self, prefix: str = "", prefix_sep=".") -> dict[str, Any]:
         return {
-            (prefix + prefix_sep if prefix else "") + "amount": float(self.amount),
+            (prefix + prefix_sep if prefix else "") + "amount": self.amount,
             (prefix + prefix_sep if prefix else "") + "currency": self.currency,
             (prefix + prefix_sep if prefix else "") + "decimals": self.decimals,
         }
