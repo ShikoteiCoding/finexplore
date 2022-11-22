@@ -7,25 +7,34 @@ from decimal import Decimal
 import utils as utils
 import pandas as pd
 
+from pprint import PrettyPrinter
+
 if __name__ == "__main__":
 
     utils.read_environment_file()
+
+    pp = PrettyPrinter(indent=2)
 
     c = load(load_token_opts)
 
     api = UserAPI(config=c)
 
+    print(utils.printable_banner("\"Me\" Endpoint"))
     me = api.me.requests()
-    print(me)
+    pp.pprint(dict(me))
+
+    print(utils.printable_banner("\"Personal Data\" Endpoint"))
     pdata = api.personal_data.requests()
-    print(pdata)
+    pp.pprint(dict(pdata))
+
+    print(utils.printable_banner("\"Portfolio\" Endpoint"))
     portfolio = api.portfolio.requests()
-    print(portfolio)
-
     positions = portfolio.positions
+    portfolio.pop("positions")
+    pp.pprint(dict(portfolio))
 
+    print(utils.printable_banner("\"Position\" Endpoint (Summed positions)"))
     df = positions.to_pandas()
     df["total"] = df.apply(lambda x: Decimal(x["quantity"]) * x["offer.amount"], axis=1)
-
-    base_currency_sum = df["total"].sum()
-    print(base_currency_sum, type(base_currency_sum))
+    assets = df["total"].sum()
+    print(f"Total assets of portfolio (no currency convert, careful): {assets}")
