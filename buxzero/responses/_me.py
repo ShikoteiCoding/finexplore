@@ -5,6 +5,7 @@ class Me(Response):
     """
     Me endpoint of bux. Get general account data.
     """
+
     @property
     def account_type(self) -> str:
         return self["accountType"]
@@ -23,4 +24,4 @@ class Me(Response):
 
     @property
     def nickname(self) -> str:
-        return self["profile"]["nickname"] or "" # Replace None by empty
+        return self["profile"]["nickname"] or ""  # Replace None by empty

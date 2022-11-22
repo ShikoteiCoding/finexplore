@@ -29,7 +29,7 @@ class UserAPI:
     @property
     def portfolio(self) -> Request[responses.Portfolio]:
         return Request(
-            url=f'{self.config.stocks_url}/portfolio-query/13/users/me/portfolio',
+            url=f"{self.config.stocks_url}/portfolio-query/13/users/me/portfolio",
             headers=self._headers,
             on_json=responses.Portfolio,
         )
@@ -37,10 +37,11 @@ class UserAPI:
     @property
     def personal_data(self) -> Request[responses.PersonalData]:
         return Request(
-            url=f'{self.config.stocks_url}/personal-data-service/13/user',
+            url=f"{self.config.stocks_url}/personal-data-service/13/user",
             headers=self._headers,
             on_json=responses.PersonalData,
         )
+
 
 @dataclass
 class GuestAPI:

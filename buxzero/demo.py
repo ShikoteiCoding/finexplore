@@ -16,11 +16,12 @@ if __name__ == "__main__":
 
     api = UserAPI(config=c)
 
-    #me = api.me.requests()
-    #pd = api.personal_data.requests()
+    # me = api.me.requests()
+    # pd = api.personal_data.requests()
     portfolio = api.portfolio.requests()
 
     positions = portfolio.positions
 
     df = positions.to_pandas()
-    print(df)
+
+    df.to_csv("positions.csv")
