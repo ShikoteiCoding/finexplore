@@ -3,12 +3,9 @@ from config import load_config as load, load_token_opts
 from _user import UserAPI
 
 import utils
-
-from pprint import PrettyPrinter
+import pandas as pd
 
 if __name__ == "__main__":
-
-    pp = PrettyPrinter(indent=2)
 
     utils.read_environment_file()
 
@@ -23,5 +20,6 @@ if __name__ == "__main__":
     positions = portfolio.positions
 
     df = positions.to_pandas()
+    df["total"] = df["quantity"] * df["offer.amount"]
 
-    df.to_csv("positions.csv")
+    print(df["total"].sum())
