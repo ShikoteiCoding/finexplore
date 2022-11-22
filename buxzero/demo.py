@@ -1,9 +1,9 @@
-from config import load_config as load, load_token_opts
+from bux.config import load_config as load, load_token_opts
 
-from _user import UserAPI
+from bux import UserAPI
 
 from decimal import Decimal
-import utils
+import bux.utils as utils
 import pandas as pd
 
 if __name__ == "__main__":
@@ -14,9 +14,12 @@ if __name__ == "__main__":
 
     api = UserAPI(config=c)
 
-    # me = api.me.requests()
-    # pd = api.personal_data.requests()
+    me = api.me.requests()
+    print(me)
+    pdata = api.personal_data.requests()
+    print(pdata)
     portfolio = api.portfolio.requests()
+    print(portfolio)
 
     positions = portfolio.positions
 

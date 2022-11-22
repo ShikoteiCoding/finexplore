@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 
 
-import responses
-from config import Config
-from _request import Request
+from . import responses
+from .config import Config
+from ._request import Request
 
 
 @dataclass
