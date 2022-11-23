@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 
-from typing import Mapping
+from typing import Mapping, Callable
 from types import MappingProxyType
 
 
@@ -27,25 +27,19 @@ class Config:
     token: str = ""
 
 
-def load_config(*opts) -> Config:
+def load_config(*opts: Callable) -> Config:
     c = Config()
-
     for opt in opts:
         opt(c)
     return c
 
 
-def load_token_opts(c: Config) -> Config:
-
+def load_token_opts(c: Config) -> None:
     c.token = get_required("BUX_TOKEN")
-
-    return c
 
 
 def get_required(var: str) -> str:
     env = os.getenv(var, "")
-
     if not env:
         raise MissingVariableException(f"Provide an environment variable for {env}")
-
     return env
