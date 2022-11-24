@@ -7,3 +7,4 @@ src/trading/alpaca-paper.env
 **/.ipynb_checkpoints/**
 /venv/
 buxzero/*.env
+buxzero/tests/*.env

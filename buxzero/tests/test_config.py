@@ -44,11 +44,3 @@ class Testconfig(unittest.TestCase):
         # Verify raised error if no variable
         os.environ["BUX_TOKEN"] = ""
         self.assertRaises(MissingVariableException, load, load_token_opts)
-
-
-class TestResponseMe(unittest.TestCase):
-    ...
-
-
-if __name__ == "__main__":
-    unittest.main()
