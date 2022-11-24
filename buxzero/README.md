@@ -37,5 +37,6 @@ python3 demo.py
 
 ## Test
 ```shell
-python3 test.py
+python3 -m unittest tests/test_config.py
+python3 -m unittest tests/test_user.py
 ```
