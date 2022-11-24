@@ -1,7 +1,9 @@
 import unittest
-
+import sys
 import os
 from types import MappingProxyType
+
+sys.path.append("..")
 
 from bux.config import (
     Config,
@@ -9,7 +11,6 @@ from bux.config import (
     load_token_opts,
     MissingVariableException,
 )
-
 
 AUTH_URL = "https://auth.getbux.com/api/3"
 STOCKS_URL = "https://stocks.prod.getbux.com"
