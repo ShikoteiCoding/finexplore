@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Any
 
-from ._response import Response
+from .response import Response
 
 
 class Price(Response):

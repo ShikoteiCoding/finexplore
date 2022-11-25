@@ -10,12 +10,12 @@ def test_me(api: bux.UserAPI) -> None:
     fields = {
         "accountStatus",
         "accountType",
-        "communicationConfiguration.monthlyTransactionsReportingEnabled",
+        "communicationConfiguration",
         "etfAgreementAccepted",
         "pinStatus",
         "profile.nickname",
         "profile.userId",
-        "reassessmentInfo.required",
+        "reassessmentInfo",
         "usMarketDataSubscriptionActivated",
     }
     assert_fields_exist(response, fields)
@@ -45,3 +45,24 @@ def test_personal_data(api: bux.UserAPI) -> None:
     assert_fields_exist(response, fields)
 
     assert_fields_have_getters(response, exclude={"countryOfResidence", "tobExempted"})
+
+def test_portfolio(api: bux.UserAPI) -> None:
+    response = api.portfolio.requests()
+
+    fields = {
+        'accountValue',
+        'allTimeDepositAndWithdraws',
+        'allTimeTradesAmount',
+        'availableCash',
+        'cashBalance',
+        'intraDayTradesAmount',
+        'investedAmount',
+        'marketsOpen',
+        'orders',
+        'positions',
+        'previousClosingAmount',
+        'reservedCash',
+    }
+    assert_fields_exist(response, fields)
+    
+    #assert_fields_have_getters(response, exclude={"countryOfResidence", "tobExempted"})

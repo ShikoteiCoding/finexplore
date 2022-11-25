@@ -1,4 +1,4 @@
-from ._response import Response
+from .response import Response
 
 
 class PersonalData(Response):
