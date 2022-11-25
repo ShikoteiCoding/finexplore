@@ -1,18 +1,30 @@
 import pytest
 
 import bux
-from .helpers import check_has_properties
+from .helpers import assert_fields_have_getters
 from .fixtures import api, config
 
 
 def test_me(api: bux.UserAPI) -> None:
-    me = api.me.requests()
+    response = api.me.requests()
+    fields = {
+        'accountStatus',
+        'usMarketDataSubscriptionActivated',
+        'pinStatus',
+        'communicationConfiguration',
+        'profile',
+        'etfAgreementAccepted',
+        'accountType',
+        'reassessmentInfo',
+    }
+    assert set(response) == fields
 
-    assert me.account_status == 'READY'
-    assert me.account_type == 'USER'
-    assert me.pin_status == 'ENABLED'
+    assert response.account_status == 'READY'
+    assert response.account_type == 'USER'
+    assert response.pin_status == 'ENABLED'
 
-    check_has_properties(
-        me,
-        [ "account_type", "account_status", "pin_status", "user_id", "nickname"]
+    assert_fields_have_getters(
+        response, 
+        exclude={"usMarketDataSubscriptionActivated", "etfAgreementAccepted", "communicationConfiguration", "reassessmentInfo", "nickname"},
+        unwrap={"profile"}
     )
