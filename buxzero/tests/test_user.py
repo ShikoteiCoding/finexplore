@@ -20,17 +20,28 @@ def test_me(api: bux.UserAPI) -> None:
     }
     assert_fields_exist(response, fields)
 
-    assert response.account_status == "READY", "The provided account is not ready to use."
+    assert (
+        response.account_status == "READY"
+    ), "The provided account is not ready to use."
     assert response.account_type == "USER"
     assert response.pin_status == "ENABLED"
 
     assert_fields_have_getters(
-        response, 
+        response,
         exclude={
-            "usMarketDataSubscriptionActivated", 
-            "etfAgreementAccepted", 
-            "communicationConfiguration.monthlyTransactionsReportingEnabled", 
-            "reassessmentInfo.required", 
-            "profile.nickname"
-        }
+            "usMarketDataSubscriptionActivated",
+            "etfAgreementAccepted",
+            "communicationConfiguration.monthlyTransactionsReportingEnabled",
+            "reassessmentInfo.required",
+            "profile.nickname",
+        },
     )
+
+
+def test_personal_data(api: bux.UserAPI) -> None:
+    response = api.personal_data.requests()
+
+    fields = {"countryOfResidence", "email", "firstName", "lastName", "tobExempted"}
+    assert_fields_exist(response, fields)
+
+    assert_fields_have_getters(response, exclude={"countryOfResidence", "tobExempted"})

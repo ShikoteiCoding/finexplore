@@ -6,36 +6,39 @@ from typing import Any
 
 import pandas as pd
 
+
 def flatten_dict(obj: dict) -> dict:
     output = {}
 
-    def flatten(item: dict | list | Any, name: str=''):
+    def flatten(item: dict | list | Any, name: str = ""):
         if type(item) is dict:
             for a in item:
-                flatten(item[a], name + a + '.')
+                flatten(item[a], name + a + ".")
         elif type(item) is list:
             i = 0
             for a in item:
-                flatten(a, name + str(i) + '.')
+                flatten(a, name + str(i) + ".")
                 i += 1
         else:
             output[name[:-1]] = item
 
     flatten(obj)
-    return output 
+    return output
 
-def assert_fields_exist(response: bux.Response, fields:set[str]=set()):
-    """ Assert json paths exist in object. """
+
+def assert_fields_exist(response: bux.Response, fields: set[str] = set()):
+    """Assert json paths exist in object."""
     uncalled = []
     for field in fields:
         json_path = parse(field)
         value = json_path.find(response)
         if not value:
             uncalled.append(field)
-    assert not uncalled, "Missing fields: " + ' '.join(uncalled)
+    assert not uncalled, "Missing fields: " + " ".join(uncalled)
 
-def assert_fields_have_getters(response: bux.Response, exclude:set[str]=set()):
-    """ Assert all response fields have getters to access. """
+
+def assert_fields_have_getters(response: bux.Response, exclude: set[str] = set()):
+    """Assert all response fields have getters to access."""
 
     # Call each declared properties
     dict_methods = dir(dict)
@@ -59,7 +62,7 @@ def assert_fields_have_getters(response: bux.Response, exclude:set[str]=set()):
         actual_values.append(value)
         if value not in values:
             uncalled.append(key)
-        
+
     # Check called property values not excluded are same as property values
     unfound = set(sorted(values)) - set(sorted(actual_values))
 
