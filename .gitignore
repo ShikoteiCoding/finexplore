@@ -9,3 +9,4 @@ src/trading/alpaca-paper.env
 buxzero/*.env
 buxzero/tests/*.env
 **/.pytest_cache
+**/debug.py
