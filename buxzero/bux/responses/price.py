@@ -30,3 +30,21 @@ class Price(Response):
     def __format__(self, spec: str) -> str:
         amount = format(self.amount, spec)
         return f"{amount} {self.currency}"
+
+    def __eq__(self, other: 'Price') -> bool:
+        return self.amount == other.amount and self.currency == other.currency
+
+    def __ge__(self, other: 'Price') -> bool:
+        return self.currency == other.currency and self.amount >= other.amount
+
+    def __gt__(self, other: 'Price') -> bool:
+        return self.currency == other.currency and self.amount > other.amount
+
+    def __le__(self, other: 'Price') -> bool:
+        return self.currency == other.currency and self.amount <= other.amount
+
+    def __lt__(self, other: 'Price') -> bool:
+        return self.currency == other.currency and self.amount < other.amount
+
+    def __ne__(self, other: 'Price') -> bool:
+        return self.currency != other.currency or self.amount != other.amount
