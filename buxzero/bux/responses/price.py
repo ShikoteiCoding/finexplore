@@ -32,6 +32,7 @@ class Price(Response):
         return f"{amount} {self.currency}"
 
     def __eq__(self, other: 'Price') -> bool:
+        if not isinstance(other, Price): return False
         return self.amount == other.amount and self.currency == other.currency
 
     def __ge__(self, other: 'Price') -> bool:
