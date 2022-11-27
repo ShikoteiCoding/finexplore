@@ -44,25 +44,35 @@ def test_personal_data(api: bux.UserAPI) -> None:
     fields = {"countryOfResidence", "email", "firstName", "lastName", "tobExempted"}
     assert_fields_exist(response, fields)
 
+    assert response.email is not None
+
     assert_fields_have_getters(response, exclude={"countryOfResidence", "tobExempted"})
+
 
 def test_portfolio(api: bux.UserAPI) -> None:
     response = api.portfolio.requests()
 
     fields = {
-        'accountValue',
-        'allTimeDepositAndWithdraws',
-        'allTimeTradesAmount',
-        'availableCash',
-        'cashBalance',
-        'intraDayTradesAmount',
-        'investedAmount',
-        'marketsOpen',
-        'orders',
-        'positions',
-        'previousClosingAmount',
-        'reservedCash',
+        "accountValue",
+        "allTimeDepositAndWithdraws",
+        "allTimeTradesAmount",
+        "availableCash",
+        "cashBalance",
+        "intraDayTradesAmount",
+        "investedAmount",
+        "marketsOpen",
+        "orders",
+        "positions",
+        "previousClosingAmount",
+        "reservedCash",
     }
     assert_fields_exist(response, fields)
-    
-    #assert_fields_have_getters(response, exclude={"countryOfResidence", "tobExempted"})
+
+    assert response.available_cash.amount >= 0
+    assert response.cash_balance.amount >= 0
+    assert response.intra_day_trades_amount.amount >= 0
+    assert response.invested_amount.amount >= 0
+    assert response.previous_closing_amount.amount >= 0
+    assert response.reserved_cash.amount >= 0
+
+    assert_fields_have_getters(response, pop={"orders", "positions"})
