@@ -76,3 +76,8 @@ def test_portfolio(api: bux.UserAPI) -> None:
     assert response.reserved_cash.amount >= 0
 
     assert_fields_have_getters(response, pop={"orders", "positions"})
+
+    positions = response.positions
+
+    for pos in positions:
+        assert_fields_have_getters(pos, exclude={"security.tickerCode"}, pop={"position"})
