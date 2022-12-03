@@ -8,8 +8,10 @@ from bux.responses import Price
 import pandas as pd
 
 
-def format_prices(obj: dict):
-    """Transform subdicts with currency, decimals and amount as Price objects."""
+def format_prices_dicts(obj: dict) -> dict:
+    """
+    Transform dict with currency, decimals and amount keys to Price objects for comparison.
+    """
 
     def format(item: Any) -> Any:
         for k, v in item.copy().items():
@@ -25,6 +27,9 @@ def format_prices(obj: dict):
 
 
 def trim_root_keys(obj: dict, keys: set[str]):
+    """
+    Remove keys if they are in the root container.
+    """
     output = obj.copy()
     for key in keys:
         output.pop(key)
@@ -32,13 +37,12 @@ def trim_root_keys(obj: dict, keys: set[str]):
 
 
 def flatten_dict(obj: dict, sep: str = ".") -> dict:
-    """Flat dictionnary nested keys"""
+    """
+    Flat dictionnary nested keys.
+    """
     output = {}
 
     def flatten(item: dict | list | Any, name: str = ""):
-        # print(name)
-        # if isinstance(item, bux.responses.Price):
-        #    output[name[:-1]] = item
         if type(item) is dict:
             for a in item:
                 flatten(item[a], name + a + sep)
@@ -55,7 +59,9 @@ def flatten_dict(obj: dict, sep: str = ".") -> dict:
 
 
 def assert_fields_exist(response: bux.Response, fields: set[str] = set()):
-    """Assert json paths exist in object."""
+    """
+    Assert json paths exist in object.
+    """
     uncalled = []
     for field in fields:
         json_path = parse(field)
@@ -68,7 +74,9 @@ def assert_fields_exist(response: bux.Response, fields: set[str] = set()):
 def assert_fields_have_getters(
     response: bux.Response, exclude: set[str] = set(), pop: set[str] = set()
 ):
-    """Assert all response fields have getters to access."""
+    """
+    Assert all response fields have getters to access.
+    """
 
     # Call each declared properties
     dict_methods = dir(dict)
@@ -79,8 +87,6 @@ def assert_fields_have_getters(
         if prop.startswith("_"):
             continue
         value = getattr(response, prop)
-        # if isinstance(value, bux.Response):
-        #    value = dict(value)
         if not value:
             continue
         values.append(value)
@@ -88,9 +94,9 @@ def assert_fields_have_getters(
     # Remove root keys
     response_dict = trim_root_keys(dict(response), pop)
 
-    # Compare response actual values to called properties values
+    # Compare response (key, values) to called properties values
     uncalled = []
-    price_formatted = format_prices(response_dict)
+    price_formatted = format_prices_dicts(response_dict)
     flat_formatted = flatten_dict(price_formatted)
     for key, value in flat_formatted.items():
         if key in exclude:
@@ -98,5 +104,4 @@ def assert_fields_have_getters(
         if value not in values:
             uncalled.append(key)
 
-    # Check for nested fields
     assert not uncalled, "Missing fields: " + " ".join(uncalled)

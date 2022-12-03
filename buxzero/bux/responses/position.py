@@ -66,6 +66,10 @@ class Position(Response):
         return self["security"]["securityType"]
 
     @property
+    def ticker_code(self) -> str:
+        return self["security"]["tickerCode"]
+
+    @property
     def buy_amount(self) -> Price:
         return Price(self._pos["allTimeChanges"]["buyAmount"])
 

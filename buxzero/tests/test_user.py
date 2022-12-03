@@ -80,4 +80,4 @@ def test_portfolio(api: bux.UserAPI) -> None:
     positions = response.positions
 
     for pos in positions:
-        assert_fields_have_getters(pos, exclude={"security.tickerCode"}, pop={"position"})
+        assert_fields_have_getters(pos, pop={"position"})
