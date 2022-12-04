@@ -42,6 +42,14 @@ class UserAPI:
             on_json=responses.Portfolio,
         )
 
+    @property
+    def inbox(self) -> Request[list[responses.Message]]:
+        return Request(
+            url=f"{self.config.stocks_url}/inbox-query/13/users/me/inbox",
+            headers=self._headers,
+            on_json=lambda data: [responses.Message(m) for m in data],
+        )
+
 
 @dataclass
 class GuestAPI:
