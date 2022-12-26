@@ -33,6 +33,7 @@ def test_me(api: bux.UserAPI) -> None:
             "etfAgreementAccepted",
             "communicationConfiguration.monthlyTransactionsReportingEnabled",
             "reassessmentInfo.required",
+            "reassessmentInfo.dueDate",
             "profile.nickname",
         },
     )

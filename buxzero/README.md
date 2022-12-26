@@ -29,6 +29,13 @@ If you don't have a token yet:
 python3 -m bux get-token
 ```
 
+### Use Token
+Once your token retrieved. Store it as an environment variable BUX_TOKEN in a file.
+Default file location is :
+```shell
+$HOME/.bux-token.env
+```
+
 ### Demo
 In order to successfully run the demo, please make sure to have a token.env file in your root folder with your bux token stored inside.
 ```shell

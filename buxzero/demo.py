@@ -19,21 +19,21 @@ if __name__ == "__main__":
 
     api = UserAPI(config=c)
 
-    print(utils.printable_banner("\"Me\" Endpoint"))
+    print(utils.printable_banner('"Me" Endpoint'))
     me = api.me.requests()
     pp.pprint(dict(me))
 
-    print(utils.printable_banner("\"Personal Data\" Endpoint"))
+    print(utils.printable_banner('"Personal Data" Endpoint'))
     pdata = api.personal_data.requests()
     pp.pprint(dict(pdata))
 
-    print(utils.printable_banner("\"Portfolio\" Endpoint"))
+    print(utils.printable_banner('"Portfolio" Endpoint'))
     portfolio = api.portfolio.requests()
     positions = portfolio.positions
     portfolio.pop("positions")
     pp.pprint(dict(portfolio))
 
-    print(utils.printable_banner("\"Position\" Endpoint (Summed positions)"))
+    print(utils.printable_banner('"Position" Endpoint (Summed positions)'))
     df = positions.to_pandas()
     df["total"] = df.apply(lambda x: Decimal(x["quantity"]) * x["offer.amount"], axis=1)
     assets = df["total"].sum()
