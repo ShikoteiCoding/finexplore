@@ -5,6 +5,10 @@ import asyncio
 from typing import Type, TypeVar
 from argparse import ArgumentParser
 from typing import Any, TextIO
+from pathlib import Path
+
+from bux.config import load_config as load, load_token_opts
+from bux.utils import read_env_file, DEFAULT_ENV_PATH
 
 commands: dict[str, Type[Command]] = dict()
 
@@ -29,6 +33,10 @@ class Command:
     @staticmethod
     def init_parser(parser: ArgumentParser) -> None:
         return
+
+    def load_config_env(self, *, file_path: str | Path = DEFAULT_ENV_PATH):
+        read_env_file(file_path=file_path)
+        self.config = load(load_token_opts)
 
     def run(self):
         return asyncio.run(self.run_async())  # type: ignore

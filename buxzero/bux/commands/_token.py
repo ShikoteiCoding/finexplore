@@ -1,7 +1,6 @@
-#from ..user import GuestAPI
 import bux
 
-from ._commands import Command, register
+from ._command import Command, register
 
 
 @register
