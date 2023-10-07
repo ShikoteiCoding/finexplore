@@ -1,10 +1,12 @@
-import utils
+
 import psycopg2
 import dotenv
 import requests
 from psycopg2 import sql
 import json
 import datetime
+
+import utils
 import ingest
 from config import load_config as load, load_db_opts, load_polygon_opts
 
@@ -33,7 +35,5 @@ if __name__ == "__main__":
     ingest.ingest_tickers_daily_prices(connection, tickers, start, end, reload=reload)
     ingest.ingest_tickers_monthly_prices(connection, tickers, start, end, reload=reload)
     ingest.ingest_tickers_opening_minute_prices(connection, tickers, start, end, config=config, reload=reload)
-    
-    #print(data)
 
     connection.close()

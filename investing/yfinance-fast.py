@@ -1,9 +1,5 @@
 import pandas as pd
-import ssl
-
-from urllib.request import Request, urlopen
-
-#ssl._create_default_https_context = ssl._create_unverified_context
+import requests
 
 url = "https://www.financecharts.com/stocks/AAPL/growth/free-cash-flow"
 
@@ -27,10 +23,9 @@ class Ticker:
 
         url = self.__base_url.format(symbol=self.symbol, endpoint=endpoint)
 
-        req = Request(url, headers=self.__headers)
-        content = urlopen(req)
+        req = requests.get(url)#, headers=self.__headers)
 
-        print(content)
+        print(req.content)
 
         return pd.DataFrame()
 
@@ -38,10 +33,6 @@ class Ticker:
 
 if __name__ == "__main__":
 
-    print("here")
-
     t = Ticker("AAPL")
-
-    print(t)
 
     t.free_cash_flow_history()
