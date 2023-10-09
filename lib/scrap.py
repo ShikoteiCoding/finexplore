@@ -12,7 +12,7 @@ import requests
 USER_AGENT_HEADER = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 METADATA = {
     "s&p500": {
-        "columns": ["symbol","company","sector"],
+        "columns": ["symbol", "company", "sector"],
         "index_label": "index"
     },
     "earnings_history": {
